@@ -3,19 +3,48 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
 <title>2D Sierpinski Gasket</title>
+<script type="text/javascript" src="./scripts/myUIWidgets.js"></script>
 <script type="text/javascript" src="./scripts/MathG.js"></script>
 <script type="text/javascript" src="./scripts/Webgl_ SierpinskiGasket.js"></script>
 <script type="text/javascript" src="./scripts/initShaders.js"></script>
 <script type="text/javascript" src="./scripts/shadersInitiator.js"></script>
+<link rel="stylesheet" type="text/css"href="./styles/bootstrap_3.3.5.min.css">
+<link rel="stylesheet" type="text/css" href="./styles/myWebGL.css">
 </head>
 
 <body>
-<form><input type="range" id ="pN" value="0" min="0" max="10000" />
-    number of points: <span id="tPn">0</span>
-   </form>
-   
-<canvas id="gl-canvas" width="512" height="512">
-    HTML5_canvas_NO_suppurted
-</canvas>
+
+<div class="container" id="viewport_1">
+  <button class="btn btn-primary" id="btnToggleForm_viewport_1">Edit Shader</button>
+   <div id="shaderInput_1">
+        <form>
+        <textarea id="vertexShader_1" height>
+        attribute vec4 vPosition;
+        void main()
+        {
+            gl_PointSize = 1.0;
+            gl_Position = vPosition;
+        }
+        </textarea>
+        <textarea id="fragmentShader_1">
+                precision mediump float;
+                void main()
+                {
+                 gl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );
+                }
+        </textarea>
+               <div><button class="btn btn-success" id="btnUpdate_viewport_1">Update Shader</button></div>
+        </form>
+   </div>
+      <div>
+        <form class="inputRange">
+                <input type="range" id ="pN" value="0" min="0" max="10000" />
+                    number of points: <span id="tPn">0</span>
+                </form>
+            <canvas id="gl-canvas_1" width="512" height="512">
+                HTML5_canvas_NO_suppurted
+            </canvas>
+  </div>
+</div>
 </body>
 </html>

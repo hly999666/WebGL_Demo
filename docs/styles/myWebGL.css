@@ -1,0 +1,10 @@
+.viewport{
+margin: 2vh auto;
+}
+textarea{
+    min-width:48%;
+    min-height:40vh; 
+}
+.inputRange{
+    max-width: 512px;
+}

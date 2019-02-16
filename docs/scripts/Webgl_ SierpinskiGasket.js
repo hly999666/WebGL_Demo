@@ -7,15 +7,16 @@ var pointColor = vec4(1.0, 0.0, 0.0, 1.0);
 var shadersProgram;
 var bufferId;
 var numPoints;
+var viewPortUIControler=[];
 window.onload=function init(){
-    cnv = document.getElementById( "gl-canvas" );
+    cnv = document.getElementById( "gl-canvas_1" );
    
     //document.getElementById("BTN").addEventListener("click",drawSG);
     //ctx2D=cnv.getContext("2d");
     document.getElementById("pN").addEventListener("change",drawSG);
     gl = cnv.getContext( "webgl" );
     //settingCanvas();
-   
+    setupUI();
     configureWebGL();
     load_Shaders();
 }
@@ -23,6 +24,10 @@ function configureWebGL(){
     gl.viewport( 0, 0, cnv.width, cnv.height);
     gl.clearColor(0.8, 0.8, 0.8, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
+}
+function setupUI(){
+    viewPortUIControler.push(ButtonToHideDiv);
+    viewPortUIControler[0].setup("btnToggleForm_viewport_1","shaderInput_1");
 }
 function load_Shaders(){
     shadersProgram = loadShaders( gl, "v21","f21" );
