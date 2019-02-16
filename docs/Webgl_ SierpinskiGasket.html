@@ -12,14 +12,14 @@
 
 <body>
 
-<div class="container" id="viewport_1">
- <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block" id="btnToggleForm_viewport_1">Edit Shader</button></div>
-   <div id="shaderInput_1">
+<div class="container" id="WebGLModule_1">
+ <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
+   <div class="shaderInput">
         <div class="shaderInput_Grid">
                 <div class="GridItem_1">
                 <div>
                  <h4>vertex shader</h4>
-                 <textarea id="vertexShader_1" height>
+                 <textarea class="vertexShader" height>
                          attribute vec4 vertexPosition;
                          void main()
                          {
@@ -32,7 +32,7 @@
              <div class="GridItem_2">
                      <div>
                       <h4>fragment shader</h4>
-                      <textarea id="fragmentShader_1">
+                      <textarea class="fragmentShader">
                              precision mediump float;
                              void main()
                              {
@@ -42,7 +42,7 @@
                   </div>
              </div>
              </div>
-    <div class="myBigBtnDiv"><button class="btn btn-success btn-block" id="btnUpdateShader_viewport_1">Update Shader</button></div>
+    <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport">Update Shader</button></div>
    </div>
       <div class="canvasDiv">
         <form class="inputRange">

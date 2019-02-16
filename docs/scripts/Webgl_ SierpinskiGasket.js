@@ -3,16 +3,29 @@ var Points;
 var ctx2D;
 var gl;
 var cnv;
-var pointColor = vec4(1.0, 0.0, 0.0, 1.0);
 var shadersProgram;
 var bufferId;
 var numPoints;
 var viewPortUIControler=[];
+
+var WebGLModuleController={
+   cantainerID:undefined,
+   data:undefined,
+   cnv:undefined,
+   gl:undefined,
+   shadersProgram:undefined,
+   bufferId:undefined,
+   inputVar:{},
+   viewPortUIControler:undefined,
+   setup:function(_cantainerID){
+    cantainerID=cantainerID;
+   }
+}
 window.onload=function init(){
     cnv = document.getElementById( "gl-canvas_1" );
    
     //document.getElementById("BTN").addEventListener("click",drawSG);
-    //ctx2D=cnv.getContext("2d");
+    //var ctx2D=cnv.getContext("2d");
     document.getElementById("pN").addEventListener("change",drawSG);
     gl = cnv.getContext( "webgl" );
     //settingCanvas();
@@ -27,12 +40,15 @@ function configureWebGL(){
 }
 function setupUI(){
     viewPortUIControler.push(ButtonToHideDiv);
-    viewPortUIControler[0].setup("btnToggleForm_viewport_1","shaderInput_1");
-    document.getElementById("btnUpdateShader_viewport_1").addEventListener("click",function(){load_Shaders(true);});
+    viewPortUIControler[0].setup("#WebGLModule_1"+" .btnToggleForm_viewport","#WebGLModule_1"+" .shaderInput");
+    document.querySelector("#WebGLModule_1"+" .btnUpdateShader_viewport").addEventListener("click",function(){
+        load_Shaders();
+        drawSG();
+    });
 }
-function load_Shaders(isUpdate){
-    if(isUpdate){updateTextArea("vertexShader_1");updateTextArea("fragmentShader_1");}
-    shadersProgram = loadShaders( gl, "vertexShader_1","fragmentShader_1" );
+function load_Shaders(){
+    updateTextArea("#WebGLModule_1"+" .vertexShader");updateTextArea("#WebGLModule_1"+" .fragmentShader");
+    shadersProgram = loadShaders( gl, "#WebGLModule_1"+" .vertexShader","#WebGLModule_1"+" .fragmentShader" );
     gl.useProgram( shadersProgram ); 
 }
 function drawSG(){
@@ -115,14 +131,14 @@ function mainRender(){
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.drawArrays( gl.POINTS, 0, numPoints );
 }
-function loadShaders(gl, vertexShaderId, fragmentShaderId ){
+function loadShaders(gl, vertexShaderQ, fragmentShaderQ){
     var vertShdr;
     var fragShdr;
-    var vertElem =document.getElementById(vertexShaderId).innerHTML;
+    var vertElem =document.querySelector(vertexShaderQ).innerHTML;
     vertShdr = gl.createShader( gl.VERTEX_SHADER );
     gl.shaderSource( vertShdr, vertElem);
     gl.compileShader( vertShdr );
-    var fragElem =document.getElementById(fragmentShaderId).innerHTML;
+    var fragElem =document.querySelector(fragmentShaderQ).innerHTML;
     fragShdr = gl.createShader( gl.FRAGMENT_SHADER );
     gl.shaderSource( fragShdr, fragElem);
     gl.compileShader( fragShdr );

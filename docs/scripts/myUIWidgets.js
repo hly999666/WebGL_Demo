@@ -25,9 +25,9 @@ var ButtonToHideDiv={
        div.style.display="none";    
      }
     },
-  setup:function(_btnId,_divId,onclick){
-    btn=document.getElementById(_btnId);
-    div=document.getElementById(_divId);
+  setup:function(_btnQ,_divQ,onclick){
+    btn=document.querySelector(_btnQ)
+    div=document.querySelector(_divQ);
     btnInner=btn.innerText;
     divDisplay=div.style.display;
     if(onclick!=undefined){this.onClickEvent=onclick;};
@@ -35,7 +35,7 @@ var ButtonToHideDiv={
     btn.addEventListener("click",this.onClickEvent);
   }
 }
-function updateTextArea(textAreaID){
-  var elem=document.getElementById(textAreaID);
+function updateTextArea(textAreaQ){
+  var elem=document.querySelector(textAreaQ);
   elem.innerHTML=elem.value;
 }
