@@ -18,7 +18,7 @@ window.onload=function init(){
     //settingCanvas();
     setupUI();
     configureWebGL();
-    load_Shaders();
+    
 }
 function configureWebGL(){
     gl.viewport( 0, 0, cnv.width, cnv.height);
@@ -28,12 +28,15 @@ function configureWebGL(){
 function setupUI(){
     viewPortUIControler.push(ButtonToHideDiv);
     viewPortUIControler[0].setup("btnToggleForm_viewport_1","shaderInput_1");
+    document.getElementById("btnUpdateShader_viewport_1").addEventListener("click",function(){load_Shaders(true);});
 }
-function load_Shaders(){
-    shadersProgram = loadShaders( gl, "v21","f21" );
+function load_Shaders(isUpdate){
+    if(isUpdate){updateTextArea("vertexShader_1");updateTextArea("fragmentShader_1");}
+    shadersProgram = loadShaders( gl, "vertexShader_1","fragmentShader_1" );
     gl.useProgram( shadersProgram ); 
 }
 function drawSG(){
+    load_Shaders(true);
     //console.log(document.getElementById("pN").value);
     var np=Number(document.getElementById("pN").value);
     document.getElementById("tPn").innerText=" "+np;
@@ -42,17 +45,18 @@ function drawSG(){
         return;
     }
     Points= producePoints(np);
-    loadData(Points);
+    sendDataToGPU(Points);
     associateDataInShaders();
     mainRender();
     
 }
-function loadData(v){
+function sendDataToGPU(v){
     bufferId = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, bufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flattenArrayOfVectors(v), gl.STATIC_DRAW );
+    
 }
-function associateDataInShaders(v){
+function associateDataInShaders(){
     var vertexPositions = gl.getAttribLocation( shadersProgram, "vertexPosition" );
     gl.vertexAttribPointer( vertexPositions, 3, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vertexPositions );
@@ -110,4 +114,22 @@ function producePointsV2(n){
 function mainRender(){
     gl.clear( gl.COLOR_BUFFER_BIT );
     gl.drawArrays( gl.POINTS, 0, numPoints );
+}
+function loadShaders(gl, vertexShaderId, fragmentShaderId ){
+    var vertShdr;
+    var fragShdr;
+    var vertElem =document.getElementById(vertexShaderId).innerHTML;
+    vertShdr = gl.createShader( gl.VERTEX_SHADER );
+    gl.shaderSource( vertShdr, vertElem);
+    gl.compileShader( vertShdr );
+    var fragElem =document.getElementById(fragmentShaderId).innerHTML;
+    fragShdr = gl.createShader( gl.FRAGMENT_SHADER );
+    gl.shaderSource( fragShdr, fragElem);
+    gl.compileShader( fragShdr );
+    
+    var program = gl.createProgram();
+    gl.attachShader( program, vertShdr );
+    gl.attachShader( program, fragShdr );
+    gl.linkProgram( program );
+    return program;
 }
