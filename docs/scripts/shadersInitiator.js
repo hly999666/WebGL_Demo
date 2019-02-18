@@ -8,6 +8,7 @@ function loadShaders(gl, vertexShaderQ, fragmentShaderQ){
     var vertShdr;
     var fragShdr;
     var vertElem =document.querySelector(vertexShaderQ).innerHTML;
+    //console.log(vertElem);
     vertShdr = gl.createShader( gl.VERTEX_SHADER );
     gl.shaderSource( vertShdr, vertElem);
     gl.compileShader( vertShdr );

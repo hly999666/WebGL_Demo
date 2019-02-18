@@ -31,3 +31,9 @@ textarea{
 h4{
     text-align: center;
 }
+.borderWider{
+    border-width: 0.5em;
+}
+.myContainer{
+    padding: 0px;
+}

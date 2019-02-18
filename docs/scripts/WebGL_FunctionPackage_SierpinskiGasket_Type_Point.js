@@ -24,20 +24,23 @@ var FunctionPackage_SierpinskiGasket_Type_Point=
     envir.viewPortUIControler.setup(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
     document.querySelector(envir.cantainerID+" .inputRangeElem").addEventListener("change",this.mainCallBackDraw);
     document.querySelector(envir.cantainerID+" .btnUpdateShader_viewport").addEventListener("click",this.mainCallBackDraw);
+    this.mainCallBackDraw();
     },
     getInput:function(envir){
         var sliderBar=document.querySelector(envir.cantainerID+" .inputRangeElem");
-        var np=Number(sliderBar.value);   
-        var numsOfPoints=document.querySelector(envir.cantainerID+" .numsOfPoints");
-        numsOfPoints.innerText=" "+np;
-        if(np<=0){
+        var input_sliderBar=Number(sliderBar.value);   
+        var inputDisplay=document.querySelector(envir.cantainerID+" .inputDisplay");
+        inputDisplay.innerText=" "+input_sliderBar;
+        envir.inputVar.input_sliderBar=input_sliderBar;
+        if(input_sliderBar<=0){
             envir.gl.clear(envir.gl.COLOR_BUFFER_BIT );
             return;
         };
-        envir.inputVar.numsOfPoinnts=np;
     },
     produceGeometryData:function(envir){
-        var numPoints = envir.inputVar.numsOfPoinnts;
+        envir.dataSet.Points=[];
+        var numPoints = envir.inputVar.input_sliderBar;
+        if(envir.inputVar.input_sliderBar==0)return;
         var vertices = [
         vec3(-1.0, -1.0,0.0),
         vec3(0.0, 1.0,0.0),
@@ -65,18 +68,21 @@ var FunctionPackage_SierpinskiGasket_Type_Point=
         envir.dataSet.Points=points;
     },
     sendDataToGPU:function(envir){
+        if(envir.dataSet.Points.length==0)return;
         envir.bufferId =  envir.gl.createBuffer();
         envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  envir.bufferId );
         envir.gl.bufferData(  envir.gl.ARRAY_BUFFER, flattenArrayOfVectors( envir.dataSet.Points),  envir.gl.STATIC_DRAW );
     },
     associateDataInShaders:function(envir){
-        var vertexPositions = envir.gl.getAttribLocation(  envir.shadersProgram, "vertexPosition" );
+        var vertexPositions = envir.gl.getAttribLocation(envir.shadersProgram, "vertexPosition" );
         envir.gl.vertexAttribPointer( vertexPositions, 3,  envir.gl.FLOAT, envir, 0, 0 );
-        envir.gl.enableVertexAttribArray( vertexPositions );
+        envir.gl.enableVertexAttribArray(vertexPositions);
     },
     mainRender:function(envir){
-        envir.gl.clear(  envir.gl.COLOR_BUFFER_BIT );
-        envir.gl.drawArrays(envir.gl.POINTS, 0, envir.inputVar.numsOfPoinnts);
+        if(envir.inputVar.input_sliderBar!=0){
+            envir.gl.clear(  envir.gl.COLOR_BUFFER_BIT );
+            envir.gl.drawArrays(envir.gl.POINTS, 0, envir.inputVar.input_sliderBar);
+        }
     }
 }
 
