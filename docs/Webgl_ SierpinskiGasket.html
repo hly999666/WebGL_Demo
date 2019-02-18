@@ -7,15 +7,18 @@
 <script type="text/javascript" src="./scripts/MathG.js"></script>
 <script type="text/javascript" src="./scripts/Webgl_ SierpinskiGasket.js"></script>
 <script type="text/javascript" src="./scripts/shadersInitiator.js"></script>
+
 <script type="text/javascript" src="./scripts/WebGL_FunctionPackage_SierpinskiGasket_Type_Point.js"></script>
+<script type="text/javascript" src="./scripts/WebGL_FunctionPackage_SierpinskiGasket_Type_Polygon.js"></script>
 <link rel="stylesheet" type="text/css"href="./styles/bootstrap_3.3.5.min.css">
 <link rel="stylesheet" type="text/css" href="./styles/myWebGL.css">
 </head>
 
 <body>
 
-<div class="container" id="WebGLModule_1">
- <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
+<div class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
+        <div class="panel-heading"> <h3 class="panel-title">Type : Point</h3></div>
+        <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
    <div class="shaderInput">
         <div class="shaderInput_Grid">
                 <div class="GridItem_1">
@@ -49,12 +52,55 @@
       <div class="canvasDiv">
         <form class="inputRange">
                 <input class="inputRangeElem" type="range"  value="0" min="0" max="10000" />
-                <div>number of points: <span class="numsOfPoints">0</span></div>
+                <div class="inputDisplay1Div">number of points: <span class="inputDisplay1">0</span></div>
                 </form>
             <canvas class="gl-canvas"  width="512" height="512" >
                 HTML5_canvas_NO_suppurted
         </canvas>
   </div>
 </div>
+
+<div class="container myContainer panel panel-success borderWider" id="WebGLModule_2">
+        <div class="panel-heading"> <h3 class="panel-title">Type : Polygon</h3></div>
+        <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
+   <div class="shaderInput">
+        <div class="shaderInput_Grid">
+                <div class="GridItem_1">
+                <div>
+                 <h4>vertex shader</h4>
+                 <textarea class="vertexShader" height>
+                         attribute vec4 vertexPosition;
+                         void main()
+                         {
+                             gl_PointSize = 5.0;
+                             gl_Position = vertexPosition;
+                         }
+                        </textarea>
+             </div>
+             </div>
+             <div class="GridItem_2">
+                     <div>
+                      <h4>fragment shader</h4>
+                      <textarea class="fragmentShader">
+                             precision mediump float;
+                             void main()
+                             {
+                              gl_FragColor = vec4( 0.9,0.9, 0.0, 1.0 );
+                             }
+                     </textarea>
+                  </div>
+             </div>
+             </div>
+    <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport">Update Shader</button></div>
+   </div>
+      <div class="canvasDiv">
+        <form class="inputRange">
+                <input class="inputRangeElem" type="range"  value="0" min="0" max="9" />
+                <div class="inputDisplay1Div">Dividing Level: <span class="inputDisplay1">0</span></div>
+                </form>
+            <canvas class="gl-canvas"  width="512" height="512" >
+                HTML5_canvas_NO_suppurted
+        </canvas>
+  </div>
 </body>
 </html>
