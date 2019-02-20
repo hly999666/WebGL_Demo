@@ -18,11 +18,9 @@ function FunctionPackage_SierpinskiGasket_TypePoint2D_Constructor(){
             envir.shadersProgram=configShaders(envir.gl, envir.cantainerID);
             fp.produceGeometryData(envir);
             fp.sendDataToGPU(envir);
-            fp.associateDataInShaders(envir);
             fp.mainRender(envir);
         }
-        envir.viewPortUIControler=Object.create(ButtonToHideDivProto);
-        envir.viewPortUIControler.setup(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
+        envir.viewPortUIControler=ButtonToHideDivControllerConstructor(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
         document.querySelector(envir.cantainerID+" .inputRangeElem").addEventListener("change",this.mainCallBackDraw);
         document.querySelector(envir.cantainerID+" .btnUpdateShader_viewport").addEventListener("click",this.mainCallBackDraw);
         },
@@ -65,17 +63,19 @@ function FunctionPackage_SierpinskiGasket_TypePoint2D_Constructor(){
             envir.dataSet.Points=points;
         },
         sendDataToGPU:function(envir){
-            envir.bufferId =  envir.gl.createBuffer();
-            envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  envir.bufferId );
+           var bufferId=  envir.gl.createBuffer();
+            envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  bufferId);
             envir.gl.bufferData(  envir.gl.ARRAY_BUFFER, flattenArrayOfVectors( envir.dataSet.Points),  envir.gl.STATIC_DRAW );
+            envir.bufferIds.vPos=bufferId;
+            this.associateCurrentDataInShaders(envir,"vertexPosition");
         },
-        associateDataInShaders:function(envir){
-            var vertexPositions = envir.gl.getAttribLocation(  envir.shadersProgram, "vertexPosition" );
-            envir.gl.vertexAttribPointer( vertexPositions, 3,  envir.gl.FLOAT, envir, 0, 0 );
-            envir.gl.enableVertexAttribArray( vertexPositions );
+        associateCurrentDataInShaders:function(envir,nameInShader){
+            var attrLoc = envir.gl.getAttribLocation(  envir.shadersProgram,nameInShader );
+            envir.gl.vertexAttribPointer( attrLoc, 3,  envir.gl.FLOAT, false, 0, 0 );
+            envir.gl.enableVertexAttribArray( attrLoc );
         },
-        mainRender:function(envir){
-            envir.gl.clear(  envir.gl.COLOR_BUFFER_BIT );
+        mainRender:function(envir){ 
+            envir.gl.clear( envir.gl.COLOR_BUFFER_BIT);
             envir.gl.drawArrays(envir.gl.POINTS, 0, envir.inputVar.sliderBarInput);
         }
     }
@@ -87,20 +87,7 @@ function FunctionPackage_SierpinskiGasket_TypePoint2D_Constructor(){
 function FunctionPackage_SierpinskiGasket_TypePolygon2D_Constructor(){
 
     var FunctionPackage=FunctionPackage_SierpinskiGasket_TypePoint2D_Constructor();
-    function produceTriangles(a,b,c,level,Points){
-        if(level==0){
-            Points.push(a);
-            Points.push(b);
-            Points.push(c);
-            return;
-        }
-        var ab = mix(a, b, 0.5);
-        var bc = mix(b, c, 0.5);
-        var ca = mix(c, a, 0.5);
-        produceTriangles(a,ab,ca,level-1,Points);
-        produceTriangles(b,ab,bc,level-1,Points);
-        produceTriangles(c,bc,ca,level-1,Points);
-    }
+   
     FunctionPackage.produceGeometryData=function(envir){
         //console.log("on Type_Polygon");
         var verticesBasic = [
@@ -109,8 +96,22 @@ function FunctionPackage_SierpinskiGasket_TypePolygon2D_Constructor(){
             vec3(1.0, -1.0,0.0)
             ];
         envir.dataSet.Points=[];
+        function produceTriangles(a,b,c,level){
+            if(level==0){
+                envir.dataSet.Points.push(a);
+                envir.dataSet.Points.push(b);
+                envir.dataSet.Points.push(c);
+                return;
+            }
+            var ab = mix(a, b, 0.5);
+            var bc = mix(b, c, 0.5);
+            var ca = mix(c, a, 0.5);
+            produceTriangles(a,ab,ca,level-1);
+            produceTriangles(b,ab,bc,level-1);
+            produceTriangles(c,bc,ca,level-1);
+        }
         var level = envir.inputVar.sliderBarInput;
-        produceTriangles(verticesBasic[0],verticesBasic[1],verticesBasic[2],level,envir.dataSet.Points);
+        produceTriangles(verticesBasic[0],verticesBasic[1],verticesBasic[2],level);
     }
     
     FunctionPackage.mainRender=function(envir){
@@ -123,6 +124,7 @@ function FunctionPackage_SierpinskiGasket_TypePolygon2D_Constructor(){
     
     
     }
+
     function FunctionPackage_SierpinskiGasket_TypePoint3D_Constructor(){
 
         var FunctionPackage=FunctionPackage_SierpinskiGasket_TypePoint2D_Constructor();
@@ -167,3 +169,93 @@ function FunctionPackage_SierpinskiGasket_TypePolygon2D_Constructor(){
         
         
         }
+function FunctionPackage_SierpinskiGasket_TypePolygon3D_Constructor(){
+    var FunctionPackage=FunctionPackage_SierpinskiGasket_TypePolygon2D_Constructor();
+    FunctionPackage.configureWebGL=function(envir){
+        envir.gl.enable(envir.gl.DEPTH_TEST);
+        envir.gl.viewport( 0, 0, envir.cnv.width,  envir.cnv.height);
+        envir.gl.clearColor(0.8, 0.8, 0.8, 1.0);
+        envir.gl.clear(envir.gl.COLOR_BUFFER_BIT);
+
+    };
+    FunctionPackage.produceGeometryData=function(envir){
+
+        var vertices = [
+            vec3(0.0, 0.0,0.0),
+            vec3(-1.0, -1.0,1.0),
+            vec3(0.0, 1.0,1.0),
+            vec3(1.0, -1.0,1.0)
+           
+            ];
+        /*
+        
+        
+        
+        
+        
+        
+        */
+
+            var colorTable= [
+            vec3(1.0, 0.0, 0.0),
+            vec3(0.0, 1.0, 0.0),
+            vec3(0.0, 0.0, 1.0),
+            vec3(0.0, 0.0, 0.0)
+            ];
+        envir.dataSet.vPos=[];
+        envir.dataSet.vColor=[];
+        var produceTriangles=function(a,b,c,cid){
+            envir.dataSet.vColor.push(colorTable[cid]);
+            envir.dataSet.vPos.push(a);
+            envir.dataSet.vColor.push(colorTable[cid]);
+            envir.dataSet.vPos.push(b);
+            envir.dataSet.vColor.push(colorTable[cid]);
+            envir.dataSet.vPos.push(c);
+            return;
+        }
+        var produceTetrahedron=function(a,b,c,d,level){
+            if(level==0){
+                produceTriangles(a,b,c,0);
+                produceTriangles(a,b,d,1);
+                produceTriangles(a,c,d,2);
+                produceTriangles(b,c,d,3);
+                return;
+            }
+            var ab = mix(a, b, 0.5);
+            var ac = mix(a, c, 0.5);
+            var ad = mix(a,d, 0.5);
+            var bc = mix(b,c, 0.5);
+            var bd = mix(b,d, 0.5);            
+            var cd = mix(c,d, 0.5);
+            produceTetrahedron(a,ab,ac,ad,level-1);
+            produceTetrahedron(b,ab,bc,bd,level-1);
+            produceTetrahedron(c,bc,ac,cd,level-1);
+            produceTetrahedron(d,ad,bd,cd,level-1);
+        }
+        var level = envir.inputVar.sliderBarInput;
+        produceTetrahedron(vertices[0],vertices[1],vertices[2],vertices[3],level);
+    };
+    FunctionPackage.sendDataToGPU=function(envir){
+
+        var vPosbuffer=  envir.gl.createBuffer();
+          
+        envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  vPosbuffer);
+        envir.gl.bufferData(  envir.gl.ARRAY_BUFFER, flattenArrayOfVectors( envir.dataSet.vPos),  envir.gl.STATIC_DRAW );
+        //binding data must be done at immediately after bufferData();
+        this.associateCurrentDataInShaders(envir,"vPos");
+        envir.bufferIds.vPos=vPosbuffer;
+        var vColorbuffer=  envir.gl.createBuffer();
+        //binding data must be done at immediately after bufferData();
+        envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  vColorbuffer);
+        envir.gl.bufferData(  envir.gl.ARRAY_BUFFER, flattenArrayOfVectors( envir.dataSet.vColor),  envir.gl.STATIC_DRAW );
+        envir.bufferIds.vColor=vColorbuffer;
+        this.associateCurrentDataInShaders(envir,"vColor");
+    };
+    FunctionPackage.mainRender=function(envir){
+        envir.gl.clear(  envir.gl.COLOR_BUFFER_BIT| envir.gl.DEPTH_BUFFER_BIT );
+       
+        //envir.gl.drawArrays(envir.gl.POINTS, 0, envir.dataSet.Points.length/2);
+        envir.gl.drawArrays(envir.gl.TRIANGLES, 0, envir.dataSet.vPos.length);
+    };
+    return FunctionPackage;
+}

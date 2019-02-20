@@ -18,7 +18,7 @@ function WebGLModuleEnvironmentConstructor() {
         cnv:"",
         gl:"",
         shadersProgram:"",
-        bufferId:"",
+        bufferIds:{},
         inputVar:{},
         viewPortUIControler:""
        }
@@ -26,16 +26,7 @@ function WebGLModuleEnvironmentConstructor() {
 }
 function WebGLModuleControllerConstructor(_cantainerID,FunctionPackage) {
     var WebGLModuleControllerProto={
-        envir:{
-         cantainerID:"",
-         dataSet:{},
-         cnv:"",
-         gl:"",
-         shadersProgram:"",
-         bufferId:"",
-         inputVar:{},
-         viewPortUIControler:""
-        },
+        envir:WebGLModuleEnvironmentConstructor(),
         FunctionPackage:{
          configureWebGL:"",
          setupUI:"",

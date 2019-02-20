@@ -13,7 +13,8 @@ window.onload=function init(){
     WebGLModuleController["WebGLModule_2"]=WebGLModuleControllerConstructor("WebGLModule_2",FunctionPackage_SierpinskiGasket_TypePolygon2D_Constructor());
     WebGLModuleController["WebGLModule_2"].FunctionPackage.mainCallBackDraw();
     WebGLModuleController["WebGLModule_2"]=WebGLModuleControllerConstructor("WebGLModule_3",FunctionPackage_SierpinskiGasket_TypePoint3D_Constructor());
-
+    WebGLModuleController["WebGLModule_2"]=WebGLModuleControllerConstructor("WebGLModule_4",FunctionPackage_SierpinskiGasket_TypePolygon3D_Constructor());
+    WebGLModuleController["WebGLModule_2"].FunctionPackage.mainCallBackDraw();
 }
 
 

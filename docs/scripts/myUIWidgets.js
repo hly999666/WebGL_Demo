@@ -9,44 +9,51 @@ function FuncPackage(_callBefore,_callAtTime,_callAfter){
   else{fp.callAfter=nullFunction;};
   return fp;
  }
-  var ButtonToHideDivProto={
-  btn:"",
-  div:"",
-  setup: function(_btnQ,_divQ,_funcPackage){
-      var btn=document.querySelector(_btnQ)
-      var div=document.querySelector(_divQ);
-      this.btn=btn;
-      this.div=div;
-      var funcPackage=_funcPackage;
-      var btnInner=this.btn.innerText;
-      var divDisplay=this.div.style.display;
-      var defaultCallAtTime=function(){
-        if( div.style.display==="none"){
-          btn.innerText="Close Input";
-          btn.style.backgroundColor="rgb(239, 203, 213)";
-          btn.style.color="black";
-          div.style.display= divDisplay;
-         }else{ 
-          btn.innerText= btnInner;
-          btn.style.backgroundColor="rgb(54, 113, 164)";
-          btn.style.color="white";
-          div.style.display="none";    
-         }
-      }
-        // care closure
-        var onClickEvent=function(){
-          funcPackage.callBefore();
-          if(funcPackage.callAtTime!=nullFunction){
-            funcPackage.callAtTime();
-          }else{
-            defaultCallAtTime();
-          }
-            funcPackage.callAfter();
-          }
-      this.div.style.display="none";
-      this.btn.addEventListener("click",onClickEvent);
-    }
+ function ButtonToHideDivControllerConstructor(_btnQ,_divQ,_funcPackage){
+
+
+ var Controller={
+    btn:"",
+    div:"",
+    funcPackage:"",
+    btnInner:"",
+    divDisplay:""
   }
+        Controller.btn=document.querySelector(_btnQ);
+        Controller.div=document.querySelector(_divQ);
+        if(!Controller.btn||!Controller.div)return;
+        Controller.funcPackage=_funcPackage;
+        Controller.btnInner=Controller.btn.innerText;
+        Controller.divDisplay=Controller.div.style.display;
+        Controller.div.style.display="none";
+        var defaultCallAtTime=function(){
+          if(Controller.div.style.display==="none"){
+            Controller.btn.innerText="Close Input";
+            Controller.btn.style.backgroundColor="rgb(239, 203, 213)";
+            Controller.btn.style.color="black";
+            Controller.div.style.display= Controller.divDisplay;
+           }else{ 
+            Controller.btn.innerText=Controller.btnInner;
+            Controller.btn.style.backgroundColor="rgb(54, 113, 164)";
+            Controller.btn.style.color="white";
+            Controller.div.style.display="none";    
+           }
+        }
+          // care closure
+          var onClickEvent=function(){
+            Controller.funcPackage.callBefore();
+            if(Controller.funcPackage.callAtTime!=nullFunction){
+              Controller.funcPackage.callAtTime();
+            }else{
+              defaultCallAtTime();
+            }
+              Controller.funcPackage.callAfter();
+            }
+      
+            Controller.btn.addEventListener("click",onClickEvent);
+            return Controller;
+ }
+  
 
 function updateTextArea(textAreaQ){
   var elem=document.querySelector(textAreaQ);

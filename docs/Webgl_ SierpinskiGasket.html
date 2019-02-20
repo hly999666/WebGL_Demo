@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-<title>2D Sierpinski Gasket</title>
+<title>Sierpinski Gasket</title>
 <script type="text/javascript" src="./scripts/myUIWidgets.js"></script>
 <script type="text/javascript" src="./scripts/MathG.js"></script>
 <script type="text/javascript" src="./scripts/Webgl_ SierpinskiGasket.js"></script>
@@ -14,7 +14,7 @@
 </head>
 
 <body>
-
+    
 <div class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
         <div class="panel-heading"> <h3 class="panel-title">Type : Point 2D</h3></div>
         <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
@@ -103,7 +103,7 @@
   </div>
   </div>
   <div class="container myContainer panel panel-info borderWider" id="WebGLModule_3">
-        <div class="panel-heading"> <h3 class="panel-title">Type : Polygon 3D</h3></div>
+        <div class="panel-heading"> <h3 class="panel-title">Type : Point 3D</h3></div>
         <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
    <div class="shaderInput">
         <div class="shaderInput_Grid">
@@ -148,5 +148,52 @@
         </canvas>
   </div>
   </div>
+  <div class="container myContainer panel panel-warning borderWider" id="WebGLModule_4">
+                <div class="panel-heading"> <h3 class="panel-title">Type : Polygon 3D</h3></div>
+                <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
+           <div class="shaderInput">
+                <div class="shaderInput_Grid">
+                        <div class="GridItem_1">
+                        <div>
+                         <h4>vertex shader</h4>
+                         <textarea class="vertexShader" height>
+                        attribute vec3 vPos;
+                        attribute vec3 vColor;
+                        varying vec4 fColor;
+                        void main()
+                        {
+                                gl_Position =  vec4(vPos, 1.0);
+                                fColor = vec4(vColor,1.0);
+                                
+                                        }
+                                </textarea>
+                     </div>
+                     </div>
+                     <div class="GridItem_2">
+                             <div>
+                              <h4>fragment shader</h4>
+                              <textarea class="fragmentShader">
+                                     precision mediump float;
+                                     varying vec4 fColor;
+                                     void main()
+                                     {
+                                      gl_FragColor = fColor;
+                                     }
+                             </textarea>
+                          </div>
+                     </div>
+                     </div>
+            <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport">Update Shader</button></div>
+           </div>
+              <div class="canvasDiv">
+                <form class="inputRange">
+                        <input class="inputRangeElem" type="range"  value="0" min="0" max="5" />
+                        <div class="inputDisplay1Div">Dividing Level: <span class="inputDisplay1">0</span></div>
+                        </form>
+                    <canvas class="gl-canvas"  width="512" height="512" >
+                        HTML5_canvas_NO_suppurted
+                </canvas>
+          </div>
+          </div>
 </body>
 </html>
