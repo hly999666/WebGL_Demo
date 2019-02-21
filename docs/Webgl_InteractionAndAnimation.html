@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Interaction And Animation</title>
+<script type="text/javascript" src="./scripts/myUIWidgets.js"></script>
+<script type="text/javascript" src="./scripts/MathG.js"></script>
+<script type="text/javascript" src="./scripts/Webgl_ SierpinskiGasket.js"></script>
+<script type="text/javascript" src="./scripts/shadersInitiator.js"></script>
+<script type="text/javascript" src="./scripts/WebGL_BasicModule.js"></script>
+<script type="text/javascript" src="./scripts/WebGL_FunctionPackage.js"></script>
+<script type="text/javascript" src="./scripts/Webgl_InteractionAndAnimation.js"></script>
+<link rel="stylesheet" type="text/css"href="./styles/bootstrap_3.3.5.min.css">
+<link rel="stylesheet" type="text/css" href="./styles/myWebGL.css">
+</head>
+
+<body>
+<div class="container"><h2 class="myTitle">Interaction And Animation</h2></div>
+<div class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
+        <div class="panel-heading"> <h3 class="panel-title">Type : Point 2D</h3> </div>
+        <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
+   <div class="shaderInput">
+        <div class="shaderInput_Grid">
+                <div class="GridItem_1">
+                <div>
+                 <h4>vertex shader</h4>
+                 <textarea class="vertexShader" height>
+                         attribute vec4 vPos;
+                         uniform float uRoation1f;
+                         void main()
+                         {
+                                gl_Position.x = -sin(uRoation1f) * vPos.x + cos(uRoation1f) * vPos.y;
+                                gl_Position.y = sin(uRoation1f) * vPos.y + cos(uRoation1f) * vPos.x;
+                                gl_Position.z = 0.0;
+                                gl_Position.w = 1.0;
+                         }
+                        </textarea>
+             </div>
+             </div>
+             <div class="GridItem_2">
+                     <div>
+                      <h4>fragment shader</h4>
+                      <textarea class="fragmentShader">
+                             precision mediump float;
+                             uniform float uColorInput;
+                             void main()
+                             {
+                              gl_FragColor = vec4( 0.5, 0.5, 0.8, 1.0 );
+                             }
+                     </textarea>
+                  </div>
+             </div>
+             </div>
+    <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport">Update Shader</button></div>
+   </div>
+      <div class="canvasDiv">
+        <form class="inputRange">
+                <input class="inputRangeElem" type="range"  value="10" min="0" max="100" />
+                <div class="inputDisplay1Div">Rotation Speed: <span class="inputDisplay1">10</span> RPM</div>
+                </form>
+            <canvas class="gl-canvas"  width="512" height="512" >
+                HTML5_canvas_NO_suppurted
+        </canvas>
+  </div>
+</div>
+
+
+</body>
+</html>
