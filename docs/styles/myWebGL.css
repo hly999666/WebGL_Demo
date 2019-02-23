@@ -71,3 +71,22 @@ iframe{
     height: 10%;
     font-size: 1.5em;
 }
+#RotDirectionDiv,#FPS_Div,#keyBoardUINote{
+    width:75%;
+    margin: 0.5vh auto;
+}
+#FPS_Div>select{
+    display:inline-block;
+    width:20%; 
+}
+.myUICaption{
+    font-size: 1.5vh;
+    font-weight: 400;
+}
+.currentRotStatus{
+    display: inline-block;
+    background-color: rgb(48, 121, 48);
+    padding: 3px;
+    border-radius: 2px;
+    color: white;
+}

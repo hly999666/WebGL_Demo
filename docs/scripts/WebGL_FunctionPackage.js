@@ -298,7 +298,7 @@ function FunctionPackage_RotationSquares_Constructor(){
     }
     this.mainRender=function(){
         var rotTheta=(envir.inputVar.sliderBarInput*2*Math.PI)/3600;
-        envir.dataSet.currentRoation+=rotTheta;
+        envir.dataSet.currentRoation+=rotTheta*envir.inputVar.RotationDirection;
         //console.log( envir.dataSet.currentRoation);
         envir.gl.uniform1f(envir.bufferIds["uRoation"], envir.dataSet.currentRoation);
         envir.gl.clear(envir.gl.COLOR_BUFFER_BIT)
@@ -313,10 +313,59 @@ function FunctionPackage_RotationSquares_Constructor(){
     this.produceGeometryData(envir);
     this.sendDataToGPU(envir);
     //setInterval(function(){console.log("+1s")},1000);
-    envir.inputVar.mainTimer=setInterval(this.myRequestAnimFrame,1000/24);
+    
+    //UI
     envir.viewPortUIControler=ButtonToHideDivControllerConstructor(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
     document.querySelector(envir.cantainerID+" .inputRangeElem").addEventListener("change",this.updateParam);
     document.querySelector(envir.cantainerID+" .btnUpdateShader_viewport").addEventListener("click",this.updateShaders);
+    //Rotation Direction
+    envir.inputVar.RotationDirection=1;
+    var RotDirBtn=document.querySelector("#RotDirectionDiv button");
+    this.toggleRotationDirection=function(){
+        if(envir.inputVar.RotationDirection==1){
+            envir.inputVar.RotationDirection=-1;
+            RotDirBtn.innerHTML="Clockwise"
+        }else{
+            envir.inputVar.RotationDirection=1;
+            RotDirBtn.innerHTML="Reverse Clockwise"
+        }
+    }
+    RotDirBtn.addEventListener("click",this.toggleRotationDirection);
+    //FPS
+    envir.inputVar.FPS=30;
+    envir.inputVar.mainTimer=setInterval(this.myRequestAnimFrame,1000/30);
+    var FPSselect=document.querySelector("#FPS_Div select");
+    this.changeFPS=function(){
+        envir.inputVar.FPS=Number(this.value);
+        window.clearInterval(envir.inputVar.mainTimer);
+        envir.inputVar.mainTimer=setInterval(fp.myRequestAnimFrame,1000/envir.inputVar.FPS);
+    }
+    FPSselect.addEventListener("change",this.changeFPS);
+    //key board
+    envir.inputVar.preRotSPD="10";
+    this.toggleStopRotation=function(){
+        var sliderBar=document.querySelector(envir.cantainerID+" .inputRangeElem");
+        var display=document.querySelector(envir.cantainerID+" .currentRotStatus");
+        if(sliderBar.value!="0"){
+            envir.inputVar.preRotSPD=sliderBar.value;
+            sliderBar.value="0";
+            display.style.backgroundColor="rgb(180, 100, 100)";
+            display.innerHTML="Stop";
+        }else{
+            sliderBar.value=envir.inputVar.preRotSPD;
+            display.style.backgroundColor="rgb(48, 121, 48)";
+            display.innerHTML="Running";
+        }
+        this.updateParam();
+    }
+    this.keyEventListener=function(){
+            switch (event.keyCode) {
+            case 32: // spacebar
+            fp.toggleStopRotation();
+            break;
+            }
+    }
+    window.addEventListener("keydown",this.keyEventListener );
     }
     return FunctionPackage;
 }

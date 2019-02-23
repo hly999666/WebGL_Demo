@@ -17,7 +17,7 @@
 <body>
 <div class="container"><h2 class="myTitle">Interaction And Animation</h2></div>
 <div class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
-        <div class="panel-heading"> <h3 class="panel-title">Type : Point 2D</h3> </div>
+        <div class="panel-heading"> <h3 class="panel-title">Rotation Square</h3> </div>
         <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
    <div class="shaderInput">
         <div class="shaderInput_Grid">
@@ -56,8 +56,23 @@
       <div class="canvasDiv">
         <form class="inputRange">
                 <input class="inputRangeElem" type="range"  value="10" min="0" max="100" />
-                <div class="inputDisplay1Div">Rotation Speed: <span class="inputDisplay1">10</span> RPM</div>
+                <div class="inputDisplay1Div"> <span class="myUICaption">Rotation Speed:</span><span class="inputDisplay1">10</span> RPM</div>
                 </form>
+              <div id="RotDirectionDiv">
+                <span class="myUICaption"> Rotation Direction: <button class="btn btn-info btn-default" >Reverse Clockwise</button></span>  
+              </div>
+             <div id="FPS_Div">
+                 <span class="myUICaption">Frame Per Second (FPS) :</span>
+                        <select  class="form-control">
+                                        <option>10</option>
+                                        <option>20</option>
+                                        <option selected="selected">30</option>
+                                        <option>40</option>
+                                        <option>50</option>
+                                        <option>60</option>
+                                </select>
+             </div>
+             <div class="myUICaption" id="keyBoardUINote">Press <strong>Spacebar</strong> To Stop Rotation : Current  <div class="currentRotStatus">Running</div></div>
             <canvas class="gl-canvas"  width="512" height="512" >
                 HTML5_canvas_NO_suppurted
         </canvas>

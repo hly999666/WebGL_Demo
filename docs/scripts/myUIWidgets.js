@@ -34,7 +34,7 @@ function FuncPackage(_callBefore,_callAtTime,_callAfter){
             Controller.div.style.display= Controller.divDisplay;
            }else{ 
             Controller.btn.innerText=Controller.btnInner;
-            Controller.btn.style.backgroundColor="rgb(54, 113, 164)";
+            Controller.btn.style.backgroundColor="rgb(180, 113, 164)";
             Controller.btn.style.color="white";
             Controller.div.style.display="none";    
            }
