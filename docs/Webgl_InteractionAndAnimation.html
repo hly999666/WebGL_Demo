@@ -17,7 +17,7 @@
 <body>
 <div class="container"><h2 class="myTitle">Interaction And Animation</h2></div>
 <div class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
-        <div class="panel-heading"> <h3 class="panel-title">Rotation Square</h3> </div>
+        <div class="panel-heading"> <h3 class="panel-title">Rotation Square:Web Page UI Demo</h3> </div>
         <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
    <div class="shaderInput">
         <div class="shaderInput_Grid">
@@ -72,13 +72,75 @@
                                         <option>60</option>
                                 </select>
              </div>
-             <div class="myUICaption" id="keyBoardUINote">Press <strong>Spacebar</strong> To Stop Rotation : Current  <div class="currentRotStatus">Running</div></div>
+             <div class="myUICaption" id="keyBoardUINote">Press <strong>Spacebar</strong> To <span class="SpacebarOperation">Stop</span> Rotation : Current  <div class="currentRotStatus">Running</div></div>
             <canvas class="gl-canvas"  width="512" height="512" >
                 HTML5_canvas_NO_suppurted
         </canvas>
   </div>
 </div>
 
+<div class="container myContainer panel panel-info borderWider" id="WebGLModule_2">
+                <div class="panel-heading"> <h3 class="panel-title">Naive CAD:Pointing Devices UI Demo</h3> </div>
+                <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
+           <div class="shaderInput">
+                <div class="shaderInput_Grid">
+                        <div class="GridItem_1">
+                        <div>
+                         <h4>vertex shader</h4>
+                         <textarea class="vertexShader" height>
+                                        attribute vec4 vPos;
+                                        attribute vec4  vColor;
+                                        varying vec4 fColor;
+                                        void main()
+                                        {
+                                            gl_PointSize = 3.0;
+                                            fColor=vColor;
+                                            gl_Position = vPos;
+                                        }
+                                </textarea>
+                     </div>
+                     </div>
+                     <div class="GridItem_2">
+                             <div>
+                              <h4>fragment shader</h4>
+                              <textarea class="fragmentShader">
+                                     precision mediump float;
+                                     varying vec4 fColor;
+                                     void main()
+                                     {
+                                      gl_FragColor = fColor;
+                                     }
+                             </textarea>
+                          </div>
+                     </div>
+                     </div>
+            <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport">Update Shader</button></div>
+           </div>
+              <div class="canvasDiv">
+                <form class="inputRange">
+                        <input class="inputRangeElem" type="range"  value="10" min="0" max="100" />
+                        <div class="inputDisplay1Div"> <span class="myUICaption">Rotation Speed:</span><span class="inputDisplay1">10</span> RPM</div>
+                        </form>
+                      <div id="RotDirectionDiv">
+                        <span class="myUICaption"> Rotation Direction: <button class="btn btn-info btn-default" >Reverse Clockwise</button></span>  
+                      </div>
+                     <div id="FPS_Div">
+                         <span class="myUICaption">Frame Per Second (FPS) :</span>
+                                <select  class="form-control">
+                                                <option>10</option>
+                                                <option>20</option>
+                                                <option selected="selected">30</option>
+                                                <option>40</option>
+                                                <option>50</option>
+                                                <option>60</option>
+                                        </select>
+                     </div>
+                     <div class="myUICaption" id="keyBoardUINote">Press <strong>Spacebar</strong> To <span class="SpacebarOperation">Stop</span> Rotation : Current  <div class="currentRotStatus">Running</div></div>
+                    <canvas class="gl-canvas"  width="512" height="512" >
+                        HTML5_canvas_NO_suppurted
+                </canvas>
+          </div>
+        </div>
 
 </body>
 </html>

@@ -1,3 +1,4 @@
+var maxVertexs=1<<16;
 function FunctionPackage_SierpinskiGasket_TypePoint2D_Constructor(){
     var FunctionPackage_SierpinskiGasket_Type_Point=
     {
@@ -8,10 +9,12 @@ function FunctionPackage_SierpinskiGasket_TypePoint2D_Constructor(){
         },
         mainCallBackDraw:"",
         setup :function(_envir){
+            
             //var _containerID=cantainerID;
             //generate mainDraw function in this closure
         var envir=_envir;
         var fp=this;
+        fp.configureWebGL(envir);
         this.mainCallBackDraw=function()
         {
             fp.getInput(envir);
@@ -66,13 +69,14 @@ function FunctionPackage_SierpinskiGasket_TypePoint2D_Constructor(){
            var bufferId=  envir.gl.createBuffer();
             envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  bufferId);
             envir.gl.bufferData(  envir.gl.ARRAY_BUFFER, flattenArrayOfVectors( envir.dataSet.Points),  envir.gl.STATIC_DRAW );
-            envir.bufferIds.vPos=bufferId;
-            this.associateCurrentDataInShaders(envir,"vertexPosition");
+            envir.bufferIds[vPos]=bufferId;
+            this.associateCurrentDataInShaders(envir,"vertexPosition", envir.bufferIds[vPos]);
         },
-        associateCurrentDataInShaders:function(envir,nameInShader){
-            envir.bufferIds[nameInShader]= envir.gl.getAttribLocation(  envir.shadersProgram,nameInShader );
-            envir.gl.vertexAttribPointer( envir.bufferIds[nameInShader], 3,  envir.gl.FLOAT, false, 0, 0 );
-            envir.gl.enableVertexAttribArray( envir.bufferIds[nameInShader] );
+        associateCurrentDataInShaders:function(envir,nameInShader,bufferID){
+            envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  bufferID);
+            envir.LocInShaders[nameInShader]= envir.gl.getAttribLocation(  envir.shadersProgram,nameInShader );
+            envir.gl.vertexAttribPointer( envir.LocInShaders[nameInShader], 3,  envir.gl.FLOAT, false, 0, 0 );
+            envir.gl.enableVertexAttribArray( envir.LocInShaders[nameInShader] );
         },
         mainRender:function(envir){ 
             envir.gl.clear( envir.gl.COLOR_BUFFER_BIT);
@@ -242,14 +246,15 @@ function FunctionPackage_SierpinskiGasket_TypePolygon3D_Constructor(){
         envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  vPosbuffer);
         envir.gl.bufferData(  envir.gl.ARRAY_BUFFER, flattenArrayOfVectors( envir.dataSet.vPos),  envir.gl.STATIC_DRAW );
         //binding data must be done at immediately after bufferData();
-        this.associateCurrentDataInShaders(envir,"vPos");
         envir.bufferIds.vPos=vPosbuffer;
+        this.associateCurrentDataInShaders(envir,"vPos", envir.bufferIds.vPos);
+        
         var vColorbuffer=  envir.gl.createBuffer();
         //binding data must be done at immediately after bufferData();
         envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  vColorbuffer);
         envir.gl.bufferData(  envir.gl.ARRAY_BUFFER, flattenArrayOfVectors( envir.dataSet.vColor),  envir.gl.STATIC_DRAW );
         envir.bufferIds.vColor=vColorbuffer;
-        this.associateCurrentDataInShaders(envir,"vColor");
+        this.associateCurrentDataInShaders(envir,"vColor",envir.bufferIds.vColor);
     };
     FunctionPackage.mainRender=function(envir){
         envir.gl.clear(  envir.gl.COLOR_BUFFER_BIT| envir.gl.DEPTH_BUFFER_BIT );
@@ -271,36 +276,40 @@ function FunctionPackage_RotationSquares_Constructor(){
         envir.dataSet.currentRoation=0;
     },
     FunctionPackage.sendDataToGPU=function(envir){
-        envir.bufferIds["uRoation"] = envir.gl.getUniformLocation(envir.shadersProgram, "uRoation1f");
-        envir.gl.uniform1f(envir.bufferIds["uRoation"],envir.dataSet.currentRoation);
+        envir.LocInShaders["uRoation"] = envir.gl.getUniformLocation(envir.shadersProgram, "uRoation1f");
+        envir.gl.uniform1f(envir.LocInShaders["uRoation"],envir.dataSet.currentRoation);
         var vPosbuffer= envir.gl.createBuffer(); 
         envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER, vPosbuffer);
+        envir.bufferIds["vPos"]=vPosbuffer;
         envir.gl.bufferData(  envir.gl.ARRAY_BUFFER, flattenArrayOfVectors( envir.dataSet.vPos),  envir.gl.STATIC_DRAW );
-        this.associateCurrentDataInShaders(envir,"vPos");
+        this.associateCurrentDataInShaders(envir,"vPos",envir.bufferIds["vPos"]);
     },
     FunctionPackage.setup=function(_envir){
         //var _containerID=cantainerID;
         //generate mainDraw function in this closure
+  
     var envir=_envir;
     var fp=this;
+    fp.configureWebGL(envir);
     this.mainCallBackDraw=null;
     this.updateParam=function(){
         fp.getInput(envir);
     };
+    
     this.updateShaders=function()
     {
         //fp.getInput(envir);
         envir.shadersProgram=configShaders(envir.gl, envir.cantainerID);
         //fp.produceGeometryData(envir);
         //fp.sendDataToGPU(envir);
-        envir.bufferIds["uRoation"] = envir.gl.getUniformLocation(envir.shadersProgram, "uRoation1f");
+        envir.LocInShaders["uRoation"] = envir.gl.getUniformLocation(envir.shadersProgram, "uRoation1f");
         fp.mainRender(envir);
     }
     this.mainRender=function(){
         var rotTheta=(envir.inputVar.sliderBarInput*2*Math.PI)/3600;
         envir.dataSet.currentRoation+=rotTheta*envir.inputVar.RotationDirection;
         //console.log( envir.dataSet.currentRoation);
-        envir.gl.uniform1f(envir.bufferIds["uRoation"], envir.dataSet.currentRoation);
+        envir.gl.uniform1f(envir.LocInShaders["uRoation"], envir.dataSet.currentRoation);
         envir.gl.clear(envir.gl.COLOR_BUFFER_BIT)
         envir.gl.drawArrays(envir.gl.TRIANGLE_STRIP, 0, 4);
     }
@@ -314,9 +323,8 @@ function FunctionPackage_RotationSquares_Constructor(){
     this.sendDataToGPU(envir);
     //setInterval(function(){console.log("+1s")},1000);
     
-    //UI
+    //shaderEditor UI
     envir.viewPortUIControler=ButtonToHideDivControllerConstructor(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
-    document.querySelector(envir.cantainerID+" .inputRangeElem").addEventListener("change",this.updateParam);
     document.querySelector(envir.cantainerID+" .btnUpdateShader_viewport").addEventListener("click",this.updateShaders);
     //Rotation Direction
     envir.inputVar.RotationDirection=1;
@@ -346,15 +354,18 @@ function FunctionPackage_RotationSquares_Constructor(){
     this.toggleStopRotation=function(){
         var sliderBar=document.querySelector(envir.cantainerID+" .inputRangeElem");
         var display=document.querySelector(envir.cantainerID+" .currentRotStatus");
+        var operationSpan=document.querySelector(envir.cantainerID+" .SpacebarOperation");
         if(sliderBar.value!="0"){
             envir.inputVar.preRotSPD=sliderBar.value;
             sliderBar.value="0";
             display.style.backgroundColor="rgb(180, 100, 100)";
-            display.innerHTML="Stop";
+            display.innerHTML="Stopped";
+            operationSpan.innerHTML="Resume"
         }else{
             sliderBar.value=envir.inputVar.preRotSPD;
             display.style.backgroundColor="rgb(48, 121, 48)";
             display.innerHTML="Running";
+            operationSpan.innerHTML="Stop"
         }
         this.updateParam();
     }
@@ -366,6 +377,68 @@ function FunctionPackage_RotationSquares_Constructor(){
             }
     }
     window.addEventListener("keydown",this.keyEventListener );
+    }
+    return FunctionPackage;
+}
+function FunctionPackage_MouseDraw_Constructor(){
+    var FunctionPackage=FunctionPackage_SierpinskiGasket_TypePolygon3D_Constructor();
+    FunctionPackage.setup=function(_envir){
+        var envir=_envir;
+        var fp=this;
+        fp.configureWebGL(envir);
+  
+        var cns_w=envir.cnv.width;
+        var cns_h=envir.cnv.height;
+        envir.inputVar.numsOfInputPoints=0;
+        var gl=envir.gl;
+        fp.mainRender=function(){
+            if(envir.inputVar.numsOfInputPoints==0)return;
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.POINTS, 0,envir.inputVar.numsOfInputPoints);
+        }
+       
+        //create buffer
+        envir.bufferIds["vPos"]=  envir.gl.createBuffer();
+        gl.bindBuffer( gl.ARRAY_BUFFER,  envir.bufferIds["vPos"]);
+        //set space
+        gl.bufferData( gl.ARRAY_BUFFER, 8*maxVertexs, gl.STATIC_DRAW );
+        envir.bufferIds["vColor"]=envir.gl.createBuffer();
+        gl.bindBuffer( gl.ARRAY_BUFFER,  envir.bufferIds["vColor"]);
+        gl.bufferData( gl.ARRAY_BUFFER, 8*maxVertexs, gl.STATIC_DRAW );
+        fp.updateShadersAndAssociateData=function()
+        {
+            //fp.getInput(envir);
+            envir.shadersProgram=configShaders(envir.gl, envir.cantainerID);
+            //fp.produceGeometryData(envir);
+            //fp.sendDataToGPU(envir);
+            
+            //associate data must be done at immediately after bindBuffer() (before next binding);
+            fp.associateCurrentDataInShaders(envir,"vPos",  envir.bufferIds["vPos"]);
+           
+             //associate data must be done at immediately after bindBuffer();   
+             fp.associateCurrentDataInShaders(envir,"vColor",envir.bufferIds["vColor"]);
+            window.requestAnimationFrame( fp.mainRender);
+        }
+        fp.updateShadersAndAssociateData();
+        fp.clickCanvasEvent=function(){
+            var pointPos=canvasPosToGLPos(event.offsetX,event.offsetY,cns_w,cns_h);
+            var pointColor=randomVec3();
+            gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
+            var flatPP=flattenVector(pointPos);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 3*4* envir.inputVar.numsOfInputPoints,flatPP);
+            gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vColor"]);
+            var flatPC=flattenVector(pointColor);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 3*4* envir.inputVar.numsOfInputPoints, flatPC);
+            envir.inputVar.numsOfInputPoints++;
+            window.requestAnimationFrame( fp.mainRender);
+        }
+
+
+        //addEventListener
+        envir.cnv.addEventListener("click",fp.clickCanvasEvent);
+
+        envir.viewPortUIControler=ButtonToHideDivControllerConstructor(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
+        document.querySelector(envir.cantainerID+" .btnUpdateShader_viewport").addEventListener("click",fp.updateShadersAndAssociateData);
     }
     return FunctionPackage;
 }

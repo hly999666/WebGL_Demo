@@ -19,6 +19,7 @@ function WebGLModuleEnvironmentConstructor() {
         gl:"",
         shadersProgram:"",
         bufferIds:{},
+        LocInShaders:{},
         inputVar:{},
         viewPortUIControler:""
        }
@@ -47,7 +48,6 @@ function WebGLModuleControllerConstructor(_cantainerID,FunctionPackage) {
     thisMod.envir.cantainerID="#"+_cantainerID;
     thisMod.envir.cnv = document.querySelector( thisMod.envir.cantainerID+ " .gl-canvas" );
     thisMod.envir.gl = thisMod.envir.cnv.getContext( "webgl" );
-    thisMod.FunctionPackage.configureWebGL(thisMod.envir);
     thisMod.FunctionPackage.setup(thisMod.envir);
     return thisMod;
 }
@@ -74,4 +74,15 @@ function loadShaders(gl, vertexShaderQ, fragmentShaderQ){
     gl.attachShader( program, fragShdr );
     gl.linkProgram( program );
     return program;
+}
+function canvasPosToGLPos(c_x,c_y,cans_w,cans_h){
+   var x=-1+2*(c_x/cans_w);
+   var y=1-2*(c_y/cans_h);
+   return vec3(x,y,0);
+}
+function randomVec3(){
+    var x=Math.random();
+    var y=Math.random();
+    var z=Math.random();
+    return vec3(x,y,z);
 }

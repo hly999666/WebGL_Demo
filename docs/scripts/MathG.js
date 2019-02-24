@@ -71,3 +71,13 @@ function flattenArrayOfVectors(v){
    }
    return floats;
 }
+function flattenVector(v){
+    var n = v.length;
+    var floats = new Float32Array( n );
+    var pos = 0;
+  
+    for ( var i = 0; i < v.length; i++ ) {
+            floats[pos] = v[i];pos++;
+    }
+    return floats;
+}
