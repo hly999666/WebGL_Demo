@@ -69,8 +69,8 @@ function FunctionPackage_SierpinskiGasket_TypePoint2D_Constructor(){
            var bufferId=  envir.gl.createBuffer();
             envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  bufferId);
             envir.gl.bufferData(  envir.gl.ARRAY_BUFFER, flattenArrayOfVectors( envir.dataSet.Points),  envir.gl.STATIC_DRAW );
-            envir.bufferIds[vPos]=bufferId;
-            this.associateCurrentDataInShaders(envir,"vertexPosition", envir.bufferIds[vPos]);
+            envir.bufferIds["vPos"]=bufferId;
+            this.associateCurrentDataInShaders(envir,"vertexPosition", envir.bufferIds["vPos"]);
         },
         associateCurrentDataInShaders:function(envir,nameInShader,bufferID){
             envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  bufferID);
@@ -394,7 +394,7 @@ function FunctionPackage_MouseDraw_Constructor(){
         fp.mainRender=function(){
             if(envir.inputVar.numsOfInputPoints==0)return;
             gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.drawArrays(gl.POINTS, 0,envir.inputVar.numsOfInputPoints);
+            gl.drawArrays(gl.TRIANGLES, 0,envir.inputVar.numsOfInputPoints);
         }
        
         //create buffer
@@ -420,8 +420,9 @@ function FunctionPackage_MouseDraw_Constructor(){
             window.requestAnimationFrame( fp.mainRender);
         }
         fp.updateShadersAndAssociateData();
-        fp.clickCanvasEvent=function(){
-            var pointPos=canvasPosToGLPos(event.offsetX,event.offsetY,cns_w,cns_h);
+
+
+        fp.drawSingleTriangle=function(pointPos){
             var pointColor=randomVec3();
             gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
             var flatPP=flattenVector(pointPos);
@@ -432,8 +433,42 @@ function FunctionPackage_MouseDraw_Constructor(){
             envir.inputVar.numsOfInputPoints++;
             window.requestAnimationFrame( fp.mainRender);
         }
+        fp.drawOneClickSqure=function(pointPos){
+            var pointsByteLen= 3*4* envir.inputVar.numsOfInputPoints;
+             var startPos=pointsByteLen-pointsByteLen%3;
+            //Create Point
+            var halfWidth=0.04;
+            var a=vec3(pointPos[0]+halfWidth,pointPos[1]+halfWidth,0);
+            var b=vec3(pointPos[0]+halfWidth,pointPos[1]-halfWidth,0);
+            var c=vec3(pointPos[0]-halfWidth,pointPos[1]-halfWidth,0);
+            var d=vec3(pointPos[0]-halfWidth,pointPos[1]+halfWidth,0);
+            var vPos=[];
+            vPos.push(a);vPos.push(b);vPos.push(d);
+            vPos.push(c);vPos.push(b);vPos.push(d);
+            gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
+            gl.bufferSubData(gl.ARRAY_BUFFER, startPos,flattenArrayOfVectors(vPos));
+            ////
+            var pointColor=randomVec3();
+            var vColor=[];
+            vColor.push(pointColor);vColor.push(pointColor);vColor.push(pointColor);
+            vColor.push(pointColor);vColor.push(pointColor);vColor.push(pointColor);
+            gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vColor"]);
+            gl.bufferSubData(gl.ARRAY_BUFFER, startPos, flattenArrayOfVectors(vColor));
+            envir.inputVar.numsOfInputPoints+=6;
+            window.requestAnimationFrame( fp.mainRender);
+        }
+        fp.clickCanvasEvent=function(){
+            var pointPos=canvasPosToGLPos(event.offsetX,event.offsetY,cns_w,cns_h);
+            var selection=document.querySelector(envir.cantainerID+" select").value;
+             if(selection=="Single Triangle"){
+                fp.drawSingleTriangle(pointPos);
+             }
+             if(selection=="One Click Squre"){
+                fp.drawOneClickSqure(pointPos);
+             }
+        }
 
-
+      
         //addEventListener
         envir.cnv.addEventListener("click",fp.clickCanvasEvent);
 

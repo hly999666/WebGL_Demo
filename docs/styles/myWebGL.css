@@ -71,13 +71,13 @@ iframe{
     height: 10%;
     font-size: 1.5em;
 }
-#RotDirectionDiv,#FPS_Div,#keyBoardUINote{
+#RotDirectionDiv,.Selection_1,#keyBoardUINote{
     width:75%;
     margin: 0.5vh auto;
 }
-#FPS_Div>select{
+.Selection_1>select{
     display:inline-block;
-    width:20%; 
+    width:40%; 
 }
 .myUICaption{
     font-size: 1.5vh;

@@ -118,21 +118,19 @@
            </div>
               <div class="canvasDiv">
                 <form class="inputRange">
-                        <input class="inputRangeElem" type="range"  value="10" min="0" max="100" />
-                        <div class="inputDisplay1Div"> <span class="myUICaption">Rotation Speed:</span><span class="inputDisplay1">10</span> RPM</div>
+                        <input class="inputRangeElem" type="range"  value="0.04" min="0" max="0.5" />
+                        <div class="inputDisplay1Div"> <span class="myUICaption">Squre Size:</span><span class="inputDisplay1">0.04</span></div>
                         </form>
                       <div id="RotDirectionDiv">
                         <span class="myUICaption"> Rotation Direction: <button class="btn btn-info btn-default" >Reverse Clockwise</button></span>  
                       </div>
-                     <div id="FPS_Div">
-                         <span class="myUICaption">Frame Per Second (FPS) :</span>
+                     <div class="Selection_1">
+                         <span class="myUICaption">Drawing Method :</span>
                                 <select  class="form-control">
-                                                <option>10</option>
-                                                <option>20</option>
-                                                <option selected="selected">30</option>
-                                                <option>40</option>
-                                                <option>50</option>
-                                                <option>60</option>
+                                                <option selected="selected">Single Triangle</option>
+                                                <option>One Click Squre</option>
+                                                <option>Triangle Stripe</option>
+                                                <option>One Click Squre</option>
                                         </select>
                      </div>
                      <div class="myUICaption" id="keyBoardUINote">Press <strong>Spacebar</strong> To <span class="SpacebarOperation">Stop</span> Rotation : Current  <div class="currentRotStatus">Running</div></div>
