@@ -403,6 +403,8 @@ function FunctionPackage_MouseDraw_Constructor(){
         //set space
         gl.bufferData( gl.ARRAY_BUFFER, 8*maxVertexs, gl.STATIC_DRAW );
         envir.bufferIds["vColor"]=envir.gl.createBuffer();
+        //using in drawTriangleStripe
+        envir.inputVar.lastInputPoints=[];
         gl.bindBuffer( gl.ARRAY_BUFFER,  envir.bufferIds["vColor"]);
         gl.bufferData( gl.ARRAY_BUFFER, 8*maxVertexs, gl.STATIC_DRAW );
         fp.updateShadersAndAssociateData=function()
@@ -457,6 +459,31 @@ function FunctionPackage_MouseDraw_Constructor(){
             envir.inputVar.numsOfInputPoints+=6;
             window.requestAnimationFrame( fp.mainRender);
         }
+        fp.drawTriangleStripe=function(pointPos){
+          if( envir.inputVar.lastInputPoints.length<2){
+            envir.inputVar.lastInputPoints.push(pointPos);
+            return ;
+          }else{
+
+            var pointsByteLen= 3*4* envir.inputVar.numsOfInputPoints;
+            var startPos=pointsByteLen-pointsByteLen%3;
+
+
+              var p1=envir.inputVar.lastInputPoints[0];
+              var p2=envir.inputVar.lastInputPoints[1];
+              envir.inputVar.lastInputPoints[0]=p2;
+              envir.inputVar.lastInputPoints[1]=pointPos;
+              var vPos=[];
+              vPos.push(p1);vPos.push(p2);vPos.push(pointPos);
+              gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
+              gl.bufferSubData(gl.ARRAY_BUFFER, startPos,flattenArrayOfVectors(vPos));
+              var vColor=[randomVec3(),randomVec3(),randomVec3()];
+              gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vColor"]);
+              gl.bufferSubData(gl.ARRAY_BUFFER, startPos, flattenArrayOfVectors(vColor));
+              envir.inputVar.numsOfInputPoints+=3;
+              window.requestAnimationFrame( fp.mainRender);
+          }
+        }
         fp.clickCanvasEvent=function(){
             var pointPos=canvasPosToGLPos(event.offsetX,event.offsetY,cns_w,cns_h);
             var selection=document.querySelector(envir.cantainerID+" select").value;
@@ -466,8 +493,12 @@ function FunctionPackage_MouseDraw_Constructor(){
              if(selection=="One Click Squre"){
                 fp.drawOneClickSqure(pointPos);
              }
+             if(selection=="Triangle Stripe"){
+               
+                fp.drawTriangleStripe(pointPos);
+             }
         }
-
+      
       
         //addEventListener
         envir.cnv.addEventListener("click",fp.clickCanvasEvent);
