@@ -405,6 +405,7 @@ function FunctionPackage_MouseDraw_Constructor(){
         envir.bufferIds["vColor"]=envir.gl.createBuffer();
         //using in drawTriangleStripe
         envir.inputVar.lastInputPoints=[];
+        envir.inputVar.lastRandomColors=[];
         gl.bindBuffer( gl.ARRAY_BUFFER,  envir.bufferIds["vColor"]);
         gl.bufferData( gl.ARRAY_BUFFER, 8*maxVertexs, gl.STATIC_DRAW );
         fp.updateShadersAndAssociateData=function()
@@ -462,6 +463,7 @@ function FunctionPackage_MouseDraw_Constructor(){
         fp.drawTriangleStripe=function(pointPos){
           if( envir.inputVar.lastInputPoints.length<2){
             envir.inputVar.lastInputPoints.push(pointPos);
+            envir.inputVar.lastRandomColors.push(randomVec3());
             return ;
           }else{
 
@@ -473,11 +475,18 @@ function FunctionPackage_MouseDraw_Constructor(){
               var p2=envir.inputVar.lastInputPoints[1];
               envir.inputVar.lastInputPoints[0]=p2;
               envir.inputVar.lastInputPoints[1]=pointPos;
-              var vPos=[];
-              vPos.push(p1);vPos.push(p2);vPos.push(pointPos);
+              var vPos=[p1,p2,pointPos];
+              vPos.push();vPos.push(p2);vPos.push(pointPos);
               gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
               gl.bufferSubData(gl.ARRAY_BUFFER, startPos,flattenArrayOfVectors(vPos));
-              var vColor=[randomVec3(),randomVec3(),randomVec3()];
+              ///
+              var c1=envir.inputVar.lastRandomColors[0];
+              var c2=envir.inputVar.lastRandomColors[1];
+              var nowRandom=randomVec3();
+              envir.inputVar.lastRandomColors[0]=c2;
+              envir.inputVar.lastRandomColors[1]=nowRandom;
+              
+              var vColor=[c1,c2,nowRandom];
               gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vColor"]);
               gl.bufferSubData(gl.ARRAY_BUFFER, startPos, flattenArrayOfVectors(vColor));
               envir.inputVar.numsOfInputPoints+=3;
