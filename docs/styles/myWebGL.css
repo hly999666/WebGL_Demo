@@ -71,9 +71,14 @@ iframe{
     height: 10%;
     font-size: 1.5em;
 }
-#RotDirectionDiv,.Selection_1,#keyBoardUINote{
+#RotDirectionDiv,.Selection_1,#keyBoardUINote,.colorInputDiv{
     width:75%;
     margin: 0.5vh auto;
+    padding: 0px auto;
+    text-align: center;
+}
+.btnToggleForm_viewport{
+    width:100%;
 }
 .Selection_1>select{
     display:inline-block;
@@ -89,4 +94,19 @@ iframe{
     padding: 3px;
     border-radius: 2px;
     color: white;
+}
+.myCanvasContainer{
+    margin: 0px auto;
+    padding: 0px;
+    height:30vw;
+    width:30vw;
+    min-height: 300px;
+    min-width:  300px;
+}
+.gl-canvas{
+    height:100%;
+    width: 100%;
+}
+.shaderMenu{
+    margin: 2vh auto;
 }

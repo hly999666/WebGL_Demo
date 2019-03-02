@@ -47,7 +47,9 @@ function WebGLModuleControllerConstructor(_cantainerID,FunctionPackage) {
     thisMod.FunctionPackage=FunctionPackage;
     thisMod.envir.cantainerID="#"+_cantainerID;
     thisMod.envir.cnv = document.querySelector( thisMod.envir.cantainerID+ " .gl-canvas" );
-    thisMod.envir.gl = thisMod.envir.cnv.getContext( "webgl" );
+    thisMod.envir.gl = thisMod.envir.cnv.getContext( "webgl", {
+        antialias: true
+      });
     thisMod.FunctionPackage.setup(thisMod.envir);
     return thisMod;
 }
@@ -75,7 +77,9 @@ function loadShaders(gl, vertexShaderQ, fragmentShaderQ){
     gl.linkProgram( program );
     return program;
 }
-function canvasPosToGLPos(c_x,c_y,cans_w,cans_h){
+function canvasPosToGLPos(c_x,c_y,envir){
+    var cans_w=envir.cnv.clientWidth;
+    var cans_h=envir.cnv.clientHeight;
    var x=-1+2*(c_x/cans_w);
    var y=1-2*(c_y/cans_h);
    return vec3(x,y,0);
@@ -85,4 +89,26 @@ function randomVec3(){
     var y=Math.random();
     var z=Math.random();
     return vec3(x,y,z);
+}
+function convertHexColorToVec3(hex){
+   var r=HexToNumber(hex[1]+hex[2])/255;
+   var g=HexToNumber(hex[3]+hex[4])/255;
+   var b=HexToNumber(hex[5]+hex[6])/255;
+   return vec3(r,g,b);
+}
+function HexToNumberOne(hex){
+    if(hex=='a')return 10;
+    if(hex=='b')return 11;
+    if(hex=='c')return 12;
+    if(hex=='d')return 13;
+    if(hex=='e')return 14;
+    if(hex=='f')return 15;
+    return Number(hex);
+}
+function HexToNumber(hex){
+    var ans=0;var base=1;var len=hex.length-1;
+    for(var i=len;i>=0;i--) {
+        ans+=base*HexToNumberOne(hex[i]);base*=16;
+    }
+    return ans;
 }

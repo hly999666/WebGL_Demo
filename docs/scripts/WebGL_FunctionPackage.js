@@ -295,7 +295,7 @@ function FunctionPackage_RotationSquares_Constructor(){
     this.updateParam=function(){
         fp.getInput(envir);
     };
-    
+    envir.inputVar.sliderBarInput=10;
     this.updateShaders=function()
     {
         //fp.getInput(envir);
@@ -326,6 +326,14 @@ function FunctionPackage_RotationSquares_Constructor(){
     //shaderEditor UI
     envir.viewPortUIControler=ButtonToHideDivControllerConstructor(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
     document.querySelector(envir.cantainerID+" .btnUpdateShader_viewport").addEventListener("click",this.updateShaders);
+    //rotationspeed
+    var updateRotationSpeed=function(input){
+        envir.inputVar.sliderBarInput=Number(input.value);
+    }
+    envir.sliderBarcontroller=inputAndDisplay(envir.cantainerID+" .inputRangeElem",
+                                              envir.cantainerID+" .inputDisplay1",
+                                               updateRotationSpeed
+                                               );
     //Rotation Direction
     envir.inputVar.RotationDirection=1;
     var RotDirBtn=document.querySelector("#RotDirectionDiv button");
@@ -342,7 +350,7 @@ function FunctionPackage_RotationSquares_Constructor(){
     //FPS
     envir.inputVar.FPS=30;
     envir.inputVar.mainTimer=setInterval(this.myRequestAnimFrame,1000/30);
-    var FPSselect=document.querySelector("#FPS_Div select");
+    var FPSselect=document.querySelector(envir.cantainerID+" select");
     this.changeFPS=function(){
         envir.inputVar.FPS=Number(this.value);
         window.clearInterval(envir.inputVar.mainTimer);
@@ -387,8 +395,7 @@ function FunctionPackage_MouseDraw_Constructor(){
         var fp=this;
         fp.configureWebGL(envir);
   
-        var cns_w=envir.cnv.width;
-        var cns_h=envir.cnv.height;
+       
         envir.inputVar.numsOfInputPoints=0;
         var gl=envir.gl;
         fp.mainRender=function(){
@@ -440,7 +447,8 @@ function FunctionPackage_MouseDraw_Constructor(){
             var pointsByteLen= 3*4* envir.inputVar.numsOfInputPoints;
              var startPos=pointsByteLen-pointsByteLen%3;
             //Create Point
-            var halfWidth=0.04;
+            var coloInput=convertHexColorToVec3(document.querySelector(envir.cantainerID+" .colorInput").value);
+            var halfWidth= envir.inputVar.sliderBarInput;
             var a=vec3(pointPos[0]+halfWidth,pointPos[1]+halfWidth,0);
             var b=vec3(pointPos[0]+halfWidth,pointPos[1]-halfWidth,0);
             var c=vec3(pointPos[0]-halfWidth,pointPos[1]-halfWidth,0);
@@ -451,7 +459,7 @@ function FunctionPackage_MouseDraw_Constructor(){
             gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
             gl.bufferSubData(gl.ARRAY_BUFFER, startPos,flattenArrayOfVectors(vPos));
             ////
-            var pointColor=randomVec3();
+            var pointColor=coloInput;
             var vColor=[];
             vColor.push(pointColor);vColor.push(pointColor);vColor.push(pointColor);
             vColor.push(pointColor);vColor.push(pointColor);vColor.push(pointColor);
@@ -494,9 +502,9 @@ function FunctionPackage_MouseDraw_Constructor(){
           }
         }
         fp.clickCanvasEvent=function(){
-            var pointPos=canvasPosToGLPos(event.offsetX,event.offsetY,cns_w,cns_h);
+            var pointPos=canvasPosToGLPos(event.offsetX,event.offsetY,envir);
             var selection=document.querySelector(envir.cantainerID+" select").value;
-             if(selection=="Single Triangle"){
+            if(selection=="Single Triangle"){
                 fp.drawSingleTriangle(pointPos);
              }
              if(selection=="One Click Squre"){
@@ -509,11 +517,27 @@ function FunctionPackage_MouseDraw_Constructor(){
         }
       
       
-        //addEventListener
+        //UI
         envir.cnv.addEventListener("click",fp.clickCanvasEvent);
-
+        document.querySelector(envir.cantainerID+" .inputRange").style.display="none";
         envir.viewPortUIControler=ButtonToHideDivControllerConstructor(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
         document.querySelector(envir.cantainerID+" .btnUpdateShader_viewport").addEventListener("click",fp.updateShadersAndAssociateData);
+        envir.inputVar.sliderBarInput=0.04;
+        var updateSqureSize=function(input){
+            envir.inputVar.sliderBarInput=Number(input.value)/100;
+        }
+        document.querySelector(envir.cantainerID+" select").onchange=function(){
+            var selection=this.value;
+            if(selection!="One Click Squre"){
+                document.querySelector(envir.cantainerID+" .inputRange").style.display="none";
+             }else{
+                document.querySelector(envir.cantainerID+" .inputRange").style.display="block";
+             }
+        }
+        envir.sliderBarcontroller=inputAndDisplay(envir.cantainerID+" .inputRangeElem",
+                                                  envir.cantainerID+" .inputDisplay1",
+                                                  updateSqureSize
+                                                   );
     }
     return FunctionPackage;
 }

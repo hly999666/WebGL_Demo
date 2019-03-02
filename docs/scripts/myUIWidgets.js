@@ -65,3 +65,13 @@ function isLogin() {
     window.location = "/login/PleaseLogin";
   }
 }
+function inputAndDisplay(inputQ,displayQ,myOnChange){
+  var controller={};
+  controller.input=document.querySelector(inputQ);
+  controller.display=document.querySelector(displayQ);
+  controller.input.onchange=function(){
+    controller.display.innerText=controller.input.value;
+    myOnChange(controller.input);
+  }
+  return controller;
+}
