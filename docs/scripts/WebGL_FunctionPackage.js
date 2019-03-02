@@ -310,7 +310,7 @@ function FunctionPackage_RotationSquares_Constructor(){
         envir.dataSet.currentRoation+=rotTheta*envir.inputVar.RotationDirection;
         //console.log( envir.dataSet.currentRoation);
         envir.gl.uniform1f(envir.LocInShaders["uRoation"], envir.dataSet.currentRoation);
-        envir.gl.clear(envir.gl.COLOR_BUFFER_BIT)
+        envir.gl.clear(envir.gl.COLOR_BUFFER_BIT);
         envir.gl.drawArrays(envir.gl.TRIANGLE_STRIP, 0, 4);
     }
     var mainRenderLocal=this.mainRender;
@@ -375,16 +375,11 @@ function FunctionPackage_RotationSquares_Constructor(){
             display.innerHTML="Running";
             operationSpan.innerHTML="Stop"
         }
-        this.updateParam();
+        fp.updateParam();
     }
-    this.keyEventListener=function(){
-            switch (event.keyCode) {
-            case 32: // spacebar
-            fp.toggleStopRotation();
-            break;
-            }
-    }
-    window.addEventListener("keydown",this.keyEventListener );
+    this.keyEvent=[];
+    this.keyEvent.push({keyCode:13,callback:fp.toggleStopRotation});
+    
     }
     return FunctionPackage;
 }
@@ -431,9 +426,13 @@ function FunctionPackage_MouseDraw_Constructor(){
         }
         fp.updateShadersAndAssociateData();
 
-
+        envir.inputVar.coloInput=null;
         fp.drawSingleTriangle=function(pointPos){
-            var pointColor=randomVec3();
+            if( envir.inputVar.coloInput==null){
+                envir.inputVar.coloInput=convertHexColorToVec3(document.querySelector(envir.cantainerID+" .colorInput").value);
+            }
+           
+            var pointColor=envir.inputVar.coloInput;
             gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
             var flatPP=flattenVector(pointPos);
             gl.bufferSubData(gl.ARRAY_BUFFER, 3*4* envir.inputVar.numsOfInputPoints,flatPP);
@@ -441,37 +440,40 @@ function FunctionPackage_MouseDraw_Constructor(){
             var flatPC=flattenVector(pointColor);
             gl.bufferSubData(gl.ARRAY_BUFFER, 3*4* envir.inputVar.numsOfInputPoints, flatPC);
             envir.inputVar.numsOfInputPoints++;
+            if(envir.inputVar.numsOfInputPoints%3==0){
+                envir.inputVar.coloInput=null;
+            }
             window.requestAnimationFrame( fp.mainRender);
         }
-        fp.drawOneClickSqure=function(pointPos){
+        fp.drawOneClickSqure=function(pointPos,coloInput){
             var pointsByteLen= 3*4* envir.inputVar.numsOfInputPoints;
              var startPos=pointsByteLen-pointsByteLen%3;
             //Create Point
-            var coloInput=convertHexColorToVec3(document.querySelector(envir.cantainerID+" .colorInput").value);
+           
             var halfWidth= envir.inputVar.sliderBarInput;
             var a=vec3(pointPos[0]+halfWidth,pointPos[1]+halfWidth,0);
             var b=vec3(pointPos[0]+halfWidth,pointPos[1]-halfWidth,0);
             var c=vec3(pointPos[0]-halfWidth,pointPos[1]-halfWidth,0);
             var d=vec3(pointPos[0]-halfWidth,pointPos[1]+halfWidth,0);
-            var vPos=[];
-            vPos.push(a);vPos.push(b);vPos.push(d);
-            vPos.push(c);vPos.push(b);vPos.push(d);
+            var vPos=[a,b,d,c,b,d];
+            /*
+             vPos.push(a);vPos.push(b);vPos.push(d);
+             vPos.push(c);vPos.push(b);vPos.push(d);
+             */
             gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
             gl.bufferSubData(gl.ARRAY_BUFFER, startPos,flattenArrayOfVectors(vPos));
             ////
             var pointColor=coloInput;
-            var vColor=[];
-            vColor.push(pointColor);vColor.push(pointColor);vColor.push(pointColor);
-            vColor.push(pointColor);vColor.push(pointColor);vColor.push(pointColor);
+            var vColor=[pointColor,pointColor,pointColor,pointColor,pointColor,pointColor];
             gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vColor"]);
             gl.bufferSubData(gl.ARRAY_BUFFER, startPos, flattenArrayOfVectors(vColor));
             envir.inputVar.numsOfInputPoints+=6;
             window.requestAnimationFrame( fp.mainRender);
         }
-        fp.drawTriangleStripe=function(pointPos){
+        fp.drawTriangleStripe=function(pointPos,coloInput){
           if( envir.inputVar.lastInputPoints.length<2){
             envir.inputVar.lastInputPoints.push(pointPos);
-            envir.inputVar.lastRandomColors.push(randomVec3());
+            
             return ;
           }else{
 
@@ -488,38 +490,108 @@ function FunctionPackage_MouseDraw_Constructor(){
               gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
               gl.bufferSubData(gl.ARRAY_BUFFER, startPos,flattenArrayOfVectors(vPos));
               ///
-              var c1=envir.inputVar.lastRandomColors[0];
-              var c2=envir.inputVar.lastRandomColors[1];
-              var nowRandom=randomVec3();
-              envir.inputVar.lastRandomColors[0]=c2;
-              envir.inputVar.lastRandomColors[1]=nowRandom;
-              
-              var vColor=[c1,c2,nowRandom];
+              var vColor=[coloInput,coloInput,coloInput];
               gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vColor"]);
               gl.bufferSubData(gl.ARRAY_BUFFER, startPos, flattenArrayOfVectors(vColor));
               envir.inputVar.numsOfInputPoints+=3;
               window.requestAnimationFrame( fp.mainRender);
           }
         }
+        fp.drawTwoClickSqure=function(pointPos,coloInput){
+            if( envir.inputVar.lastInputPoints.length<1){
+              envir.inputVar.lastInputPoints.push(pointPos);
+              return ;
+            }else{
+                var pointsByteLen= 3*4* envir.inputVar.numsOfInputPoints;
+                var startPos=pointsByteLen-pointsByteLen%3;
+               //Create Point
+              
+               var d=envir.inputVar.lastInputPoints[0];
+               var b=pointPos;
+               var a=vec3(b[0],d[1],0);
+               var c=vec3(d[0],b[1],0);
+               envir.inputVar.lastInputPoints=[];
+               var vPos=[a,b,d,c,b,d];
+              /*
+               vPos.push(a);vPos.push(b);vPos.push(d);
+               vPos.push(c);vPos.push(b);vPos.push(d);
+               */
+              
+               gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
+               gl.bufferSubData(gl.ARRAY_BUFFER, startPos,flattenArrayOfVectors(vPos));
+               ////
+               var pointColor=coloInput;
+               var vColor=[pointColor,pointColor,pointColor,pointColor,pointColor,pointColor];
+               gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vColor"]);
+               gl.bufferSubData(gl.ARRAY_BUFFER, startPos, flattenArrayOfVectors(vColor));
+               envir.inputVar.numsOfInputPoints+=6;
+               window.requestAnimationFrame( fp.mainRender);
+            }
+          }
+        envir.inputVar.polygonInput=[];
+        fp.pre_drawPolygon=function(pointPos){
+            envir.inputVar.polygonInput.push(pointPos);
+        }
+        fp.drawPolygon=function(){
+            if( envir.inputVar.polygonInput.length<3){ envir.inputVar.polygonInput=[];return;} ;
+                  var pointsByteLen= 3*4* envir.inputVar.numsOfInputPoints;
+                  var startPos=pointsByteLen-pointsByteLen%3;
+                 //Create Point
+                 var coloInput=convertHexColorToVec3(document.querySelector(envir.cantainerID+" .colorInput").value);
+                 var Points=envir.inputVar.polygonInput;
+                 var vPos=[];
+                 var vColor=[];
+                 for(var i=2;i<Points.length;i++){
+                    vPos.push(Points[0]);vPos.push(Points[i-1]);vPos.push(Points[i]);
+                    vColor.push(coloInput);vColor.push(coloInput);vColor.push(coloInput);
+                    envir.inputVar.numsOfInputPoints+=3;
+                 }
+                /*
+                 vPos.push(a);vPos.push(b);vPos.push(d);
+                 vPos.push(c);vPos.push(b);vPos.push(d);
+                 */
+                
+                 gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vPos"]);
+                 gl.bufferSubData(gl.ARRAY_BUFFER, startPos,flattenArrayOfVectors(vPos));
+                 ////
+                 gl.bindBuffer(gl.ARRAY_BUFFER,envir.bufferIds["vColor"]);
+                 gl.bufferSubData(gl.ARRAY_BUFFER, startPos, flattenArrayOfVectors(vColor));
+                 //envir.inputVar.numsOfInputPoints+=Points.length-2;
+                 envir.inputVar.polygonInput=[];
+                 window.requestAnimationFrame( fp.mainRender);
+        }
         fp.clickCanvasEvent=function(){
             var pointPos=canvasPosToGLPos(event.offsetX,event.offsetY,envir);
+            var coloInput=convertHexColorToVec3(document.querySelector(envir.cantainerID+" .colorInput").value);
             var selection=document.querySelector(envir.cantainerID+" select").value;
             if(selection=="Single Triangle"){
-                fp.drawSingleTriangle(pointPos);
+                fp.drawSingleTriangle(pointPos,coloInput);
              }
              if(selection=="One Click Squre"){
-                fp.drawOneClickSqure(pointPos);
+                fp.drawOneClickSqure(pointPos,coloInput);
              }
              if(selection=="Triangle Stripe"){
-               
-                fp.drawTriangleStripe(pointPos);
+                fp.drawTriangleStripe(pointPos,coloInput);
+             }
+             if(selection=="Two Click Squre"){
+                fp.drawTwoClickSqure(pointPos,coloInput);
+             }
+             if(selection=="Polygon"){
+                fp.pre_drawPolygon(pointPos,coloInput);
              }
         }
-      
-      
-        //UI
+        
+        fp.clearCanvas=function(){
+            envir.gl.clear(envir.gl.COLOR_BUFFER_BIT);
+            envir.inputVar.numsOfInputPoints=0;
+         }
+        //UI 
         envir.cnv.addEventListener("click",fp.clickCanvasEvent);
+        document.querySelector(envir.cantainerID+" .currentRotStatus").style.display="none";
+        document.querySelector(envir.cantainerID+" .polygonNote").style.display="none";
         document.querySelector(envir.cantainerID+" .inputRange").style.display="none";
+        document.querySelector(envir.cantainerID+" .btn-info").onclick=fp.drawPolygon;
+        document.querySelector(envir.cantainerID+" .btn-danger").onclick= fp.clearCanvas;
         envir.viewPortUIControler=ButtonToHideDivControllerConstructor(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
         document.querySelector(envir.cantainerID+" .btnUpdateShader_viewport").addEventListener("click",fp.updateShadersAndAssociateData);
         envir.inputVar.sliderBarInput=0.04;
@@ -528,16 +600,28 @@ function FunctionPackage_MouseDraw_Constructor(){
         }
         document.querySelector(envir.cantainerID+" select").onchange=function(){
             var selection=this.value;
+            envir.inputVar.coloInput=null;
+            envir.inputVar.lastInputPoints=[];
             if(selection!="One Click Squre"){
                 document.querySelector(envir.cantainerID+" .inputRange").style.display="none";
              }else{
                 document.querySelector(envir.cantainerID+" .inputRange").style.display="block";
              }
+             if(selection!="Polygon"){
+                document.querySelector(envir.cantainerID+" .polygonNote").style.display="none";
+             }else{
+                document.querySelector(envir.cantainerID+" .polygonNote").style.display="block";
+             }
         }
         envir.sliderBarcontroller=inputAndDisplay(envir.cantainerID+" .inputRangeElem",
                                                   envir.cantainerID+" .inputDisplay1",
                                                   updateSqureSize
-                                                   );
+              
+                                                  );
+        //keyEvent
+        
+        fp.keyEvent=[{keyCode:27,callback:fp.clearCanvas},{keyCode:18,callback: fp.drawPolygon}];
+      
     }
     return FunctionPackage;
 }

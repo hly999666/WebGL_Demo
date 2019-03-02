@@ -98,15 +98,28 @@ iframe{
 .myCanvasContainer{
     margin: 0px auto;
     padding: 0px;
-    height:30vw;
-    width:30vw;
+    height: 30vw;
+    width:  30vw;
+    max-height: 512px;
+    max-width:  512px;
     min-height: 300px;
     min-width:  300px;
+    overflow: hidden;
 }
 .gl-canvas{
     height:100%;
     width: 100%;
+   
 }
 .shaderMenu{
     margin: 2vh auto;
+}
+.polygonNote{
+    width:90%;
+    margin: 0.5vh auto;
+    padding: 0px auto;
+    text-align: center;
+}
+.polygonNote>button{
+    display: inline-block;
 }

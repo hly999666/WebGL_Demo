@@ -72,7 +72,7 @@
                                         <option>60</option>
                                 </select>
              </div>
-             <div class="myUICaption" id="keyBoardUINote">Press <strong>Spacebar</strong> To <span class="SpacebarOperation">Stop</span> Rotation : Current  <div class="currentRotStatus">Running</div></div>
+             <div class="myUICaption" id="keyBoardUINote">Press <strong>Enter</strong> To <span class="SpacebarOperation">Stop</span> Rotation : Current  <div class="currentRotStatus">Running</div></div>
              <div class="container myCanvasContainer">   
                  <canvas class="gl-canvas"  width="512" height="512" >
                 HTML5_canvas_NO_suppurted
@@ -127,15 +127,21 @@
                                                 <option selected="selected">Single Triangle</option>
                                                 <option>One Click Squre</option>
                                                 <option>Triangle Stripe</option>
-                                                <option>One Click Squre</option>
+                                                <option>Two Click Squre</option>
+                                                <option>Polygon</option>
                                         </select>
                      </div>
                      <form class="inputRange">
                                 <input class="inputRangeElem" type="range"  value="4" min="0" max="100" />
                                 <div class="inputDisplay1Div"> <span class="myUICaption">Squre Size:</span><span class="inputDisplay1">4</span></div>
                      </form>
-                     <div class="myUICaption" id="keyBoardUINote">Press <strong>Spacebar</strong> To <span class="SpacebarOperation">Stop</span> Rotation : Current  <div class="currentRotStatus">Running</div></div>
+                     <div class="myUICaption" id="keyBoardUINote">Press <strong>ESC</strong> To <span class="SpacebarOperation"></span> Clear canvas <div class="currentRotStatus"></div>
+                     or <strong>Press</strong> this Button
+                     <button class="btn btn-danger btn-xs">Clear</button></div>
                      <div class="myUICaption colorInputDiv" >Drawing Color :<input type="color" class="colorInput"></div>
+                     <div class="myUICaption polygonNote">Press <strong>Alt</strong> To Draw Polygon or <strong>Press</strong> this Button
+                        <button class="btn btn-info btn-xs">Draw Polygon</button>
+                    </div>
                    <div class="container myCanvasContainer"> 
                 <canvas class="gl-canvas"  width="512" height="512" ><!--must set width and height,avoiding AA problem,width&&height is rendering resolution(image resolution) ,then scaling by layout engine-->
                         HTML5_canvas_NO_suppurted

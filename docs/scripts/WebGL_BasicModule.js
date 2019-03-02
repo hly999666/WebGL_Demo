@@ -25,7 +25,7 @@ function WebGLModuleEnvironmentConstructor() {
        }
     return envir;
 }
-function WebGLModuleControllerConstructor(_cantainerID,FunctionPackage) {
+function WebGLModuleControllerConstructor(_cantainerID,FunctionPackage,_keyEvent) {
     var WebGLModuleControllerProto={
         envir:WebGLModuleEnvironmentConstructor(),
         FunctionPackage:{
@@ -51,6 +51,10 @@ function WebGLModuleControllerConstructor(_cantainerID,FunctionPackage) {
         antialias: true
       });
     thisMod.FunctionPackage.setup(thisMod.envir);
+   for(var i=0;i<thisMod.FunctionPackage.keyEvent.length;i++){
+    _keyEvent.push(thisMod.FunctionPackage.keyEvent[i]);
+   }
+    // _keyEvent.concat(_keyEvent,thisMod.FunctionPackage.keyEvent);
     return thisMod;
 }
 
@@ -111,4 +115,15 @@ function HexToNumber(hex){
         ans+=base*HexToNumberOne(hex[i]);base*=16;
     }
     return ans;
+}
+function buildKeyEvent(keyEventList){
+    var keyEventListener=function(event) {
+        var key = event.keyCode;
+        for(var i=0;i<keyEventList.length;i++){
+            if(keyEventList[i].keyCode==key){
+                keyEventList[i].callback();
+            }
+        }
+    }
+    return keyEventListener;
 }
