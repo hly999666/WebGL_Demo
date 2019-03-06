@@ -1,11 +1,35 @@
+var maxVertexs=1<<16;
 function WebGLModuleFunctionPackageConstructor() {
     var WebGLModuleFunctionPackageProto={
-        configureWebGL:"",
+        configureWebGL:function(envir){
+            envir.gl.enable(envir.gl.DEPTH_TEST);
+            envir.gl.viewport( 0, 0, envir.cnv.width,  envir.cnv.height);
+            envir.gl.clearColor(0.8, 0.8, 0.8, 1.0);
+            envir.gl.clear(envir.gl.COLOR_BUFFER_BIT);},
         setupUI:"",
-        getInput:"",
+        getInput:function(envir){
+            var sliderBar=document.querySelector(envir.cantainerID+" .inputRangeElem");
+            envir.inputVar.sliderBarInput=Number(sliderBar.value);   
+            var inputDisplay1=document.querySelector(envir.cantainerID+" .inputDisplay1");
+            inputDisplay1.innerText=" "+envir.inputVar.sliderBarInput;
+            if(envir.inputVar.sliderBarInput<=0){
+                envir.gl.clear(envir.gl.COLOR_BUFFER_BIT );
+                return;
+            };},
         produceGeometryData:"",
         sendDataToGPU:"",
-        associateDataInShaders:"",
+        associateDataInShaders:function(envir,nameInShader,bufferID){
+            envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  bufferID);
+            envir.LocInShaders[nameInShader]= envir.gl.getAttribLocation(  envir.shadersProgram,nameInShader );
+            envir.gl.vertexAttribPointer( envir.LocInShaders[nameInShader], 3,  envir.gl.FLOAT, false, 0, 0 );
+            envir.gl.enableVertexAttribArray( envir.LocInShaders[nameInShader] );
+        },
+        associateCurrentDataInShaders:function(envir,nameInShader,bufferID){
+            envir.gl.bindBuffer(  envir.gl.ARRAY_BUFFER,  bufferID);
+            envir.LocInShaders[nameInShader]= envir.gl.getAttribLocation(  envir.shadersProgram,nameInShader );
+            envir.gl.vertexAttribPointer( envir.LocInShaders[nameInShader], 3,  envir.gl.FLOAT, false, 0, 0 );
+            envir.gl.enableVertexAttribArray( envir.LocInShaders[nameInShader] );
+        },
         mainCallBackDraw:"",
         mainRender:""
     }
@@ -51,9 +75,12 @@ function WebGLModuleControllerConstructor(_cantainerID,FunctionPackage,_keyEvent
         antialias: true
       });
     thisMod.FunctionPackage.setup(thisMod.envir);
-   for(var i=0;i<thisMod.FunctionPackage.keyEvent.length;i++){
-    _keyEvent.push(thisMod.FunctionPackage.keyEvent[i]);
-   }
+    if(thisMod.FunctionPackage.keyEvent!=undefined){
+        for(var i=0;i<thisMod.FunctionPackage.keyEvent.length;i++){
+            _keyEvent.push(thisMod.FunctionPackage.keyEvent[i]);
+           }
+    }
+   
     // _keyEvent.concat(_keyEvent,thisMod.FunctionPackage.keyEvent);
     return thisMod;
 }
@@ -117,6 +144,9 @@ function HexToNumber(hex){
     return ans;
 }
 function buildKeyEvent(keyEventList){
+    if(keyEventList==undefined){
+        return function(){};
+    }
     var keyEventListener=function(event) {
         var key = event.keyCode;
         for(var i=0;i<keyEventList.length;i++){
