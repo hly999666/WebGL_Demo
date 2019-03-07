@@ -84,7 +84,54 @@ function WebGLModuleControllerConstructor(_cantainerID,FunctionPackage,_keyEvent
     // _keyEvent.concat(_keyEvent,thisMod.FunctionPackage.keyEvent);
     return thisMod;
 }
-
+function WebGLModuleGeometricObjectConstructor(){
+    var geometricObject={};
+    geometricObject.verticeData={};
+    geometricObject.verticeData["vPos"]=[
+        vec4(-0.5, -0.5, 0.5, 1.0),
+        vec4(-0.5, 0.5, 0.5, 1.0),
+        vec4(0.5, 0.5, 0.5, 1.0),
+        vec4(0.5, -0.5, 0.5, 1.0),
+        vec4(-0.5, -0.5, -0.5, 1.0),
+        vec4(-0.5, 0.5, -0.5, 1.0),
+        vec4(0.5, 0.5, -0.5, 1.0),
+        vec4(0.5, -0.5, -0.5, 1.0)
+        ];
+        geometricObject.verticeData["vColor"]=[
+            [ 0.0, 0.0, 0.0, 1.0 ], 
+            [ 1.0, 0.0, 0.0, 1.0 ], 
+            [ 1.0, 1.0, 0.0, 1.0 ], 
+            [ 0.0, 1.0, 0.0, 1.0 ], 
+            [ 0.0, 0.0, 1.0, 1.0 ],
+            [ 1.0, 0.0, 1.0, 1.0 ], 
+            [ 1.0, 1.0, 1.0, 1.0 ], 
+            [ 0.0, 1.0, 1.0, 1.0 ]
+        ];
+        geometricObject.triangleIndices=[];
+        var quad=function(a,b,c,d){
+            _quad(a,b,c,d, geometricObject.triangleIndices);
+        }
+        quad(1, 0, 3, 2);
+        quad(2, 3, 7, 6);
+        quad(3, 0, 4, 7);
+        quad(6, 5, 1, 2);
+        quad(4, 5, 6, 7);
+        quad(5, 4, 0, 1);
+        geometricObject.addDataToEnvir=function(envir){
+                 var indexHeader=envir.dataSet["vPos"].length;
+                 for(var i=0;i< geometricObject.verticeData["vPos"].length;i++){
+                    envir.dataSet["vPos"].push(geometricObject.verticeData["vPos"][i]);
+                 }
+                 for(var i=0;i< geometricObject.verticeData["vColor"].length;i++){
+                    envir.dataSet["vColor"].push(geometricObject.verticeData["vColor"][i]);
+                 }
+                 for(var i=0;i< geometricObject.triangleIndices.length;i++){
+                    envir.numVertices++;
+                    envir.dataSet["elementV"].push(geometricObject.triangleIndices[i]+indexHeader);
+                 }
+        }
+    return geometricObject;
+}
 function configShaders(gl,cantainerID){
     updateTextArea(cantainerID+" .vertexShader");updateTextArea(cantainerID+" .fragmentShader");
     var shadersProgram = loadShaders( gl, cantainerID+" .vertexShader",cantainerID+" .fragmentShader" );
@@ -156,4 +203,12 @@ function buildKeyEvent(keyEventList){
         }
     }
     return keyEventListener;
+}
+function _quad(a, b, c, d,_indices)
+{
+var indices = [ a, b, c, a, c, d ];
+for(var i=0;i< indices.length;i++){
+    _indices.push(indices[i]);
+
+ }
 }

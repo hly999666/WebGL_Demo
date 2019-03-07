@@ -15,7 +15,7 @@
 <body>
 <div class="container"><h2 class="myTitle">Geometric Objects And Transformations</h2></div>
 <div class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
-        <div class="panel-heading"> <h3 class="panel-title">Rotation Square:Web Page UI Demo</h3> </div>
+        <div class="panel-heading"> <h3 class="panel-title">Rotating Cube:3D Transformation Demo</h3> </div>
         <div class="myBigBtnDiv"><button class="btn btn-primary btn-default pull-right btn-block btnToggleForm_viewport" >Edit Shader</button></div>
    <div class="shaderInput">
         <div class="shaderInput_Grid">
@@ -23,15 +23,14 @@
                 <div>
                  <h4>vertex shader</h4>
                  <textarea class="vertexShader" height>
-                         attribute vec4 vPos;
-                         uniform float uRoation1f;
-                         void main()
+                        attribute vec4 vPos;
+                        attribute vec4 vColor;
+                        varying vec4 fColor;
+                        void main()
                          {
-                                gl_Position.x = -sin(uRoation1f) * vPos.x + cos(uRoation1f) * vPos.y;
-                                gl_Position.y = sin(uRoation1f) * vPos.y + cos(uRoation1f) * vPos.x;
-                                gl_Position.z = 0.0;
-                                gl_Position.w = 1.0;
-                         }
+                           fColor = vColor;
+                           gl_Position = 0.5 * vPos;
+                        }
                         </textarea>
              </div>
              </div>
@@ -39,12 +38,13 @@
                      <div>
                       <h4>fragment shader</h4>
                       <textarea class="fragmentShader">
-                             precision mediump float;
-                             uniform float uColorInput;
-                             void main()
-                             {
-                              gl_FragColor = vec4( 0.5, 0.5, 0.8, 1.0 );
-                             }
+                        precision mediump float;
+                        varying vec4 fColor;
+                       
+                        void main()
+                        {
+                          gl_FragColor = fColor;
+                        }
                      </textarea>
                   </div>
              </div>
