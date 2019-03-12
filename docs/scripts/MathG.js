@@ -1,21 +1,4 @@
-function vec2(x,y)
-{
-    var result = [x,y];
-
-    return result;
-}
-function vec3(x,y,z)
-{
-    var result = [x,y,z];
-
-    return result;
-}
-function vec4(x,y,z,w)
-{
-    var result = [x,y,z,w];
-
-    return result;
-}
+let precision=0.00001;
 function scale( s, u )
 {
     if ( !Array.isArray(u) ) {
@@ -424,7 +407,23 @@ function rotateM( angle, axis )
     return result;
 }
 function rotateWithAxisM( angle, axis ){
-
+      var zAxis=normalize(axis);
+      var xAxis=normalize(vec3(axis[2],0,-axis[0]));
+      var yAxis=normalize(cross(zAxis,xAxis));
+      var zAxis=vec4(zAxis,0);
+      var xAxis=vec4(xAxis,0);
+      var yAxis=vec4(yAxis,0);
+      var m=mat4(
+        xAxis,
+        yAxis,
+        zAxis,
+        vec4(0,0,0,1)
+      );
+      m=transpose(m);
+      var r=m;
+      r=mult(r,rotateZ_M(angle));
+      r=mult(r,inverse(m));
+      return  r;
 }
 function rotateX_M(theta) {
   var c = Math.cos( radians(theta) );
