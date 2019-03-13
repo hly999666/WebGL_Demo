@@ -26,10 +26,11 @@
                         attribute vec4 vPos;
                         attribute vec4 vColor;
                         varying vec4 fColor;
+                        uniform mat4 rotMatrix;
                         void main()
                          {
                            fColor = vColor;
-                           gl_Position = 0.5 * vPos;
+                           gl_Position =rotMatrix*vPos;
                         }
                         </textarea>
              </div>
@@ -52,25 +53,12 @@
     <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport">Update Shader</button></div>
    </div>
       <div class="canvasDiv">
-        <form class="inputRange">
-                <input class="inputRangeElem" type="range"  value="10" min="0" max="100" />
-                <div class="inputDisplay1Div"> <span class="myUICaption">Rotation Speed:</span><span class="inputDisplay1">10</span> RPM</div>
-                </form>
-              <div id="RotDirectionDiv">
-                <span class="myUICaption"> Rotation Direction: <button class="btn btn-info btn-default" >Reverse Clockwise</button></span>  
-              </div>
-             <div class="Selection_1">
-                 <span class="myUICaption">Frame Per Second (FPS) :</span>
-                        <select  class="form-control">
-                                        <option>10</option>
-                                        <option>20</option>
-                                        <option selected="selected">30</option>
-                                        <option>40</option>
-                                        <option>50</option>
-                                        <option>60</option>
-                                </select>
-             </div>
-             <div class="myUICaption" id="keyBoardUINote">Press <strong>Enter</strong> To <span class="SpacebarOperation">Stop</span> Rotation : Current  <div class="currentRotStatus">Running</div></div>
+                <div class="RotateBtnDiv">
+                                <div class="btn btn-info btn_sm RotateX" >Rotate X</div>
+                                <div class="btn btn-info btn_sm RotateY" >Rotate Y</div>
+                                <div class="btn btn-info btn_sm RotateZ" >Rotate Z</div>
+                                
+                </div>
              <div class="container myCanvasContainer">   
                  <canvas class="gl-canvas"  width="512" height="512" >
                 HTML5_canvas_NO_suppurted

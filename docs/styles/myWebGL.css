@@ -123,3 +123,13 @@ iframe{
 .polygonNote>button{
     display: inline-block;
 }
+.RotateBtnDiv{
+    margin: 5vh auto 5px auto;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.RotateBtnDiv>.btn{
+    display: block;
+    margin: 0 3px;
+}

@@ -36,7 +36,7 @@ function FunctionPackage_RotatingCube_Constructor(){
         envir.LocInShaders["vPos"] = gl.getAttribLocation( envir.shadersProgram, "vPos" );
         gl.vertexAttribPointer( envir.LocInShaders["vPos"], 4, gl.FLOAT, false, 0, 0 );
         gl.enableVertexAttribArray( envir.LocInShaders["vPos"] );
-
+        envir.LocInShaders["rotMatrix"] = gl.getUniformLocation( envir.shadersProgram, "rotMatrix" );
         if(envir.numVertices!=0)fp.mainRender();
     }
     this.sendDataToGPU=function(envir){
@@ -51,6 +51,11 @@ function FunctionPackage_RotatingCube_Constructor(){
 
     }
     this.mainRender=function(){
+        var rotM=mat4();
+        rotM=mult(rotM,rotateX_M(envir.inputVar.rotation[0]));
+        rotM=mult(rotM,rotateY_M(envir.inputVar.rotation[1]));
+        rotM=mult(rotM,rotateZ_M(envir.inputVar.rotation[2]));
+        gl.uniformMatrix4fv(envir.LocInShaders["rotMatrix"], false, flatten(rotM));
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.drawElements( gl.TRIANGLES, envir.numVertices,gl.UNSIGNED_SHORT, 0 );
     }
@@ -72,8 +77,20 @@ function FunctionPackage_RotatingCube_Constructor(){
     document.querySelector(envir.cantainerID+" .btnUpdateShader_viewport").addEventListener("click",this.updateShaders);
    //keyEvent
     this.keyEvent=[];
-    this.keyEvent.push({keyCode:13,callback:fp.toggleStopRotation});
-    
+
+   //RotateBtn UI
+   envir.inputVar.rotation=[0,0,0];
+   var rotationBtnListener=function(){
+       if(this.classList.contains("RotateX"))envir.inputVar.rotation[0]+=3;
+       if(this.classList.contains("RotateY"))envir.inputVar.rotation[1]+=3;
+       if(this.classList.contains("RotateZ"))envir.inputVar.rotation[2]+=3;
+       fp.mainRender();
+   };
+   document.querySelectorAll(".RotateBtnDiv>.btn").forEach(
+      function(btn){
+       btn.addEventListener("click",rotationBtnListener);
+      }
+   );
     }
     return FunctionPackage;
 }
@@ -81,7 +98,7 @@ function FunctionPackage_RotatingCube_Constructor(){
 
 window.onload=function init(){
     
-   
+     var nu=navigator.userAgent;
     //document.getElementById("BTN").addEventListener("click",drawSG);
     //var ctx2D=cnv.getContext("2d");
     var keyEvent=[];
