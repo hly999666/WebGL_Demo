@@ -57,20 +57,26 @@ function FunctionPackage_RotatingCube_Constructor(){
         rotM=mult(rotM,rotateZ_M(envir.inputVar.rotation[2]));
         gl.uniformMatrix4fv(envir.LocInShaders["rotMatrix"], false, flatten(rotM));
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        gl.drawElements( gl.TRIANGLES, envir.numVertices,gl.UNSIGNED_SHORT, 0 );
+        //console.log(envir.inputVar.DrawingMode);
+        if(envir.inputVar.DrawingMode=="radioInterpolation"){
+            gl.drawElements( gl.TRIANGLES, envir.numVertices,gl.UNSIGNED_SHORT, 0 );
+        }else{
+            gl.drawArrays(gl.TRIANGLES, 0,envir.numVertices);
+        }
     }
     var mainRenderLocal=this.mainRender;
     this.myRequestAnimFrame=function(){
         window.requestAnimationFrame(mainRenderLocal);
     }
     this.updateShaders();
-  
+   
     //produce Geometry Data
-    var cube=WebGLModuleGeometricObjectConstructor();
+    envir.inputVar.DrawingMode="radioInterpolation";
+    var cube=WebGLModuleGeometricObjectConstructor({drawingMode:"Interpolation"});
     cube.addDataToEnvir(envir);
     this.sendDataToGPU(envir);
     this.myRequestAnimFrame();
-    //setInterval(function(){console.log("+1s")},1000);
+    setInterval(this.myRequestAnimFrame,1000/30);
     
     //shaderEditor UI
     envir.viewPortUIControler=ButtonToHideDivControllerConstructor(envir.cantainerID+" .btnToggleForm_viewport",envir.cantainerID+" .shaderInput",FuncPackage());
@@ -80,7 +86,7 @@ function FunctionPackage_RotatingCube_Constructor(){
 
    //RotateBtn UI
    envir.inputVar.rotation=[0,0,0];
-   var rotationBtnListener=function(){
+   fp.rotationBtnListener=function(){
        if(this.classList.contains("RotateX"))envir.inputVar.rotation[0]+=3;
        if(this.classList.contains("RotateY"))envir.inputVar.rotation[1]+=3;
        if(this.classList.contains("RotateZ"))envir.inputVar.rotation[2]+=3;
@@ -88,9 +94,34 @@ function FunctionPackage_RotatingCube_Constructor(){
    };
    document.querySelectorAll(".RotateBtnDiv>.btn").forEach(
       function(btn){
-       btn.addEventListener("click",rotationBtnListener);
+       btn.addEventListener("click",fp.rotationBtnListener);
       }
    );
+    //DrawingMode UI
+    fp.drawingModeListener=function(){
+        if(this.classList[0]===envir.inputVar.DrawingMode)return;
+        else {
+            envir.inputVar.DrawingMode=this.classList[0];
+            var cube;
+            envir.numVertices=0;
+            envir.dataSet["vPos"]=[];
+            envir.dataSet["vColor"]=[];
+            if(envir.inputVar.DrawingMode=="radioInterpolation"){
+                cube=WebGLModuleGeometricObjectConstructor({form:"cube",drawingMode:"Interpolation"});
+            }else{
+                cube=WebGLModuleGeometricObjectConstructor({form:"cube",drawingMode:"Solid"});
+            }
+            cube.addDataToEnvir(envir);
+            fp.sendDataToGPU(envir);
+        }
+    }
+
+    document.querySelectorAll(".RadioDivDiv input").forEach(
+        function(input){
+            input.addEventListener("click", fp.drawingModeListener);
+        }
+     );
+
     }
     return FunctionPackage;
 }

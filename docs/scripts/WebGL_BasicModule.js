@@ -84,10 +84,8 @@ function WebGLModuleControllerConstructor(_cantainerID,FunctionPackage,_keyEvent
     // _keyEvent.concat(_keyEvent,thisMod.FunctionPackage.keyEvent);
     return thisMod;
 }
-function WebGLModuleGeometricObjectConstructor(){
-    var geometricObject={};
-    geometricObject.verticeData={};
-    geometricObject.verticeData["vPos"]=[
+function WebGLModuleGeometricObjectConstructor(config){
+    var verticeTable=[
         vec4(-0.5, -0.5, 0.5, 1.0),
         vec4(-0.5, 0.5, 0.5, 1.0),
         vec4(0.5, 0.5, 0.5, 1.0),
@@ -97,38 +95,72 @@ function WebGLModuleGeometricObjectConstructor(){
         vec4(0.5, 0.5, -0.5, 1.0),
         vec4(0.5, -0.5, -0.5, 1.0)
         ];
-        geometricObject.verticeData["vColor"]=[
-            [ 0.0, 0.0, 0.0, 1.0 ], 
-            [ 1.0, 0.0, 0.0, 1.0 ], 
-            [ 1.0, 1.0, 0.0, 1.0 ], 
-            [ 0.0, 1.0, 0.0, 1.0 ], 
-            [ 0.0, 0.0, 1.0, 1.0 ],
-            [ 1.0, 0.0, 1.0, 1.0 ], 
-            [ 1.0, 1.0, 1.0, 1.0 ], 
-            [ 0.0, 1.0, 1.0, 1.0 ]
-        ];
+    var colorTable=[
+        [ 0.0, 0.0, 0.0, 1.0 ], 
+        [ 1.0, 0.0, 0.0, 1.0 ], 
+        [ 1.0, 1.0, 0.0, 1.0 ], 
+        [ 0.0, 1.0, 0.0, 1.0 ], 
+        [ 0.0, 0.0, 1.0, 1.0 ], 
+        [ 1.0, 0.0, 1.0, 1.0 ],
+        [ 1.0, 1.0, 1.0, 1.0 ], 
+        [ 0.0, 1.0, 1.0, 1.0 ] 
+            ];
+    var geometricObject={};
+    if(config.drawingMode=="Interpolation"){
+        geometricObject.verticeData={};
+        geometricObject.verticeData["vPos"]=verticeTable;
+        geometricObject.verticeData["vColor"]=colorTable;
         geometricObject.triangleIndices=[];
-        var quad=function(a,b,c,d){
-            _quad(a,b,c,d, geometricObject.triangleIndices);
+        var quad_Indexed=function(a,b,c,d){
+            _quad_Indexed(a,b,c,d, geometricObject.triangleIndices);
         }
-        quad(1, 0, 3, 2);
-        quad(2, 3, 7, 6);
-        quad(3, 0, 4, 7);
-        quad(6, 5, 1, 2);
-        quad(4, 5, 6, 7);
-        quad(5, 4, 0, 1);
+        quad_Indexed(1, 0, 3, 2);
+        quad_Indexed(2, 3, 7, 6);
+        quad_Indexed(3, 0, 4, 7);
+        quad_Indexed(6, 5, 1, 2);
+        quad_Indexed(4, 5, 6, 7);
+        quad_Indexed(5, 4, 0, 1);
+    }else{
+        geometricObject.verticeData={};
+        geometricObject.verticeData["vPos"]=[];
+        geometricObject.verticeData["vColor"]=[];
+        var quad_vertexAndColor=function(a,b,c,d,color){
+            _quad_vertexAndColor(a,b,c,d,color, geometricObject.verticeData["vPos"],geometricObject.verticeData["vColor"],verticeTable);
+        }
+        quad_vertexAndColor(1, 0, 3, 2,colorTable[0]);
+        quad_vertexAndColor(2, 3, 7, 6,colorTable[1]);
+        quad_vertexAndColor(3, 0, 4, 7,colorTable[2]);
+        quad_vertexAndColor(6, 5, 1, 2,colorTable[3]);
+        quad_vertexAndColor(4, 5, 6, 7,colorTable[4]);
+        quad_vertexAndColor(5, 4, 0, 1,colorTable[5]);
+    }
         geometricObject.addDataToEnvir=function(envir){
-                 var indexHeader=envir.dataSet["vPos"].length;
-                 for(var i=0;i< geometricObject.verticeData["vPos"].length;i++){
+            if(envir.inputVar.DrawingMode=="radioInterpolation"){
+                var indexHeader=envir.dataSet["vPos"].length;
+                for(var i=0;i< geometricObject.verticeData["vPos"].length;i++){
+                   envir.dataSet["vPos"].push(geometricObject.verticeData["vPos"][i]);
+                }
+                for(var i=0;i< geometricObject.verticeData["vColor"].length;i++){
+                   envir.dataSet["vColor"].push(geometricObject.verticeData["vColor"][i]);
+                }
+                if(geometricObject.triangleIndices!=undefined){
+                   for(var i=0;i< geometricObject.triangleIndices.length;i++){
+                       envir.numVertices++;
+                       envir.dataSet["elementV"].push(geometricObject.triangleIndices[i]+indexHeader);
+                    }
+                }
+            }else{
+                var indexHeader=envir.dataSet["vPos"].length;
+                for(var i=0;i< geometricObject.verticeData["vPos"].length;i++){
+                    envir.numVertices++;
                     envir.dataSet["vPos"].push(geometricObject.verticeData["vPos"][i]);
                  }
                  for(var i=0;i< geometricObject.verticeData["vColor"].length;i++){
                     envir.dataSet["vColor"].push(geometricObject.verticeData["vColor"][i]);
                  }
-                 for(var i=0;i< geometricObject.triangleIndices.length;i++){
-                    envir.numVertices++;
-                    envir.dataSet["elementV"].push(geometricObject.triangleIndices[i]+indexHeader);
-                 }
+            }
+                
+               
         }
     return geometricObject;
 }
@@ -204,11 +236,21 @@ function buildKeyEvent(keyEventList){
     }
     return keyEventListener;
 }
-function _quad(a, b, c, d,_indices)
+function _quad_Indexed(a, b, c, d,_indices)
 {
 var indices = [ a, b, c, a, c, d ];
 for(var i=0;i< indices.length;i++){
     _indices.push(indices[i]);
 
+ }
+}
+function _quad_vertexAndColor(a, b, c, d,color,_vertices_out,_colors_out,_vertices_table)
+{
+var v = [ _vertices_table[a],_vertices_table[b], _vertices_table[c], _vertices_table[a],_vertices_table[c], _vertices_table[d]];
+for(var i=0;i< v.length;i++){
+    _vertices_out.push(v[i]);
+ }
+ for(var i=0;i< v.length;i++){
+    _colors_out.push(color);
  }
 }

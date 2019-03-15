@@ -133,3 +133,11 @@ iframe{
     display: block;
     margin: 0 3px;
 }
+.RadioDivDiv{
+   display: flex;
+   font-size: 1.5em;
+   justify-content: center;
+}
+.RadioDivDiv>div{
+    margin: 0px 1vw;
+}
