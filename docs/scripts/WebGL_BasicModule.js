@@ -187,12 +187,17 @@ function loadShaders(gl, vertexShaderQ, fragmentShaderQ){
     gl.linkProgram( program );
     return program;
 }
-function canvasPosToGLPos(c_x,c_y,envir){
+function canvasPosToGLClippingCoord(c_x,c_y,envir){
     var cans_w=envir.cnv.clientWidth;
     var cans_h=envir.cnv.clientHeight;
    var x=-1+2*(c_x/cans_w);
    var y=1-2*(c_y/cans_h);
    return vec3(x,y,0);
+}
+function GLClippingCoordToUnitSphereCoord(gl_x,gl_y){
+   var elevation=linearMapping(gl_y,-1,1,Math.PI,0);
+   var azimuth=linearMapping(gl_x,-1,1,0,2*Math.PI);
+   return [Math.cos(azimuth)*Math.sin(elevation),Math.sin(azimuth)*Math.sin(elevation),Math.cos(elevation)];
 }
 function randomVec3(){
     var x=Math.random();
@@ -253,4 +258,9 @@ for(var i=0;i< v.length;i++){
  for(var i=0;i< v.length;i++){
     _colors_out.push(color);
  }
+}
+function linearMapping(value,domainMin,domainMax,coDomainMin,coDomainMax){
+    var domainRange=domainMax-domainMin;
+    var coDomainMinRange=coDomainMax-coDomainMin;
+    return (value-domainMin)/domainRange*coDomainMinRange+coDomainMin;
 }

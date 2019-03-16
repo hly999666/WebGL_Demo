@@ -21,6 +21,7 @@ function FunctionPackage_RotatingCube_Constructor(){
       envir.dataSet["elementV"] = [];
       envir.dataSet["vPos"] =[];
       envir.dataSet["vColor"] =[];
+      envir.InputVar={};
     this.updateShaders=function()
     {
         //fp.getInput(envir);
@@ -50,11 +51,20 @@ function FunctionPackage_RotatingCube_Constructor(){
         gl.bufferData( gl.ARRAY_BUFFER,  flattenArrayOfVectors(envir.dataSet["vPos"]), gl.STATIC_DRAW );
 
     }
+    envir.InputVar["rotM"]=mat4();
     this.mainRender=function(){
-        var rotM=mat4();
+        var rotM=envir.InputVar["rotM"];
+        //console.log(envir.InputVar["currentRotation"]);
+        if(envir.InputVar["currentRotation"][0]>0.001){
+           var rv=envir.InputVar["currentRotation"];
+           var rotAxis=rotateM(rv[0],vec3(rv[1],rv[3],rv[2]));
+           rotAxis=mult(rotAxis,envir.InputVar["rotM"]);
+           rotM=mult(rotAxis,rotM);
+        }
         rotM=mult(rotM,rotateX_M(envir.inputVar.rotation[0]));
         rotM=mult(rotM,rotateY_M(envir.inputVar.rotation[1]));
         rotM=mult(rotM,rotateZ_M(envir.inputVar.rotation[2]));
+        envir.InputVar["rotM"]=rotM;
         gl.uniformMatrix4fv(envir.LocInShaders["rotMatrix"], false, flatten(rotM));
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         //console.log(envir.inputVar.DrawingMode);
@@ -92,7 +102,7 @@ function FunctionPackage_RotatingCube_Constructor(){
        if(this.classList.contains("RotateZ"))envir.inputVar.rotation[2]+=3;
        fp.mainRender();
    };
-   document.querySelectorAll(".RotateBtnDiv>.btn").forEach(
+   document.querySelectorAll(envir.cantainerID+" .RotateBtnDiv>.btn").forEach(
       function(btn){
        btn.addEventListener("click",fp.rotationBtnListener);
       }
@@ -116,13 +126,48 @@ function FunctionPackage_RotatingCube_Constructor(){
         }
     }
 
-    document.querySelectorAll(".RadioDivDiv input").forEach(
+    document.querySelectorAll(envir.cantainerID+" .RadioDivDiv input").forEach(
         function(input){
             input.addEventListener("click", fp.drawingModeListener);
         }
      );
-
+    //trackball UI
+     envir.InputStatus={};
+     envir.InputStatus["mouseDown"]=false;
+     envir.InputVar["currentRotation"]=[0,0,0,0];
+     document.querySelector(envir.cantainerID+" canvas").addEventListener("mousedown",
+     function(){
+         envir.InputStatus["mouseDown"]=true;
+         envir.InputVar["trackballSensitivity"]= Number(document.querySelector(envir.cantainerID+" .inputRangeElem").value);
+         var lastPos=canvasPosToGLClippingCoord(event.offsetX,event.offsetY,envir);
+         envir.InputVar["mouseLastPoint"]=GLClippingCoordToUnitSphereCoord(lastPos[0],lastPos[1]);
+         console.log("mouseDown");
+     });
+     document.querySelector(envir.cantainerID+" canvas").addEventListener("mouseup",
+     function(){
+         envir.InputStatus["mouseDown"]=false;
+         envir.InputVar["currentRotation"][0]=0;
+         console.log("mousup");
+     });
+     document.querySelector(envir.cantainerID+" canvas").addEventListener("mousemove",
+     function(){
+         if( envir.InputStatus["mouseDown"]){
+            console.log("mousemove");
+            var lastPoint=envir.InputVar["mouseLastPoint"];
+            var nowPos=canvasPosToGLClippingCoord(event.offsetX,event.offsetY,envir);
+            var nowPoint=GLClippingCoordToUnitSphereCoord(nowPos[0],nowPos[1]);
+            console.log(nowPoint);
+            var nowAxis=cross(lastPoint,nowPoint);
+            envir.InputVar["currentRotation"][0]=Math.sqrt(dot(nowAxis,nowAxis))/512* envir.InputVar["trackballSensitivity"];
+            envir.InputVar["currentRotation"][1]=nowAxis[0];
+            envir.InputVar["currentRotation"][2]=nowAxis[1];
+            envir.InputVar["currentRotation"][3]=nowAxis[2];
+            envir.InputVar["mouseLastPoint"]=nowPoint;
+            
+         }
+     });
     }
+     //TrackBall UI
     return FunctionPackage;
 }
 

@@ -114,11 +114,12 @@ iframe{
 .shaderMenu{
     margin: 2vh auto;
 }
-.polygonNote{
+.polygonNote,.UINote{
     width:90%;
     margin: 0.5vh auto;
     padding: 0px auto;
     text-align: center;
+    font-size: 1.2em;
 }
 .polygonNote>button{
     display: inline-block;
