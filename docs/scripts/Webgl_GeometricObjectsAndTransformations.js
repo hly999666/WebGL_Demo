@@ -1,5 +1,24 @@
 "use strict";
+
 var WebGLModuleController={};
+function trackballView( x,  y ) {
+    var d, a;
+    var v = [];
+
+    v[0] = x;
+    v[1] = y;
+
+    d = v[0]*v[0] + v[1]*v[1];
+    if (d < 1.0)
+      v[2] = Math.sqrt(1.0 - d);
+    else {
+      v[2] = 0.0;
+      a = 1.0 /  Math.sqrt(d);
+      v[0] *= a;
+      v[1] *= a;
+    }
+    return v;
+}
 function FunctionPackage_RotatingCube_Constructor(){
     var FunctionPackage=WebGLModuleFunctionPackageConstructor();
     FunctionPackage.setup=function(_envir){
@@ -22,6 +41,7 @@ function FunctionPackage_RotatingCube_Constructor(){
       envir.dataSet["vPos"] =[];
       envir.dataSet["vColor"] =[];
       envir.InputVar={};
+
     this.updateShaders=function()
     {
         //fp.getInput(envir);
@@ -51,22 +71,17 @@ function FunctionPackage_RotatingCube_Constructor(){
         gl.bufferData( gl.ARRAY_BUFFER,  flattenArrayOfVectors(envir.dataSet["vPos"]), gl.STATIC_DRAW );
 
     }
-    envir.InputVar["rotM"]=mat4();
+    //RotateBtn UI
+    envir.inputVar["rotationBtnController"]=new rotationBtnController(envir);
+   //trackBall UI
+   envir.inputVar["trackBallUIBtnController"]=new trackBallUIBtnController(envir);
     this.mainRender=function(){
-        var rotM=envir.InputVar["rotM"];
-        //console.log(envir.InputVar["currentRotation"]);
-        if(envir.InputVar["currentRotation"][0]>0.001){
-           var rv=envir.InputVar["currentRotation"];
-           var rotAxis=rotateM(rv[0],vec3(rv[1],rv[3],rv[2]));
-           rotAxis=mult(rotAxis,envir.InputVar["rotM"]);
-           rotM=mult(rotAxis,rotM);
-        }
-        rotM=mult(rotM,rotateX_M(envir.inputVar.rotation[0]));
-        rotM=mult(rotM,rotateY_M(envir.inputVar.rotation[1]));
-        rotM=mult(rotM,rotateZ_M(envir.inputVar.rotation[2]));
-        envir.InputVar["rotM"]=rotM;
-        gl.uniformMatrix4fv(envir.LocInShaders["rotMatrix"], false, flatten(rotM));
+        
+        let rotateBtn=envir.inputVar["rotationBtnController"].getRotationMat();
+        let rotationAxisMatrix=envir.inputVar["trackBallUIBtnController"].getRotationMat(envir);
+        let rotationMatrixTotal = mult(rotateBtn,rotationAxisMatrix);
         gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.uniformMatrix4fv( envir.LocInShaders["rotMatrix"] , false, flatten(rotationMatrixTotal));
         //console.log(envir.inputVar.DrawingMode);
         if(envir.inputVar.DrawingMode=="radioInterpolation"){
             gl.drawElements( gl.TRIANGLES, envir.numVertices,gl.UNSIGNED_SHORT, 0 );
@@ -94,19 +109,8 @@ function FunctionPackage_RotatingCube_Constructor(){
    //keyEvent
     this.keyEvent=[];
 
-   //RotateBtn UI
-   envir.inputVar.rotation=[0,0,0];
-   fp.rotationBtnListener=function(){
-       if(this.classList.contains("RotateX"))envir.inputVar.rotation[0]+=3;
-       if(this.classList.contains("RotateY"))envir.inputVar.rotation[1]+=3;
-       if(this.classList.contains("RotateZ"))envir.inputVar.rotation[2]+=3;
-       fp.mainRender();
-   };
-   document.querySelectorAll(envir.cantainerID+" .RotateBtnDiv>.btn").forEach(
-      function(btn){
-       btn.addEventListener("click",fp.rotationBtnListener);
-      }
-   );
+   
+   
     //DrawingMode UI
     fp.drawingModeListener=function(){
         if(this.classList[0]===envir.inputVar.DrawingMode)return;
@@ -131,41 +135,6 @@ function FunctionPackage_RotatingCube_Constructor(){
             input.addEventListener("click", fp.drawingModeListener);
         }
      );
-    //trackball UI
-     envir.InputStatus={};
-     envir.InputStatus["mouseDown"]=false;
-     envir.InputVar["currentRotation"]=[0,0,0,0];
-     document.querySelector(envir.cantainerID+" canvas").addEventListener("mousedown",
-     function(){
-         envir.InputStatus["mouseDown"]=true;
-         envir.InputVar["trackballSensitivity"]= Number(document.querySelector(envir.cantainerID+" .inputRangeElem").value);
-         var lastPos=canvasPosToGLClippingCoord(event.offsetX,event.offsetY,envir);
-         envir.InputVar["mouseLastPoint"]=GLClippingCoordToUnitSphereCoord(lastPos[0],lastPos[1]);
-         console.log("mouseDown");
-     });
-     document.querySelector(envir.cantainerID+" canvas").addEventListener("mouseup",
-     function(){
-         envir.InputStatus["mouseDown"]=false;
-         envir.InputVar["currentRotation"][0]=0;
-         console.log("mousup");
-     });
-     document.querySelector(envir.cantainerID+" canvas").addEventListener("mousemove",
-     function(){
-         if( envir.InputStatus["mouseDown"]){
-            console.log("mousemove");
-            var lastPoint=envir.InputVar["mouseLastPoint"];
-            var nowPos=canvasPosToGLClippingCoord(event.offsetX,event.offsetY,envir);
-            var nowPoint=GLClippingCoordToUnitSphereCoord(nowPos[0],nowPos[1]);
-            console.log(nowPoint);
-            var nowAxis=cross(lastPoint,nowPoint);
-            envir.InputVar["currentRotation"][0]=Math.sqrt(dot(nowAxis,nowAxis))/512* envir.InputVar["trackballSensitivity"];
-            envir.InputVar["currentRotation"][1]=nowAxis[0];
-            envir.InputVar["currentRotation"][2]=nowAxis[1];
-            envir.InputVar["currentRotation"][3]=nowAxis[2];
-            envir.InputVar["mouseLastPoint"]=nowPoint;
-            
-         }
-     });
     }
      //TrackBall UI
     return FunctionPackage;

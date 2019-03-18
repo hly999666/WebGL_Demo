@@ -199,6 +199,14 @@ function GLClippingCoordToUnitSphereCoord(gl_x,gl_y){
    var azimuth=linearMapping(gl_x,-1,1,0,2*Math.PI);
    return [Math.cos(azimuth)*Math.sin(elevation),Math.sin(azimuth)*Math.sin(elevation),Math.cos(elevation)];
 }
+function GLClippingCoordToUnitSphereCoord_V2(gl_x,gl_y){
+    let d=Math.sqrt(gl_x*gl_x+gl_y*gl_y);
+    if(d<=1){
+        return [gl_x,gl_y,Math.sqrt(1-d*d)];
+    }else{
+        return [gl_x/d,gl_y/d,0];
+    }
+ }
 function randomVec3(){
     var x=Math.random();
     var y=Math.random();
@@ -263,4 +271,108 @@ function linearMapping(value,domainMin,domainMax,coDomainMin,coDomainMax){
     var domainRange=domainMax-domainMin;
     var coDomainMinRange=coDomainMax-coDomainMin;
     return (value-domainMin)/domainRange*coDomainMinRange+coDomainMin;
+}
+class rotationBtnController{
+    constructor(envir){
+        this.rotation=[0,0,0];
+        let _rotation=this.rotation;
+   this.rotationBtnListener=function(){
+       if(this.classList.contains("RotateX"))_rotation[0]+=3;
+       if(this.classList.contains("RotateY"))_rotation[1]+=3;
+       if(this.classList.contains("RotateZ"))_rotation[2]+=3;
+       //envir.FunctionPackage.mainRender();
+   };
+   let _rotationBtnListener=this.rotationBtnListener;
+   document.querySelectorAll(envir.cantainerID+" .RotateBtnDiv>.btn").forEach(
+      function(btn){
+       btn.addEventListener("click",_rotationBtnListener);
+      }
+   );
+    }
+    getRotationMat(){
+        let rotateBtn=mat4(); 
+        rotateBtn=mult(rotateBtn,rotateX_M(this.rotation[0]));
+        rotateBtn=mult(rotateBtn,rotateY_M(this.rotation[1]));
+        rotateBtn=mult(rotateBtn,rotateZ_M(this.rotation[2]));
+        return rotateBtn;
+    }
+}
+class trackBallUIBtnController{
+    constructor(envir){
+        this.canvas=envir.cnv;
+        this.lastPos=[0,0,0];
+        this.axis=[0,0,1];
+        this.angle=0;
+        this.trackingMouse=false;
+        this.trackballMove=false;
+        this.rotatM=mat4();
+        this.mouseMotion=function(x, y)
+        {
+            //console.log("mouseMotion");
+            let Controller=envir.inputVar["trackBallUIBtnController"];
+            let dist=0;
+            var curPos = GLClippingCoordToUnitSphereCoord_V2(x, y);
+            if( Controller.trackingMouse) {
+                dist=vectorLen(subtract(Controller.lastPos,curPos));
+              if ((dist)>0.01) {
+                Controller.angle = -8* dist* envir.InputVar["trackballSensitivity"];
+                Controller.axis=cross( Controller.lastPos, curPos);
+                Controller.lastPos=curPos;
+                
+              }
+            }
+        }
+        this.startMotion=function(x, y)
+        {
+            //console.log("startMotion");
+            let Controller=envir.inputVar["trackBallUIBtnController"];
+            Controller.trackingMouse = true;
+            Controller.lastPos = GLClippingCoordToUnitSphereCoord_V2(x, y);
+            Controller.trackballMove=true;
+        }
+        this.stopMotion=function()
+        {
+            //console.log("stopMotion");
+            let Controller=envir.inputVar["trackBallUIBtnController"];
+            Controller.trackingMouse = false;
+            setTimeout(function(){   
+                Controller.angle = 0.0;
+                Controller.trackballMove = false;
+            },500);
+        }
+        let _startMotion= this.startMotion;
+        let _mouseMotion= this.mouseMotion;
+        let _stopMotion= this.stopMotion;
+        this.canvas.addEventListener("mousedown",
+             function(){
+                envir.InputVar["trackballSensitivity"]= Number(document.querySelector(envir.cantainerID+" .inputRangeElem").value);
+                 var nowPos=canvasPosToGLClippingCoord(event.offsetX,event.offsetY,envir);
+                var x =nowPos[0];
+                var y =nowPos[1];
+                _startMotion(x, y);
+             });
+        this.canvas.addEventListener("mouseup",()=>_stopMotion());
+        this.canvas.addEventListener("mouseleave",()=>_stopMotion());
+        this.canvas.addEventListener("mousemove",
+             function(){
+                var nowPos=canvasPosToGLClippingCoord(event.offsetX,event.offsetY,envir);
+                var x =nowPos[0];
+                var y =nowPos[1];
+                _mouseMotion(x, y);
+             });
+
+    }
+    getRotationMat(envir){
+      
+        let controller=envir.inputVar["trackBallUIBtnController"];
+        let rotationAxisMatrix=controller.rotatM;
+        if(controller.trackballMove||controller.trackingMouse)console.log(controller)
+        if(controller.trackballMove&&vectorLen(controller.axis)!=0) {
+            //console.log("angle :"+angle+". axis:"+axis);
+            controller.axis = normalize(controller.axis);
+            rotationAxisMatrix = mult(rotateM(controller.angle, controller.axis),rotationAxisMatrix);
+          }
+          envir.inputVar["trackBallUIBtnController"].rotatM=rotationAxisMatrix;
+          return rotationAxisMatrix;
+    }
 }

@@ -64,7 +64,11 @@ function flattenVector(v){
     }
     return floats;
 }
-
+function vectorLen(v){
+    let ans=0;
+    for(i of v)ans+=(i*i);
+    return Math.sqrt(ans);
+}
 //other math function
 
 function _argumentsToArray( args )
