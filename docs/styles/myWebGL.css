@@ -3,14 +3,21 @@ margin: 2vh auto;
 }
 .canvasDiv{
     width:512px;
-    margin:2vh auto;
+    margin:10px auto;
 }
 .myBigBtnDiv{
     max-width:35%;
-    margin:1vh auto;
+    margin:10px auto;
+}
+.shaderInput{
+    width:90%;
+    margin:0px auto;
+    border-radius: 30px;
+   background-color: rgb(220,220,220);
+   padding: 1vmin;
 }
 .shaderInput_Grid{
-    margin: 5vh auto;
+    margin: 10px auto;
     display: grid;
     grid-template-rows: 25vh 25vh;
     grid-template-columns:1fr 1fr;
@@ -77,8 +84,10 @@ iframe{
     padding: 0px auto;
     text-align: center;
 }
-.btnToggleForm_viewport{
-    width:100%;
+.myBigBtnDiv>button{
+    width:80%;
+    display: block;
+    margin: 0px auto;
 }
 .Selection_1>select{
     display:inline-block;
@@ -125,7 +134,7 @@ iframe{
     display: inline-block;
 }
 .RotateBtnDiv{
-    margin: 5vh auto 5px auto;
+    margin: 10px auto 5px auto;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -141,4 +150,29 @@ iframe{
 }
 .RadioDivDiv>div{
     margin: 0px 1vw;
+}
+.UI_Div{
+    width: 90%;
+    border: 3px solid rgb(162, 224, 204);
+    margin: 0 auto;
+    padding: 2%;
+}
+.UI_Div>div {
+    display: flex ;
+    text-align: center;
+}
+.UI_Div>div>div:nth-of-type(1) {
+    width: 25%;
+    flex:1 1 auto;
+    
+}
+.UI_Div>div>div:nth-of-type(2) {
+    width:70%;
+    flex:1 1 auto;
+    
+}
+.UI_Div>div>div:nth-of-type(3) {
+    width: 5%;
+    flex:1 1 auto;
+    
 }

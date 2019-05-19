@@ -1,5 +1,4 @@
 "use strict";
-
 var WebGLModuleController={};
 function trackballView( x,  y ) {
     var d, a;

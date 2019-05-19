@@ -2,22 +2,18 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-<title>Geometric Objects And Transformations</title>
-<script type="text/javascript" src="./scripts/myUIWidgets.js"></script>
-<script type="text/javascript" src="./scripts/MathG.js"></script>
-<script type="text/javascript" src="./scripts/shadersInitiator.js"></script>
-<script type="text/javascript" src="./scripts/WebGL_BasicModule.js"></script>
-<script type="text/javascript" src="./scripts/Webgl_GeometricObjectsAndTransformations.js"></script>
+<title>Viewing in Webgl</title>
+
 <link rel="stylesheet" type="text/css"href="./styles/bootstrap_3.3.5.min.css">
 <link rel="stylesheet" type="text/css" href="./styles/myWebGL.css">
 </head>
 
 <body>
-<div class="container"><h2 class="myTitle">Geometric Objects And Transformations</h2></div>
-<div class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
+<div class="container"><h2 class="myTitle">Viewing in Webgl</h2></div>
+<div id="mainDiv_1" class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
         <div class="panel-heading"> <h3 class="panel-title">Rotating Cube:3D Transformation Demo</h3> </div>
-        <div class="myBigBtnDiv"><button class="btn btn-primary btn-default btnToggleForm_viewport" >Edit Shader</button></div>
-   <div class="shaderInput">
+        <div class="myBigBtnDiv"><button class="btn btn-primary btn-default btnToggleForm_viewport" @click="isShowShaderEditor=!isShowShaderEditor">Edit Shader</button></div>
+   <div class="shaderInput" v-show="isShowShaderEditor">
         <div class="shaderInput_Grid">
                 <div class="GridItem_1">
                 <div>
@@ -50,23 +46,47 @@
                   </div>
              </div>
              </div>
-    <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport">Update Shader</button></div>
+    <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport" @click="updateShader">Update Shader</button></div>
+   </div>
+
+   <div class="UI_Div">
+ 
+       <div> <input v-model="near" class="inputRangeElem" type="range"  value="1" min="0" max="5" step="0.2"/></div>
+        <div>{{near}}</div>
+       </div>
+       <div>
+        <div>Far Clipping Distance</div>
+       <div> <input v-model="far" class="inputRangeElem" type="range"  value="1" min="0" max="5" step="0.2"/></div>
+        <div>{{far}}</div>
+       </div>
+       <div>
+        <div>Camera Distance</div>
+       <div> <input v-model="radius" class="inputRangeElem" type="range"  value="5" min="0" max="20" step="1"/></div>
+        <div>{{radius}}</div>
+       </div>
+       <div>
+        <div>Camera Azimuth </div>
+        <div> <input v-model="phi" class="inputRangeElem" type="range"  value="0" min="0" max="360" step="10"/></div>
+         <div>{{phi}}</div>
+       </div>
+       <div>
+        <div>Camera Elevation</div>
+        <div> <input v-model="theta" class="inputRangeElem" type="range"  value="0" min="-90" max="90" step="10"/></div>
+         <div>{{theta}}</div>
+       </div>
+       <div>
+        <div>Viewing Width</div>
+        <div> <input v-model="v_width" class="inputRangeElem" type="range"  value="0" min="0" max="20" step="1"/></div>
+         <div>{{v_width}}</div>
+       </div>
+       <div>
+        <div>Viewing Height</div>
+        <div> <input v-model="v_height" class="inputRangeElem" type="range"  value="0" min="0" max="20" step="1"/></div>
+         <div>{{v_height}}</div>
+       </div>
    </div>
       <div class="canvasDiv">
-                <div class="RotateBtnDiv">
-                                <div class="btn btn-info btn_sm RotateX"  >Rotate X</div>
-                                <div class="btn btn-info btn_sm RotateY"   >Rotate Y</div>
-                                <div class="btn btn-info btn_sm RotateZ"   >Rotate Z</div>
-                                
-                </div>
-                <div class="RadioDivDiv">
-                    Display Mode
-                  <div><input class="radioInterpolation" type="radio" name="shading mode" checked="checked">Interpolation</div>
-                  <div> <input  class="radioSolid" type="radio" name="shading mode">Solid</div>
-                </div>
-                <div class="UINote"><strong>Click and drag</strong> to using virtual trackball to control the rotation</div>
-                <input class="inputRangeElem" type="range" value="10" min="0" max="100">
-                <div class="UINote">Adjust Trackball Sensitivity Using <strong>Slidebar</strong> Above</div>
+
              <div class="container myCanvasContainer">   
                  <canvas class="gl-canvas"  width="512" height="512" >
                 HTML5_canvas_NO_suppurted
@@ -148,4 +168,10 @@
 -->
 
 </body>
+<script type="text/javascript" src="./scripts/myUIWidgets.js"></script>
+<script type="text/javascript" src="./scripts/MathG.js"></script>
+<script type="text/javascript" src="./scripts/shadersInitiator.js"></script>
+<script type="text/javascript" src="./scripts/WebGL_BasicModule.js"></script>
+<script type="text/javascript" src="./scripts/Webgl_Viewing.js"></script>
+<script type="text/javascript" src="./scripts/vue.js"></script>
 </html>

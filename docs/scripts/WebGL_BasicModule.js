@@ -318,7 +318,6 @@ class trackBallUIBtnController{
                 Controller.angle = -8* dist* envir.InputVar["trackballSensitivity"];
                 Controller.axis=cross( Controller.lastPos, curPos);
                 Controller.lastPos=curPos;
-                
               }
             }
         }
