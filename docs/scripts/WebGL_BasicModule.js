@@ -375,3 +375,84 @@ class trackBallUIBtnController{
           return rotationAxisMatrix;
     }
 }
+function WebGLModuleEnvironmentConstructor_VerII() {
+    var envir={
+        cantainerID:"",
+        dataSet:{},
+        canvas:"",
+        gl:"",
+        shadersProgram:"",
+        bufferIds:{},
+        LocInShaders:{},
+        numVertices:0,
+        vueInstance:""
+       }
+    return envir;
+}
+function setUpWebGlEnvironment_VerII(containerID,vueInstance){
+         let envir=WebGLModuleEnvironmentConstructor_VerII();
+         envir["cantainerID"]=containerID;
+         envir["canvas"]=document.querySelector("#"+containerID+" canvas");
+         envir["gl"]=envir["canvas"].getContext( "webgl", 
+           {
+            antialias: true
+          });
+          envir["vueInstance"]=vueInstance;
+          envir["shadersProgram"]=configShaders_VerII(envir);
+          return envir;
+}
+function addColorCubeToEnvir(envir)
+{
+    if(envir["dataSet"]["pointsArray"]==undefined){
+        envir["dataSet"]["pointsArray"]=[];
+    }
+    if(envir["dataSet"]["colorsArray"]==undefined){
+        envir["dataSet"]["colorsArray"]=[];
+    }
+    envir["numVertices"]  += 36;
+
+let pointsArray =envir["dataSet"]["pointsArray"];
+let colorsArray =envir["dataSet"]["colorsArray"];
+
+let vertices = [
+        vec4( -0.5, -0.5,  0.5, 1.0 ),
+        vec4( -0.5,  0.5,  0.5, 1.0 ),
+        vec4( 0.5,  0.5,  0.5, 1.0 ),
+        vec4( 0.5, -0.5,  0.5, 1.0 ),
+        vec4( -0.5, -0.5, -0.5, 1.0 ),
+        vec4( -0.5,  0.5, -0.5, 1.0 ),
+        vec4( 0.5,  0.5, -0.5, 1.0 ),
+        vec4( 0.5, -0.5, -0.5, 1.0 ),
+    ];
+
+let vertexColors = [
+        vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
+        vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
+        vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
+        vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
+        vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
+        vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
+        vec4( 0.0, 1.0, 1.0, 1.0 ),   // cyan
+        vec4( 1.0, 1.0, 1.0, 1.0 ),  // white
+    ];
+    let quad=function (a, b, c, d) {
+        pointsArray.push(vertices[a]);
+        colorsArray.push(vertexColors[a]);
+        pointsArray.push(vertices[b]);
+        colorsArray.push(vertexColors[a]);
+        pointsArray.push(vertices[c]);
+        colorsArray.push(vertexColors[a]);
+        pointsArray.push(vertices[a]);
+        colorsArray.push(vertexColors[a]);
+        pointsArray.push(vertices[c]);
+        colorsArray.push(vertexColors[a]);
+        pointsArray.push(vertices[d]);
+        colorsArray.push(vertexColors[a]);
+   }
+    quad( 1, 0, 3, 2 );
+    quad( 2, 3, 7, 6 );
+    quad( 3, 0, 4, 7 );
+    quad( 6, 5, 1, 2 );
+    quad( 4, 5, 6, 7 );
+    quad( 5, 4, 0, 1 );
+}

@@ -976,3 +976,62 @@ function normalMatrix(m, flag)
     }
 
 }
+function lookAt( eye, at, up ){
+    return  _lookAt( eye, at, up );
+}
+function _lookAt( eye, at, up )
+{
+    if ( !Array.isArray(eye) || eye.length != 3) {
+        throw "lookAt(): first parameter [eye] must be an a vec3";
+    }
+
+    if ( !Array.isArray(at) || at.length != 3) {
+        throw "lookAt(): first parameter [at] must be an a vec3";
+    }
+
+    if ( !Array.isArray(up) || up.length != 3) {
+        throw "lookAt(): first parameter [up] must be an a vec3";
+    }
+
+    if ( equal(eye, at) ) {
+        return mat4();
+    }
+
+    var v = normalize( subtract(at, eye) );  // view direction vector
+    var n = normalize( cross(v, up) );       // perpendicular vector
+    var u = normalize( cross(n, v) );        // "new" up vector
+
+    v = negate( v );
+
+    var result = mat4(
+        vec4( n, -dot(n, eye) ),
+        vec4( u, -dot(u, eye) ),
+        vec4( v, -dot(v, eye) ),
+        vec4()
+    );
+
+    return result;
+}
+function ortho( left, right, bottom, top, near, far ){
+  return _ortho( left, right, bottom, top, near, far );
+}
+function _ortho( left, right, bottom, top, near, far )
+{
+    if ( left == right ) { throw "ortho(): left and right are equal"; }
+    if ( bottom == top ) { throw "ortho(): bottom and top are equal"; }
+    if ( near == far )   { throw "ortho(): near and far are equal"; }
+
+    var w = right - left;
+    var h = top - bottom;
+    var d = far - near;
+
+    var result = mat4();
+    result[0][0] = 2.0 / w;
+    result[1][1] = 2.0 / h;
+    result[2][2] = -2.0 / d;
+    result[0][3] = -(left + right) / w;
+    result[1][3] = -(top + bottom) / h;
+    result[2][3] = -(near + far) / d;
+
+    return result;
+}
