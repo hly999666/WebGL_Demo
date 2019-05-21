@@ -456,3 +456,9 @@ let vertexColors = [
     quad( 4, 5, 6, 7 );
     quad( 5, 4, 0, 1 );
 }
+function SphericalCoordinateToXYZ(radius,Azimuth,Elevation){
+    let x=  radius*Math.sin(Elevation)*Math.cos(Azimuth);
+    let y= radius*Math.sin(Elevation)*Math.sin(Azimuth);
+    let z=    radius*Math.cos(Elevation);
+    return [x,y,z];
+}

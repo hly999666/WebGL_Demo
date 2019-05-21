@@ -52,7 +52,7 @@ window.onload=function init(){
             far:1,
             radius:1,
             phi:0,
-            theta:0,
+            theta:90,
             v_width:2,
             v_height :2,
             viewingMode:"Parallel",
@@ -76,8 +76,8 @@ window.onload=function init(){
 let mainRender = function() {
     let gl=WebGLEnvir["gl"];
     let numVertices=WebGLEnvir["numVertices"];
-    let phi=Number(Vue_1.$data["phi"]);
-    let theta=Number(Vue_1.$data["theta"]);
+    let phi=Number(Vue_1.$data["phi"])*(Math.PI/180);
+    let theta=Number(Vue_1.$data["theta"])*(Math.PI/180);
     let radius=Number(Vue_1.$data["radius"]);
     let  at = vec3(0.0, 0.0, 0.0);
     let  up = vec3(0.0, 1.0, 0.0);
@@ -90,8 +90,8 @@ let mainRender = function() {
     let modelViewMatrixLoc=WebGLEnvir["LocInShaders"]["modelViewMatrixLoc"];
     let projectionMatrixLoc=WebGLEnvir["LocInShaders"]["projectionMatrixLoc"];
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    let eye = vec3(radius*Math.sin(phi), radius*Math.sin(theta),
-         radius*Math.cos(phi));
+    let eye = SphericalCoordinateToXYZ(radius,phi,theta);
+    console.log(eye);
     let modelViewMatrix = lookAt(eye, at , up);
     let projectionMatrix = ortho(left, right, bottom, top, near, far);
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
@@ -102,7 +102,7 @@ setInterval(
     function(){
         requestAnimationFrame(mainRender);
     },
-    1000/30
+    1000/10
     );
 }
 
