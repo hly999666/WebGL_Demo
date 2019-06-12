@@ -55,6 +55,8 @@ window.onload=function init(){
             theta:90,
             v_width:2,
             v_height :2,
+            FOV:45,
+            aspect:1,
             viewingMode:"Parallel",
             vertexShader:document.querySelector(".vertexShader").value,
             fragmentShader:document.querySelector(".fragmentShader").value

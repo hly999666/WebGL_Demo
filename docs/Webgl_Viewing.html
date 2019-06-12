@@ -84,15 +84,25 @@
         <div class="input_range"> <input v-model="theta" class="inputRangeElem" type="range"  value="90" min="0" max="180" step="5"/></div>
          <div class="data_display">{{theta}}</div>
        </div>
-       <div>
-        <div  class="name">Viewing Width</div>
+       <div v-show="viewingMode=='Parallel'">
+        <div  class="name" >Viewing Width</div>
         <div class="input_range"> <input v-model="v_width" class="inputRangeElem" type="range"  value="0" min="0" max="20" step="1"/></div>
          <div class="data_display">{{v_width}}</div>
        </div>
-       <div>
+       <div v-show="viewingMode=='Parallel'">
         <div  class="name">Viewing Height</div>
         <div class="input_range"> <input v-model="v_height" class="inputRangeElem" type="range"  value="0" min="0" max="20" step="1"/></div>
          <div  class="data_display">{{v_height}}</div>
+       </div>
+       <div v-show="viewingMode=='Perspective'">
+        <div  class="name" >FOV</div>
+        <div class="input_range"> <input v-model="FOV" class="inputRangeElem" type="range"  value="45" min="10" max="120" step="5"/></div>
+         <div class="data_display">{{FOV}}</div>
+       </div>
+       <div v-show="viewingMode=='Perspective'">
+        <div  class="name">Aspect Ratio</div>
+        <div class="input_range"> <input v-model="aspect" class="inputRangeElem" type="range"  value="0" min="0.5" max="20" step="2"/></div>
+         <div  class="data_display">{{aspect}}</div>
        </div>
    </div>
       <div class="canvasDiv">
