@@ -89,13 +89,22 @@ let mainRender = function() {
     let top=Number(Vue_1.$data["v_height"])/2;
     let near=Number(Vue_1.$data["near"]);
     let far=near+Number(Vue_1.$data["far"]);
+    let fovy=Number(Vue_1.$data["FOV"]);
+    let aspect=Number(Vue_1.$data["aspect"]);
+    let projectionMode=Vue_1.$data["viewingMode"];
     let modelViewMatrixLoc=WebGLEnvir["LocInShaders"]["modelViewMatrixLoc"];
     let projectionMatrixLoc=WebGLEnvir["LocInShaders"]["projectionMatrixLoc"];
+  
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     let eye = SphericalCoordinateToXYZ(radius,phi,theta);
     console.log(eye);
     let modelViewMatrix = lookAt(eye, at , up);
-    let projectionMatrix = ortho(left, right, bottom, top, near, far);
+    let projectionMatrix = mat4();
+    if(projectionMode=="Parallel"){
+        projectionMatrix=ortho(left, right, bottom, top, near, far);
+    }else{
+        projectionMatrix=_perspective( fovy, aspect, near, far );
+    }
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
     gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
