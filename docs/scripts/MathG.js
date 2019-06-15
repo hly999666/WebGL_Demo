@@ -981,18 +981,23 @@ function ortho( left, right, bottom, top, near, far ){
 /*   return _ortho( left, right, bottom, top, near, far ); */
 }
 
-function _perspective( fovy, aspect, near, far )
+function perspective( fovy, aspect, near, far )
 {
-    var f = 1.0 / Math.tan( radians(fovy) / 2 );
-    var d = far - near;
+    let top=near*Math.tan(radians(fovy));
+    let right=top*aspect;
+  let left=-right;let bottom=-top;
+    let H=mat4();
+    H[0][2]=(left +right) / (2 *near);    
+    H[1][2]= (bottom +top) / (2 *near);
 
-    var result = mat4();
-    result[0][0] = f / aspect;
-    result[1][1] = f;
-    result[2][2] = -(near + far) / d;
-    result[2][3] = -2 * near * far / d;
-    result[3][2] = -1;
-    result[3][3] = 0.0;
-
+    let S=mat4();
+    S[0][0]=((2 *near)/(-left + right));
+    S[1][1]=((2 *near)/(-bottom + top));
+    let N=mat4();
+    N[2][2]=(far +near)/(-far + near);
+    N[2][3]= ((2* far *near)/(-far + near));
+    N[3][2]= -1;
+        let result=mult(S,H);
+        result=mult(N,result);
     return result;
 }

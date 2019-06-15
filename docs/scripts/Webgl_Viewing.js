@@ -103,7 +103,7 @@ let mainRender = function() {
     if(projectionMode=="Parallel"){
         projectionMatrix=ortho(left, right, bottom, top, near, far);
     }else{
-        projectionMatrix=_perspective( fovy, aspect, near, far );
+        projectionMatrix=perspective( fovy, aspect, near, far );
     }
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
     gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
