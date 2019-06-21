@@ -57,6 +57,7 @@ window.onload=function init(){
             v_height :2,
             FOV:45,
             aspect:1,
+            display_item:'cube',
             viewingMode:"Parallel",
             vertexShader:document.querySelector(".vertexShader").value,
             fragmentShader:document.querySelector(".fragmentShader").value
@@ -65,6 +66,18 @@ window.onload=function init(){
             updateShader:function(){
                 _updateShader();
                 console.log("updateShader!!!");
+            }
+        },
+        watch:{
+            display_item:function(val) {
+                console.log("In watch : display_item = "+val);
+                WebGLEnvir["numVertices"]=0;
+                if(val=='cube'){
+                    addColorCubeToEnvir(WebGLEnvir);
+                    bufferDataToGPU(WebGLEnvir);
+                }else{
+
+                }
             }
         }
     });
@@ -97,7 +110,7 @@ let mainRender = function() {
   
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     let eye = SphericalCoordinateToXYZ(radius,phi,theta);
-    console.log(eye);
+/*     console.log(eye); */
     let modelViewMatrix = lookAt(eye, at , up);
     let projectionMatrix = mat4();
     if(projectionMode=="Parallel"){
@@ -107,7 +120,8 @@ let mainRender = function() {
     }
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
     gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
-    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+
+    if(numVertices!=0)gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 }
 setInterval(
     function(){

@@ -59,6 +59,13 @@
                                 <div class="radioBtn"> <input type="radio" value="Perspective" v-model="viewingMode"><label>  Perspective</label></div>
                 </div>
            </div>
+           <div>
+        <div class="name">Display Item</div>
+              <div  class="radioBtnDiv">
+                              <div  class="radioBtn"> <input type="radio" value="cube" v-model="display_item"><label>  Cube</label></div>
+                              <div class="radioBtn"> <input type="radio" value="hat" v-model="display_item"><label>  Hat</label></div>
+              </div>
+         </div>
        <div>
         <div class="name">Near Clipping Distance</div>
        <div class="input_range"> <input v-model="near" class="inputRangeElem" type="range"  value="1" min="0" max="5" step="0.2"/></div>
