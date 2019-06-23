@@ -462,3 +462,9 @@ function SphericalCoordinateToXYZ(radius,Azimuth,Elevation){
     let z=    radius*Math.cos(Elevation);
     return [x,y,z];
 }
+function addSombreroHatToEnvir(envir,nRows,nColumns){
+   //produce Height field data
+
+   let heightFieldAt=function(i,j){};
+  //add position data to pointsArray;
+}
