@@ -1,7 +1,7 @@
 "use strict";
 var Vue_1;
 var WebGLEnvir;
-function setViewPort(envir){
+function configWebGL(envir){
     let gl=envir["gl"];
     let canvas=envir["canvas"];
     gl.viewport( 0, 0, canvas.width, canvas.height );
@@ -10,8 +10,13 @@ function setViewPort(envir){
 
     gl.enable(gl.DEPTH_TEST);
     gl.clear( gl.COLOR_BUFFER_BIT);
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+    gl.enable(gl.POLYGON_OFFSET_FILL);
+    gl.polygonOffset(1.0, 2.0);
 }
-function bufferDataToGPU(envir){
+function bufferDataToGPU(envir,isColorOnly){
     let gl=envir["gl"];
     let program=envir["shadersProgram"];
     envir["bufferIds"]["cBufferId"]  = gl.createBuffer();
@@ -25,15 +30,19 @@ function bufferDataToGPU(envir){
     envir["LocInShaders"]["vPosition"]= gl.getAttribLocation( program, "vPosition" );
     let vPosition = envir["LocInShaders"]["vPosition"];
 
-    gl.bindBuffer( gl.ARRAY_BUFFER, cBufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW );
-    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor);
+   
+        gl.bindBuffer( gl.ARRAY_BUFFER, cBufferId );
+        gl.bufferData( gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW );
+        gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
+        gl.enableVertexAttribArray( vColor);
+    
 
+        if(!isColorOnly){
     gl.bindBuffer( gl.ARRAY_BUFFER, vBufferId );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW );
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vPosition );
+}
 
     envir["LocInShaders"]["modelViewMatrixLoc"]  = gl.getUniformLocation( program, "modelViewMatrix" );
     envir["LocInShaders"]["projectionMatrixLoc"]  = gl.getUniformLocation( program, "projectionMatrix" );
@@ -41,7 +50,25 @@ function bufferDataToGPU(envir){
 }
 function _updateShader(){
     WebGLEnvir["shadersProgram"]=configShaders_VerII(WebGLEnvir);
-    bufferDataToGPU(WebGLEnvir);
+    bufferDataToGPU(WebGLEnvir,false);
+}
+function addUniformColorToColorArray(envir,vColor){
+
+    envir["dataSet"]["colorsArray"]=[];
+    let colorsArray =envir["dataSet"]["colorsArray"];
+    let n=   envir["numVertices"];
+    for(let i=0;i<n;i++)colorsArray.push(vColor);
+}
+function changeGeo(val) {
+    console.log("In watch : display_item = "+val);
+    WebGLEnvir["numVertices"]=0;
+    if(val=='cube'){
+        addColorCubeToEnvir(WebGLEnvir);
+        bufferDataToGPU(WebGLEnvir,false);
+    }else{
+        addSombreroHatToEnvir(WebGLEnvir,30,0.4,3);
+        bufferDataToGPU(WebGLEnvir,false);
+    }
 }
 window.onload=function init(){
     Vue_1= new Vue({
@@ -69,26 +96,19 @@ window.onload=function init(){
             }
         },
         watch:{
-            display_item:function(val) {
-                console.log("In watch : display_item = "+val);
-                WebGLEnvir["numVertices"]=0;
-                if(val=='cube'){
-                    addColorCubeToEnvir(WebGLEnvir);
-                    bufferDataToGPU(WebGLEnvir);
-                }else{
-
-                }
-            }
-        }
-    });
+            display_item:changeGeo
+    }
+}
+    );
    WebGLEnvir=setUpWebGlEnvironment_VerII("mainDiv_1",Vue_1);
-   setViewPort(WebGLEnvir);
+   configWebGL(WebGLEnvir);
    addColorCubeToEnvir(WebGLEnvir);
-   bufferDataToGPU(WebGLEnvir);
+   bufferDataToGPU(WebGLEnvir,false);
+   
+   
    //generate render function
-
-
 let mainRender = function() {
+    //get envir
     let gl=WebGLEnvir["gl"];
     let numVertices=WebGLEnvir["numVertices"];
     let phi=Number(Vue_1.$data["phi"])*(Math.PI/180);
@@ -107,7 +127,8 @@ let mainRender = function() {
     let projectionMode=Vue_1.$data["viewingMode"];
     let modelViewMatrixLoc=WebGLEnvir["LocInShaders"]["modelViewMatrixLoc"];
     let projectionMatrixLoc=WebGLEnvir["LocInShaders"]["projectionMatrixLoc"];
-  
+    let display_item=Vue_1.$data["display_item"];
+
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     let eye = SphericalCoordinateToXYZ(radius,phi,theta);
 /*     console.log(eye); */
@@ -121,7 +142,24 @@ let mainRender = function() {
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
     gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
 
-    if(numVertices!=0)gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+    if(numVertices!=0){
+         if(display_item=='cube'){gl.drawArrays( gl.TRIANGLES, 0, numVertices );}
+         else {
+            addUniformColorToColorArray(WebGLEnvir,vec4(1.0,0.0,0.0,1.0));
+            bufferDataToGPU(WebGLEnvir,true);
+            for(var i=0; i<numVertices; i+=4) {
+               
+                gl.drawArrays( gl.TRIANGLE_FAN, i, 4 );
+              
+            }
+            addUniformColorToColorArray(WebGLEnvir,vec4(0.0,0.0,0.0,1.0));
+            bufferDataToGPU(WebGLEnvir,true);
+            for(var i=0; i<numVertices; i+=4) {
+              
+                gl.drawArrays( gl.LINE_LOOP, i, 4 );
+            }
+         }
+    }
 }
 setInterval(
     function(){

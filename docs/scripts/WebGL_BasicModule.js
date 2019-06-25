@@ -410,7 +410,8 @@ function addColorCubeToEnvir(envir)
         envir["dataSet"]["colorsArray"]=[];
     }
     envir["numVertices"]  += 36;
-
+    envir["dataSet"]["pointsArray"]=[];
+    envir["dataSet"]["colorsArray"]=[];
 let pointsArray =envir["dataSet"]["pointsArray"];
 let colorsArray =envir["dataSet"]["colorsArray"];
 
@@ -456,15 +457,44 @@ let vertexColors = [
     quad( 4, 5, 6, 7 );
     quad( 5, 4, 0, 1 );
 }
+
+function addSombreroHatToEnvir(envir,nDense,yScale,xzScale){
+    //produce Height field data
+    var heightField = [];
+    let idToPos=(i)=>{return (2*i/nDense-1.0);}
+    for( var i = 0; i < nDense;i++ ) {
+        heightField.push( [] );
+        var x = idToPos(i);
+    
+        for( var j = 0; j < nDense;j++ ) {
+            var y = idToPos(j);
+            var r = xzScale*Math.sqrt(x*x+y*y);
+            heightField[i][j] =Math.abs(r-0)>0.0001? (yScale*Math.sin(Math.PI*r) / r ): 1.0;
+        }
+    }
+    let heightFieldPosAt=function(i,j){
+        return vec4(idToPos(i), heightField[i][j],idToPos(j), 1.0);
+    };
+     //add position data to pointsArray and colorsArray
+     envir["dataSet"]["pointsArray"]=[];
+    let pointsArray =envir["dataSet"]["pointsArray"];
+
+    for(var i=0; i<nDense-1; i++) {
+        for(var j=0; j<nDense-1;j++) {
+            pointsArray.push( heightFieldPosAt(i,j));
+            pointsArray.push( heightFieldPosAt(i,j+1));
+       
+          
+            pointsArray.push( heightFieldPosAt(i+1,j+1));
+            pointsArray.push( heightFieldPosAt(i+1,j));
+            envir["numVertices"]+=4;
+    }
+}
+  
+ }
 function SphericalCoordinateToXYZ(radius,Azimuth,Elevation){
     let x=  radius*Math.sin(Elevation)*Math.cos(Azimuth);
     let y= radius*Math.sin(Elevation)*Math.sin(Azimuth);
     let z=    radius*Math.cos(Elevation);
     return [x,y,z];
-}
-function addSombreroHatToEnvir(envir,nRows,nColumns){
-   //produce Height field data
-
-   let heightFieldAt=function(i,j){};
-  //add position data to pointsArray;
 }
