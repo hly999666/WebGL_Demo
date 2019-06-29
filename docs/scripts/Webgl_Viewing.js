@@ -66,7 +66,7 @@ function changeGeo(val) {
         addColorCubeToEnvir(WebGLEnvir);
         bufferDataToGPU(WebGLEnvir,false);
     }else{
-        addSombreroHatToEnvir(WebGLEnvir,30,0.4,3);
+        addSombreroHatToEnvir(WebGLEnvir,40,0.4,3);
         bufferDataToGPU(WebGLEnvir,false);
     }
 }
@@ -86,8 +86,10 @@ window.onload=function init(){
             aspect:1,
             display_item:'cube',
             viewingMode:"Parallel",
+            isDisplayShadow:true,
             vertexShader:document.querySelector(".vertexShader").value,
-            fragmentShader:document.querySelector(".fragmentShader").value
+            fragmentShader:document.querySelector(".fragmentShader").value,
+
         },
         methods:{
             updateShader:function(){

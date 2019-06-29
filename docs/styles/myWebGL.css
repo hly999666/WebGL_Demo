@@ -176,10 +176,18 @@ iframe{
     width:75%;
     flex:1 1 auto;
     display: flex ;
-    justify-content: space-evenly;
+    justify-content: stretch;
+}
+.UI_Div>div>.radioBtnDiv>*{
+    box-sizing: border-box;
+
+    flex:1 1 200px;
 }
 .UI_Div>div>.data_display {
     width: 5%;
     flex:1 1 auto;
     
+}
+input[type="checkbox"]{
+  margin: 0px 10px;
 }
