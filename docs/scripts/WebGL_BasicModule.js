@@ -45,7 +45,8 @@ function WebGLModuleEnvironmentConstructor() {
         bufferIds:{},
         LocInShaders:{},
         inputVar:{},
-        viewPortUIControler:""
+        viewPortUIControler:"",
+        lightData:{}
        }
     return envir;
 }

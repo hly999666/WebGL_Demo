@@ -111,8 +111,10 @@ window.onload=function init(){
    //generate render function
 let mainRender = function() {
     //get envir
-    let gl=WebGLEnvir["gl"];
     let numVertices=WebGLEnvir["numVertices"];
+    if(numVertices==0)return;
+    let gl=WebGLEnvir["gl"];
+ 
     let phi=Number(Vue_1.$data["phi"])*(Math.PI/180);
     let theta=Number(Vue_1.$data["theta"])*(Math.PI/180);
     let radius=Number(Vue_1.$data["radius"]);
@@ -129,11 +131,12 @@ let mainRender = function() {
     let projectionMode=Vue_1.$data["viewingMode"];
     let modelViewMatrixLoc=WebGLEnvir["LocInShaders"]["modelViewMatrixLoc"];
     let projectionMatrixLoc=WebGLEnvir["LocInShaders"]["projectionMatrixLoc"];
-    let display_item=Vue_1.$data["display_item"];
-
+   
+    //produce modelViewMatrix & projectionMatrix
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     let eye = SphericalCoordinateToXYZ(radius,phi,theta);
 /*     console.log(eye); */
+
     let modelViewMatrix = lookAt(eye, at , up);
     let projectionMatrix = mat4();
     if(projectionMode=="Parallel"){
@@ -144,8 +147,11 @@ let mainRender = function() {
     gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
     gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
 
-    if(numVertices!=0){
-         if(display_item=='cube'){gl.drawArrays( gl.TRIANGLES, 0, numVertices );}
+    //switch display element
+    let display_item=Vue_1.$data["display_item"];
+         if(display_item=='cube'){
+             gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+        }
          else {
             addUniformColorToColorArray(WebGLEnvir,vec4(1.0,0.0,0.0,1.0));
             bufferDataToGPU(WebGLEnvir,true);
@@ -161,7 +167,10 @@ let mainRender = function() {
                 gl.drawArrays( gl.LINE_LOOP, i, 4 );
             }
          }
-    }
+   let onShadow=Vue_1.$data["isDisplayShadow"];
+   if(onShadow){
+      //TODO : Project Shadow
+   }
 }
 setInterval(
     function(){
