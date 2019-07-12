@@ -25,11 +25,11 @@
                                 
                                 uniform mat4 modelViewMatrix;
                                 uniform mat4 projectionMatrix;
-                                
+                                uniform float shadowSwitch;
                                 void main() 
                                 {
                                     gl_Position = projectionMatrix*modelViewMatrix*vPosition;
-                                    fcolor = vColor;
+                                    fcolor = shadowSwitch*vColor;
                                 } 
                         </textarea>
              </div>
@@ -68,27 +68,27 @@
          </div>
        <div>
         <div class="name">Near Clipping Distance</div>
-       <div class="input_range"> <input v-model="near" class="inputRangeElem" type="range"  value="1" min="0" max="5" step="0.2"/></div>
+       <div class="input_range"> <input v-model="near" class="inputRangeElem" type="range"  value="0.8" min="0" max="5" step="0.2"/></div>
         <div class="data_display">{{near}}</div>
        </div>
        <div>
         <div class="name">Far Clipping Distance</div>
-       <div class="input_range"> <input v-model="far" class="inputRangeElem" type="range"  value="1" min="0" max="5" step="0.2"/></div>
+       <div class="input_range"> <input v-model="far" class="inputRangeElem" type="range"  value="2.4" min="0" max="5" step="0.2"/></div>
         <div  class="data_display">{{far}}</div>
        </div>
        <div>
         <div class="name">Camera Distance</div>
-       <div class="input_range"> <input v-model="radius" class="inputRangeElem" type="range"  value="1" min="0" max="3" step="0.2"/></div>
+       <div class="input_range"> <input v-model="radius" class="inputRangeElem" type="range"  value="1.6" min="0" max="3" step="0.2"/></div>
         <div class="data_display">{{radius}}</div>
        </div>
        <div>
         <div  class="name">Camera Azimuth </div>
-        <div class="input_range"> <input v-model="phi" class="inputRangeElem" type="range"  value="0" min="0" max="360" step="5"/></div>
+        <div class="input_range"> <input v-model="phi" class="inputRangeElem" type="range"  value="105" min="0" max="360" step="5"/></div>
          <div class="data_display">{{phi}}</div>
        </div>
        <div>
         <div class="name">Camera Elevation</div>
-        <div class="input_range"> <input v-model="theta" class="inputRangeElem" type="range"  value="90" min="0" max="180" step="5"/></div>
+        <div class="input_range"> <input v-model="theta" class="inputRangeElem" type="range"  value="55" min="0" max="180" step="5"/></div>
          <div class="data_display">{{theta}}</div>
        </div>
        <div v-show="viewingMode=='Parallel'">

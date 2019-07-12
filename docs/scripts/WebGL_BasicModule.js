@@ -46,7 +46,7 @@ function WebGLModuleEnvironmentConstructor() {
         LocInShaders:{},
         inputVar:{},
         viewPortUIControler:"",
-        lightData:{}
+        lightData:[]
        }
     return envir;
 }
@@ -386,6 +386,7 @@ function WebGLModuleEnvironmentConstructor_VerII() {
         bufferIds:{},
         LocInShaders:{},
         numVertices:0,
+        lightData:[],
         vueInstance:""
        }
     return envir;
