@@ -29,7 +29,12 @@
                                 void main() 
                                 {
                                     gl_Position = projectionMatrix*modelViewMatrix*vPosition;
-                                    fcolor = shadowSwitch*vColor;
+                                    fcolor = vec4(
+                                            shadowSwitch*vColor[0],
+                                            shadowSwitch*vColor[1],
+                                            shadowSwitch*vColor[2],
+                                            vColor[3]
+                                            );
                                 } 
                         </textarea>
              </div>
@@ -101,9 +106,8 @@
         <div class="input_range"> <input v-model="v_height" class="inputRangeElem" type="range"  value="0" min="0" max="20" step="1"/></div>
          <div  class="data_display">{{v_height}}</div>
        </div>
-       <div v-show="viewingMode=='Parallel'">
-        <div><input type="checkbox" v-model='isDisplayShadow'><label> Display Shadow</label></div>
-       </div>
+     <!--   <div v-show="viewingMode=='Parallel'&&display_item=='cube'"> -->
+ 
        <div v-show="viewingMode=='Perspective'">
         <div  class="name" >FOV</div>
         <div class="input_range"> <input v-model="FOV" class="inputRangeElem" type="range"  value="45" min="10" max="120" step="1"/></div>
@@ -113,7 +117,11 @@
         <div  class="name">Aspect Ratio</div>
         <div class="input_range"> <input v-model="aspect" class="inputRangeElem" type="range"  value="1" min="0.5" max="2" step="0.1"/></div>
          <div  class="data_display">{{aspect}}</div>
+         
        </div>
+       <div v-show="display_item=='cube'">
+                <div><input type="checkbox" v-model='isDisplayShadow'><label> Display Shadow</label></div>
+               </div>
    </div>
       <div class="canvasDiv">
 

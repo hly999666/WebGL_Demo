@@ -75,8 +75,8 @@ window.onload=function init(){
         el:"#mainDiv_1",
         data:{
             isShowShaderEditor:false,
-            near:0.8,
-            far:2.4,
+            near:0.4,
+            far:4.2,
             radius:1.6,
             phi:105,
             theta:55,
@@ -185,6 +185,7 @@ let mainRender = function() {
              }
         }
          else {
+            gl.uniform1f(shadowSwitchLoc,1.0);
             addUniformColorToColorArray(WebGLEnvir,vec4(1.0,0.0,0.0,1.0));
             bufferDataToGPU(WebGLEnvir,true);
             for(var i=0; i<numVertices; i+=4) {
