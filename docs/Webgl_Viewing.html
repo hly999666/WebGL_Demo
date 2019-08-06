@@ -28,6 +28,8 @@
                                 uniform float shadowSwitch;
                                 void main() 
                                 {
+
+                                        
                                     gl_Position = projectionMatrix*modelViewMatrix*vPosition;
                                     fcolor = vec4(
                                             shadowSwitch*vColor[0],
