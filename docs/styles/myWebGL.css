@@ -191,3 +191,80 @@ iframe{
 input[type="checkbox"]{
   margin: 0px 10px;
 }
+
+.hidden {
+  display:none;
+
+
+}
+.UI_Div_2{
+  width: 90%;
+ /*  border: 3px solid rgb(162, 224, 204); */
+  margin: 1vh auto;
+}
+.UI_Div_flexbox{
+  display: flex;
+  flex-direction: row;
+}
+
+.myPanel{
+ border:2px solid black;
+ min-height: 200px;
+}
+.UI_Div_flexbox>div{
+  flex:1;
+
+}
+.myPanel-heading{
+    margin: 0px auto;
+  padding: 0px;
+  box-sizing: border-box;
+  padding: 2px 10px 2px 10px;
+}
+.myPanel-title{
+     color:rgb(255, 255, 255);
+    text-align: left;
+}
+#GeoPanel{
+  border-color: rgb(179, 118, 82);
+
+}
+#GeoPanel>.myPanel-heading{
+    background-color: rgb(179, 118, 82);
+   
+
+}
+#MaterialPanel{
+    border-color: rgb(75, 61, 138);
+  
+  }
+  #MaterialPanel>.myPanel-heading{
+      background-color:  rgb(75, 61, 138);
+     
+  
+  }
+
+  #LightingPanel{
+    border-color: rgb(220, 235, 91);
+  
+  }
+  #LightingPanel>.myPanel-heading{
+      background-color:  rgb(220, 235, 91);
+     
+  
+  }
+  #LightingPanel>.myPanel-heading>.myPanel-title{
+  color :black;
+}
+.inputContainer{
+   display: flex;
+   flex-direction: column;
+   padding: 5px;
+}
+.radioBtnDiv_2{
+    display: flex;
+  flex-direction: row;
+  padding: 2px 5px 2px 5px;
+  justify-content: space-around;
+}
+ 

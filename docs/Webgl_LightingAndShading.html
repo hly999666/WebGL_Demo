@@ -2,16 +2,16 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
-<title>Viewing in Webgl</title>
+<title> Basic Ligthing and shading in Webgl</title>
 
 <link rel="stylesheet" type="text/css"href="./styles/bootstrap_3.3.5.min.css">
 <link rel="stylesheet" type="text/css" href="./styles/myWebGL.css">
 </head>
 
 <body>
-<div class="container"><h2 class="myTitle">Viewing in Webgl</h2></div>
+<div class="container"><h2 class="myTitle">Basic Ligthing and shading in Webgl</h2></div>
 <div id="mainDiv_1" class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
-        <div class="panel-heading"> <h3 class="panel-title">Cube With Shadow:3D Viewing Demo</h3> </div>
+        <div class="panel-heading"> <h3 class="panel-title">Blinn-Phong Model : Simple Shading Demo</h3> </div>
         <div class="myBigBtnDiv"><button class="btn btn-primary btn-default btnToggleForm_viewport" @click="isShowShaderEditor=!isShowShaderEditor">Edit Shader</button></div>
    <div class="shaderInput" v-show="isShowShaderEditor">
         <div class="shaderInput_Grid">
@@ -57,8 +57,28 @@
              </div>
     <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport" @click="updateShader">Update Shader</button></div>
    </div>
+   <div  class="UI_Div_2 UI_Div_flexbox"  >
+        <div class="myPanel" id="GeoPanel">
+<div class="myPanel-heading"><div class="myPanel-title">Geometry</div></div>
+<div class="inputContainer">
+        <div  class="radioBtnDiv_2">
+                <div  class="radioBtn"> <input type="radio" value="cube" v-model="geoType"><label>  Cube</label></div>
+                <div class="radioBtn"> <input type="radio" value="sphere" v-model="geoType"><label>  Sphere</label></div>
+</div>
+</div> 
+</div>
+        <div class="myPanel"  id="MaterialPanel">
 
-   <div class="UI_Div">
+        <div class="myPanel-heading"><div class="myPanel-title">Material</div></div>
+                     
+
+</div>
+        <div class="myPanel"   id="LightingPanel">
+        <div class="myPanel-heading"><div class="myPanel-title">Lighting</div></div>
+        </div>
+      
+   </div>
+   <div class="hidden" class="UI_Div">
            <div>
                   <div class="name">Viewing Mode</div>
                 <div  class="radioBtnDiv">
@@ -212,6 +232,6 @@
 <script type="text/javascript" src="./scripts/MathG.js"></script>
 <script type="text/javascript" src="./scripts/shadersInitiator.js"></script>
 <script type="text/javascript" src="./scripts/WebGL_BasicModule.js"></script>
-<script type="text/javascript" src="./scripts/Webgl_Viewing.js"></script>
+<script type="text/javascript" src="./scripts/Webgl_LightingAndShading.js"></script>
 <script type="text/javascript" src="./scripts/vue.js"></script>
 </html>
