@@ -75,6 +75,15 @@ window.onload=function init(){
         el:"#mainDiv_1",
         data:{
             geoType:"cube",
+            isRotatingCube:true,
+            subDivDepth:3,
+            m_diffuseColorHex:"#AAAAAA",
+            m_specularColorHex:"#FFFFFF",
+            m_ambientColorHex:"#DDDDDD",
+            m_shininess:3,
+            l_diffuseColorHex:"#FFFFFF",
+            l_specularColorHex:"#FFFFFF",
+            l_ambientColorHex:"#FFFFFF",
             //
             isShowShaderEditor:false,
             near:0.4,

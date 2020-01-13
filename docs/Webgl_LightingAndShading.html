@@ -62,20 +62,73 @@
 <div class="myPanel-heading"><div class="myPanel-title">Geometry</div></div>
 <div class="inputContainer">
         <div  class="radioBtnDiv_2">
-                <div  class="radioBtn"> <input type="radio" value="cube" v-model="geoType"><label>  Cube</label></div>
-                <div class="radioBtn"> <input type="radio" value="sphere" v-model="geoType"><label>  Sphere</label></div>
-</div>
+                <div  class="radioBtn_2"> <input type="radio" value="cube" v-model="geoType"><label>  Cube</label></div>
+                <div class="radioBtn_2"> <input type="radio" value="sphere" v-model="geoType"><label>  Sphere</label></div>
+         </div>
+         <div v-show="geoType=='cube'" class="align_center">
+        <div class="checkboxDiv">
+                <input type="checkbox"  v-model="isRotatingCube">
+                <label>Rotating Cube</label></div>
+        </div> 
+        <div v-show="geoType=='sphere'" class="rangeDiv align_center">
+                <label class="name">Subdivision Depth</label>
+                <div class="input_range"> <input v-model="subDivDepth" class="inputRangeElem" type="range"  value="3" min="0" max="8" step="1"/></div>
+                 <div class="data_display">{{subDivDepth}}</div>
+        </div>
+        <div  v-show="geoType=='sphere'" class="radioBtnDiv_2">
+                <label>normal from </label>
+                <div  class="radioBtn_2"> <input type="radio" value="defination" v-model="normalMethod"><label>defination</label></div>
+                <div  class="radioBtn_2"> <input type="radio" value="computation" v-model="normalMethod"><label>computation</label></div>
+         </div>
 </div> 
 </div>
         <div class="myPanel"  id="MaterialPanel">
-
+               
         <div class="myPanel-heading"><div class="myPanel-title">Material</div></div>
-                     
+        <div class="inputContainer">
+                <div class="colorInputDiv_2">
+                        <label>Diffuse Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="m_diffuseColorHex"></div>
+                </div>
+                <div class="colorInputDiv_2">
+                        <label>Specular Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="m_specularColorHex"></div>
+                </div>
+                <div class="colorInputDiv_2">
+                        <label>Ambient Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="m_ambientColorHex"></div>
+                </div>
+                <div   class="rangeDiv align_center">
+                        <label class="name">Shininess</label>
+                        <div class="input_range"> <input v-model="shininess" class="inputRangeElem" type="range"  value="3" min="0" max="10" step="0.1"/></div>
+                         <div class="data_display">{{shininess}}</div>
+                </div>
+        </div>
 
 </div>
-        <div class="myPanel"   id="LightingPanel">
+<div class="myPanel"   id="LightingPanel">
         <div class="myPanel-heading"><div class="myPanel-title">Lighting</div></div>
+        <div class="inputContainer">
+                <div class="colorInputDiv_2">
+                        <label>Diffuse Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="l_diffuseColorHex"></div>
+                </div>
+                <div class="colorInputDiv_2">
+                        <label>Specular Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="l_specularColorHex"></div>
+                </div>
+                <div class="colorInputDiv_2">
+                        <label>Ambient Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="l_ambientColorHex"></div>
+                </div>
+                <div class="checkboxDiv">
+                        <input type="checkbox"  v-model="isRotatingCube">
+                        <label>Moving Light</label>
+                </div>
         </div>
+
+
+</div>
       
    </div>
    <div class="hidden" class="UI_Div">
