@@ -12,45 +12,82 @@
 <div class="container"><h2 class="myTitle">Basic Ligthing and shading in Webgl</h2></div>
 <div id="mainDiv_1" class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
         <div class="panel-heading"> <h3 class="panel-title">Blinn-Phong Model : Simple Shading Demo</h3> </div>
-        <div class="myBigBtnDiv"><button class="btn btn-primary btn-default btnToggleForm_viewport" @click="isShowShaderEditor=!isShowShaderEditor">Edit Shader</button></div>
+        <div class="myBigBtnDiv"><button class="btn btn-primary btn-default btnToggleForm_viewport" @click="clickShaderEditorBtn">{{ShaderEditorBtnStr}}</button></div>
    <div class="shaderInput" v-show="isShowShaderEditor">
         <div class="shaderInput_Grid">
                 <div class="GridItem_1">
                 <div>
                  <h4>vertex shader</h4>
-                 <textarea v-model="vertexShader" class="vertexShader" height>
-                                attribute  vec4 vPosition;
-                                attribute  vec4 vColor;
-                                varying vec4 fcolor;
-                                
-                                uniform mat4 modelViewMatrix;
-                                uniform mat4 projectionMatrix;
-                                uniform float shadowSwitch;
-                                void main() 
-                                {
+                 <textarea v-model="vertexShader" class="vertexShader" spellcheck="false">
+                        attribute  vec4 vPosition;
+                        attribute  vec3 vNormal;
+                        varying vec4 fColor;
+                        
+                        uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+                        uniform mat4 modelViewMatrix;
+                        uniform mat4 projectionMatrix;
+                        uniform vec4 lightPosition;
+                        uniform float shininess;
 
-                                        
-                                    gl_Position = projectionMatrix*modelViewMatrix*vPosition;
-                                    fcolor = vec4(
-                                            shadowSwitch*vColor[0],
-                                            shadowSwitch*vColor[1],
-                                            shadowSwitch*vColor[2],
-                                            vColor[3]
-                                            );
-                                } 
+                        uniform vec3 eyePosition;
+                        uniform mat3 normalMatrix;
+                        void main()
+                        {
+                        
+                            
+                            vec3 pos = -(modelViewMatrix * vPosition).xyz;
+                            
+                            //fixed light postion
+                            
+                            vec3 light = lightPosition.xyz;
+                            vec3 L = normalize( light - pos );
+                        
+                                
+                            vec3 E = normalize( -pos );
+                            vec3 H = normalize( L + E );
+                            
+                            vec4 NN = vec4(vNormal,0);
+                        
+                            // Transform vertex normal into eye coordinates
+                               
+                            vec3 N = normalize( (modelViewMatrix*NN).xyz);
+                        
+                            // Compute terms in the illumination equation
+                            vec4 ambient = ambientProduct;
+                        
+                            float Kd = max( dot(L, N), 0.0 );
+                            vec4  diffuse = Kd*diffuseProduct;
+                        
+                            float Ks = pow( max(dot(N, H), 0.0), shininess );
+                            vec4  specular = Ks * specularProduct;
+                            
+                            if( dot(L, N) < 0.0 ) {
+                                specular = vec4(0.0, 0.0, 0.0, 1.0);
+                            } 
+                        
+                            gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+                            fColor = ambient + diffuse +specular;
+                            
+                            fColor.a = 1.0;
+                        }
                         </textarea>
              </div>
              </div>
              <div class="GridItem_2">
                      <div>
                       <h4>fragment shader</h4>
-                      <textarea v-model="fragmentShader"  class="fragmentShader">
-                                precision mediump float;
-                                varying vec4 fcolor;
-                                void main()
-                                {
-                                    gl_FragColor = fcolor;
-                                }
+                      <textarea v-model="fragmentShader"  class="fragmentShader" spellcheck="false">
+                        precision mediump float;
+
+                        varying vec4 fColor;
+                        
+                        void
+                        main()
+                        {
+                        
+                            gl_FragColor = fColor;
+                        
+                        }
                      </textarea>
                   </div>
              </div>
@@ -111,7 +148,7 @@
                 </div>
                 <div   class="rangeDiv align_center">
                         <label class="name">Shininess</label>
-                        <div class="input_range"> <input v-model="m_shininess" class="inputRangeElem" type="range"  value="3" min="0" max="10" step="0.1"/></div>
+                        <div class="input_range"> <input v-model="m_shininess" class="inputRangeElem" type="range"  value="50" min="0" max="200" step="5"/></div>
                          <div class="data_display">{{m_shininess}}</div>
                 </div>
         </div>

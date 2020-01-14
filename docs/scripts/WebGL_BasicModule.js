@@ -220,13 +220,19 @@ function convertHexColorToVec3(hex){
    var b=HexToNumber(hex[5]+hex[6])/255;
    return vec3(r,g,b);
 }
+function convertHexColorToVec4(hex){
+    var r=HexToNumber(hex[1]+hex[2])/255;
+    var g=HexToNumber(hex[3]+hex[4])/255;
+    var b=HexToNumber(hex[5]+hex[6])/255;
+    return vec4(r,g,b,1.0);
+ }
 function HexToNumberOne(hex){
-    if(hex=='a')return 10;
-    if(hex=='b')return 11;
-    if(hex=='c')return 12;
-    if(hex=='d')return 13;
-    if(hex=='e')return 14;
-    if(hex=='f')return 15;
+    if(hex=='a'||hex=='A')return 10;
+    if(hex=='b'||hex=='B')return 11;
+    if(hex=='c'||hex=='C')return 12;
+    if(hex=='d'||hex=='D')return 13;
+    if(hex=='e'||hex=='E')return 14;
+    if(hex=='f'||hex=='F')return 15;
     return Number(hex);
 }
 function HexToNumber(hex){
@@ -463,9 +469,56 @@ let vertexColors = [
     quad( 4, 5, 6, 7 );
     quad( 5, 4, 0, 1 );
 }
-function addCubeToEnvir(envir,hasNormal){
+function addCubeToEnvirWithNormal(envir){
+    if(envir["dataSet"]["pointsArray"]==undefined){
+        envir["dataSet"]["pointsArray"]=[];
+    }
+    if(envir["dataSet"]["normalsArray"]==undefined){
+        envir["dataSet"]["normalsArray"]=[];
+    }
+    envir["numVertices"]  += 36;
+    envir["dataSet"]["pointsArray"]=[];
+    envir["dataSet"]["normalsArray"]=[];
+    let pointsArray =envir["dataSet"]["pointsArray"];
+    let normalsArray =envir["dataSet"]["normalsArray"];
+  
+    var vertices = [
+        vec4( -0.5, -0.5,  0.5, 1.0 ),
+        vec4( -0.5,  0.5,  0.5, 1.0 ),
+        vec4( 0.5,  0.5,  0.5, 1.0 ),
+        vec4( 0.5, -0.5,  0.5, 1.0 ),
+        vec4( -0.5, -0.5, -0.5, 1.0 ),
+        vec4( -0.5,  0.5, -0.5, 1.0 ),
+        vec4( 0.5,  0.5, -0.5, 1.0 ),
+        vec4( 0.5, -0.5, -0.5, 1.0 )
+    ];
+    function quad(a, b, c, d) {
 
-
+        var t1 = subtract(vertices[b], vertices[a]);
+        var t2 = subtract(vertices[c], vertices[b]);
+        var normal = cross(t1, t2);
+        var normal = vec4(normal[0],normal[1],normal[2],0.0);
+   
+   
+        pointsArray.push(vertices[a]);
+        normalsArray.push(normal);
+        pointsArray.push(vertices[b]);
+        normalsArray.push(normal);
+        pointsArray.push(vertices[c]);
+        normalsArray.push(normal);
+        pointsArray.push(vertices[a]);
+        normalsArray.push(normal);
+        pointsArray.push(vertices[c]);
+        normalsArray.push(normal);
+        pointsArray.push(vertices[d]);
+        normalsArray.push(normal);
+   }
+   quad( 1, 0, 3, 2 );
+   quad( 2, 3, 7, 6 );
+   quad( 3, 0, 4, 7 );
+   quad( 6, 5, 1, 2 );
+   quad( 4, 5, 6, 7 );
+   quad( 5, 4, 0, 1 );
 }
 function addSubDivSphereToEnvir(envir,subDivDepth,normalMethod){
 
@@ -511,4 +564,9 @@ function SphericalCoordinateToXYZ(radius,Azimuth,Elevation){
     let y= radius*Math.sin(Elevation)*Math.sin(Azimuth);
     let z=    radius*Math.cos(Elevation);
     return [x,y,z];
+}
+
+function multColor(c1,c2){
+  return vec4(c1[0]*c2[0],c1[1]*c2[1],c1[2]*c2[2],1);
+
 }

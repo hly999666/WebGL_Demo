@@ -16,37 +16,41 @@ function configWebGL(envir){
     gl.enable(gl.POLYGON_OFFSET_FILL);
     gl.polygonOffset(1.0, 2.0);
 }
-function bufferDataToGPU(envir,isColorOnly){
+function bufferDataToGPU(envir){
     let gl=envir["gl"];
     let program=envir["shadersProgram"];
-    envir["bufferIds"]["cBufferId"]  = gl.createBuffer();
+    envir["bufferIds"]["nBufferId"]  = gl.createBuffer();
     envir["bufferIds"]["vBufferId"]  = gl.createBuffer();
-    let cBufferId= envir["bufferIds"]["cBufferId"] ;
+    let nBufferId= envir["bufferIds"]["nBufferId"] ;
     let vBufferId= envir["bufferIds"]["vBufferId"] ;
-    let colorsArray=envir["dataSet"]["colorsArray"] ;
+    let normalsArray=envir["dataSet"]["normalsArray"] ;
     let pointsArray=envir["dataSet"]["pointsArray"] ;
-    envir["LocInShaders"]["vColor"]= gl.getAttribLocation( program, "vColor" );
-    let vColor = envir["LocInShaders"]["vColor"];
-    envir["LocInShaders"]["vPosition"]= gl.getAttribLocation( program, "vPosition" );
-    let vPosition = envir["LocInShaders"]["vPosition"];
-
    
-        gl.bindBuffer( gl.ARRAY_BUFFER, cBufferId );
-        gl.bufferData( gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW );
-        gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-        gl.enableVertexAttribArray( vColor);
-    
+    envir["LocInShaders"]["vNormal"]= gl.getAttribLocation( program, "vNormal" );
+    let vNormalLoc = envir["LocInShaders"]["vNormal"];
+    envir["LocInShaders"]["vPosition"]= gl.getAttribLocation( program, "vPosition" );
+    let vPositionLoc = envir["LocInShaders"]["vPosition"];
 
-        if(!isColorOnly){
-    gl.bindBuffer( gl.ARRAY_BUFFER, vBufferId );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW );
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
-}
-
+   //send normal date 
+    gl.bindBuffer( gl.ARRAY_BUFFER, nBufferId);
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
+    gl.vertexAttribPointer( vNormalLoc, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vNormalLoc);
+    //send position date 
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBufferId);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
+    gl.vertexAttribPointer(vPositionLoc, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vPositionLoc);
+  
     envir["LocInShaders"]["modelViewMatrixLoc"]  = gl.getUniformLocation( program, "modelViewMatrix" );
     envir["LocInShaders"]["projectionMatrixLoc"]  = gl.getUniformLocation( program, "projectionMatrix" );
-    envir["LocInShaders"]["shadowSwitchLoc"]  = gl.getUniformLocation( program, "shadowSwitch" );
+    envir["LocInShaders"]["ambientProductLoc"]  = gl.getUniformLocation( program, "ambientProduct" );
+    envir["LocInShaders"]["diffuseProductLoc"]  = gl.getUniformLocation( program, "diffuseProduct" );
+    envir["LocInShaders"]["specularProductLoc"]  = gl.getUniformLocation( program, "specularProduct" );
+    envir["LocInShaders"]["lightPositionLoc"]  = gl.getUniformLocation( program, "lightPosition" );
+    envir["LocInShaders"]["shininessLoc"]  = gl.getUniformLocation( program, "shininess" );
+
+    envir["LocInShaders"]["eyePositionLoc"]  = gl.getUniformLocation( program, "eyePosition" );
 }
 function _updateShader(){
     WebGLEnvir["shadersProgram"]=configShaders_VerII(WebGLEnvir);
@@ -84,12 +88,14 @@ window.onload=function init(){
             m_specularColorHex:"#FFFFFF",
             m_ambientColorHex:"#DDDDDD",
             m_shininess:3,
-            l_diffuseColorHex:"#FFFFFF",
+            l_diffuseColorHex:"#DDDDDD",
             l_specularColorHex:"#FFFFFF",
-            l_ambientColorHex:"#FFFFFF",
+            l_ambientColorHex:"#333333",
             isMovingLight:true,
-            //
             isShowShaderEditor:false,
+            ShaderEditorBtnStr:"Edit Shader",
+            //
+           
             near:0.4,
             far:4.2,
             radius:1.6,
@@ -110,6 +116,15 @@ window.onload=function init(){
             updateShader:function(){
                 _updateShader();
                 console.log("updateShader!!!");
+            },
+            clickShaderEditorBtn:function(){
+                let vm=this;
+                vm["isShowShaderEditor"]=!vm["isShowShaderEditor"];
+                if(vm["isShowShaderEditor"]){
+                    vm["ShaderEditorBtnStr"]="Close Editor";
+                }else{
+                    vm["ShaderEditorBtnStr"]="Edit Shader";
+                }
             }
         },
         watch:{
@@ -117,106 +132,80 @@ window.onload=function init(){
     }
 }
     );
-   WebGLEnvir=setUpWebGlEnvironment_VerII("mainDiv_1",Vue_1);
-   configWebGL(WebGLEnvir);
-   addColorCubeToEnvir(WebGLEnvir);
-   bufferDataToGPU(WebGLEnvir,false);
-   //set light
-   WebGLEnvir["lightData"].push(
-        {
-                pos:vec3(0.0, 2.0, 0.0),
-                color:vec3(1.0, 1.0,1.0)
-        }
-   );
+
+   //camera and viewport parameter
+   let near = -10;
+   let far = 10;
+   let radius = 1.5;
+   let theta  = 0.0;
+   let phi    = 0.0;
+   let dr = 5.0 * Math.PI/180.0;
+   
+   let left = -3.0;
+   let right = 3.0;
+   let ytop =3.0;
+   let bottom = -3.0;
+   //viewer parameter
+   let eye;
+   let at = vec3(0.0, 0.0, 0.0);
+   let up = vec3(0.0, 1.0, 0.0);
+   //light parameter
    let lightTheta=0.0;
-//shadowProjectMat
-   let shadowProjectMat=mat4();
-   shadowProjectMat[3][3] = 0;
-   shadowProjectMat[3][1] = -1/(  WebGLEnvir["lightData"][0]["pos"][1]+1);
+   //set up envir
+    WebGLEnvir=setUpWebGlEnvironment_VerII("mainDiv_1",Vue_1);
+   configWebGL(WebGLEnvir);
+
+   addCubeToEnvirWithNormal(WebGLEnvir);
+   bufferDataToGPU(WebGLEnvir);
+
+
+
+ 
+
    //generate render function
 let mainRender = function() {
     //get envir
     let numVertices=WebGLEnvir["numVertices"];
     if(numVertices==0)return;
     let gl=WebGLEnvir["gl"];
- 
-    let phi=Number(Vue_1.$data["phi"])*(Math.PI/180);
-    let theta=Number(Vue_1.$data["theta"])*(Math.PI/180);
-    let radius=Number(Vue_1.$data["radius"]);
-    let  at = vec3(0.0, 0.0, 0.0);
-    let  up = vec3(0.0, 1.0, 0.0);
-    let left=-Number(Vue_1.$data["v_width"])/2;
-    let right=Number(Vue_1.$data["v_width"])/2;
-    let bottom=-Number(Vue_1.$data["v_height"])/2;
-    let top=Number(Vue_1.$data["v_height"])/2;
-    let near=Number(Vue_1.$data["near"]);
-    let far=near+Number(Vue_1.$data["far"]);
-    let fovy=Number(Vue_1.$data["FOV"]);
-    let aspect=Number(Vue_1.$data["aspect"]);
-    let projectionMode=Vue_1.$data["viewingMode"];
-    let modelViewMatrixLoc=WebGLEnvir["LocInShaders"]["modelViewMatrixLoc"];
-    let projectionMatrixLoc=WebGLEnvir["LocInShaders"]["projectionMatrixLoc"];
-    let shadowSwitchLoc=WebGLEnvir["LocInShaders"]["shadowSwitchLoc"];
-    //produce modelViewMatrix & projectionMatrix
+   let envir=WebGLEnvir;
+    let lightPosition = vec4(1.0, 1.0,1.0, 0.0 );
+    let lightAmbient = convertHexColorToVec4(Vue_1.$data["l_ambientColorHex"]);
+    let lightDiffuse = convertHexColorToVec4(Vue_1.$data["l_diffuseColorHex"]);
+    let lightSpecular = convertHexColorToVec4(Vue_1.$data["l_specularColorHex"]);
+
+    let materialAmbient =convertHexColorToVec4(Vue_1.$data["m_ambientColorHex"]);
+    let materialDiffuse =convertHexColorToVec4(Vue_1.$data["m_diffuseColorHex"]);
+    let materialSpecular =convertHexColorToVec4(Vue_1.$data["m_specularColorHex"]);
+    let materialShininess =Number(Vue_1.$data["m_shininess"]);
+
+    let ambientProduct = mult(lightAmbient, materialAmbient);
+    let diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    let specularProduct = mult(lightSpecular, materialSpecular);
+
+    let xRot = Number(Vue_1.$data["xRot"]);
+    let yRot = Number(Vue_1.$data["yRot"]);
+    let zRot = Number(Vue_1.$data["zRot"]);
+    let modelMat=mult(rotateZ_M(zRot),mult(rotateY_M(yRot),rotateX_M(xRot)));
+    modelMat=mult(scaleM(2,2,2),modelMat);
+    gl.uniform4fv( envir["LocInShaders"]["ambientProductLoc"],flatten(ambientProduct) );
+     gl.uniform4fv( envir["LocInShaders"]["diffuseProductLoc"],flatten(diffuseProduct) );
+     gl.uniform4fv( envir["LocInShaders"]["specularProductLoc"],flatten(specularProduct) );
+     gl.uniform4fv( envir["LocInShaders"]["lightPositionLoc"],flatten(lightPosition) );
+     gl.uniform1f(envir["LocInShaders"]["shininessLoc"],materialShininess );
+
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    let eye = SphericalCoordinateToXYZ(radius,phi,theta);
-/*     console.log(eye); */
 
-    let modelViewMatrix = lookAt(eye, at , up);
-    let projectionMatrix = mat4();
-    if(projectionMode=="Parallel"){
-        projectionMatrix=ortho(left, right, bottom, top, near, far);
-    }else{
-        projectionMatrix=perspective( fovy, aspect, near, far );
-    }
-    gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-    gl.uniformMatrix4fv( projectionMatrixLoc, false, flatten(projectionMatrix) );
- 
-    //switch display element
-    let display_item=Vue_1.$data["display_item"];
-    //Project Shadow
-    let onShadow=Vue_1.$data["isDisplayShadow"];
-     // rotate light source
-     lightTheta=(lightTheta+0.1)%(2*Math.PI);
-     WebGLEnvir["lightData"][0]["pos"][0] = Math.sin(lightTheta);
-     WebGLEnvir["lightData"][0]["pos"][2] = Math.cos(lightTheta);
-     let lightPos= WebGLEnvir["lightData"][0]["pos"];
+    eye = vec3(radius*Math.sin(theta)*Math.cos(phi),
+        radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
+    gl.uniform3fv( envir["LocInShaders"]["eyePositionLoc"], flatten(eye));
 
-         if(display_item=='cube'){
-         /*   addColorCubeToEnvir(WebGLEnvir);
-            bufferDataToGPU(WebGLEnvir,false); */
-            gl.uniform1f(shadowSwitchLoc,1.0);
-             gl.drawArrays( gl.TRIANGLES, 0, numVertices );
-             if(onShadow){
-                   // model-view matrix for shadow 
-                   modelViewMatrix = mult(modelViewMatrix, translateM(lightPos[0], lightPos[1], lightPos[2]));
-                   modelViewMatrix = mult(modelViewMatrix, shadowProjectMat);
-                   modelViewMatrix = mult(modelViewMatrix, translateM(-lightPos[0], -lightPos[1], -lightPos[2]));
-                   gl.uniformMatrix4fv( modelViewMatrixLoc, false, flatten(modelViewMatrix) );
-        /*     addUniformColorToColorArray(WebGLEnvir,vec4(0.0,0.0,0.0,1.0));
-            bufferDataToGPU(WebGLEnvir,true); */
-            gl.uniform1f(shadowSwitchLoc,0.0);
-            gl.drawArrays( gl.TRIANGLES, 0, numVertices );
-             }
-        }
-         else {
-            gl.uniform1f(shadowSwitchLoc,1.0);
-            addUniformColorToColorArray(WebGLEnvir,vec4(1.0,0.0,0.0,1.0));
-            bufferDataToGPU(WebGLEnvir,true);
-            for(var i=0; i<numVertices; i+=4) {
-               
-                gl.drawArrays( gl.TRIANGLE_FAN, i, 4 );
-              
-            }
-            addUniformColorToColorArray(WebGLEnvir,vec4(0.0,0.0,0.0,1.0));
-            bufferDataToGPU(WebGLEnvir,true);
-            for(var i=0; i<numVertices; i+=4) {
-              
-                gl.drawArrays( gl.LINE_LOOP, i, 4 );
-            }
-         }
+     let modelViewMatrix = mult(lookAt(eye, at , up),modelMat);
+     let projectionMatrix = ortho(left, right, bottom, ytop, near, far);
 
-/*  */
+     gl.uniformMatrix4fv( envir["LocInShaders"]["modelViewMatrixLoc"], false, flatten(modelViewMatrix) );
+     gl.uniformMatrix4fv( envir["LocInShaders"]["projectionMatrixLoc"], false, flatten(projectionMatrix) );
+     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 }
 setInterval(
     function(){

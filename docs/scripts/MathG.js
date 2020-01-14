@@ -1001,3 +1001,4 @@ function perspective( fovy, aspect, near, far )
         result=mult(N,result);
     return result;
 }
+
