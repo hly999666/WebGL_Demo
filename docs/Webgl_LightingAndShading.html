@@ -65,11 +65,22 @@
                 <div  class="radioBtn_2"> <input type="radio" value="cube" v-model="geoType"><label>  Cube</label></div>
                 <div class="radioBtn_2"> <input type="radio" value="sphere" v-model="geoType"><label>  Sphere</label></div>
          </div>
-         <div v-show="geoType=='cube'" class="align_center">
-        <div class="checkboxDiv">
-                <input type="checkbox"  v-model="isRotatingCube">
-                <label>Rotating Cube</label></div>
-        </div> 
+      
+         <div  class="rangeDiv align_center">
+                <label class="name"> X Rotation</label>
+                <div class="input_range"> <input v-model="xRot" class="inputRangeElem" type="range"  value="0" min="-180" max="180" step="5"/></div>
+                 <div class="data_display">{{xRot}}</div>
+        </div>
+        <div  class="rangeDiv align_center">
+                <label class="name"> Y Rotation</label>
+                <div class="input_range"> <input v-model="yRot" class="inputRangeElem" type="range"  value="0" min="-180" max="180" step="5"/></div>
+                 <div class="data_display">{{yRot}}</div>
+        </div>
+        <div  class="rangeDiv align_center">
+                <label class="name"> Z Rotation</label>
+                <div class="input_range"> <input v-model="zRot" class="inputRangeElem" type="range"  value="0" min="-180" max="180" step="5"/></div>
+                 <div class="data_display">{{zRot}}</div>
+        </div>
         <div v-show="geoType=='sphere'" class="rangeDiv align_center">
                 <label class="name">Subdivision Depth</label>
                 <div class="input_range"> <input v-model="subDivDepth" class="inputRangeElem" type="range"  value="3" min="0" max="8" step="1"/></div>
@@ -100,8 +111,8 @@
                 </div>
                 <div   class="rangeDiv align_center">
                         <label class="name">Shininess</label>
-                        <div class="input_range"> <input v-model="shininess" class="inputRangeElem" type="range"  value="3" min="0" max="10" step="0.1"/></div>
-                         <div class="data_display">{{shininess}}</div>
+                        <div class="input_range"> <input v-model="m_shininess" class="inputRangeElem" type="range"  value="3" min="0" max="10" step="0.1"/></div>
+                         <div class="data_display">{{m_shininess}}</div>
                 </div>
         </div>
 
@@ -122,7 +133,7 @@
                         <div class="colorDiv"><input type="color"  v-model="l_ambientColorHex"></div>
                 </div>
                 <div class="checkboxDiv">
-                        <input type="checkbox"  v-model="isRotatingCube">
+                        <input type="checkbox"  v-model="isMovingLight">
                         <label>Moving Light</label>
                 </div>
         </div>

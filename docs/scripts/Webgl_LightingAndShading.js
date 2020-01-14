@@ -75,7 +75,10 @@ window.onload=function init(){
         el:"#mainDiv_1",
         data:{
             geoType:"cube",
-            isRotatingCube:true,
+            xRot:0,
+            yRot:0,
+            zRot:0,
+            normalMethod:"defination",
             subDivDepth:3,
             m_diffuseColorHex:"#AAAAAA",
             m_specularColorHex:"#FFFFFF",
@@ -84,6 +87,7 @@ window.onload=function init(){
             l_diffuseColorHex:"#FFFFFF",
             l_specularColorHex:"#FFFFFF",
             l_ambientColorHex:"#FFFFFF",
+            isMovingLight:true,
             //
             isShowShaderEditor:false,
             near:0.4,
@@ -109,7 +113,7 @@ window.onload=function init(){
             }
         },
         watch:{
-            display_item:changeGeo
+            geoType:changeGeo
     }
 }
     );

@@ -379,7 +379,11 @@ class trackBallUIBtnController{
 function WebGLModuleEnvironmentConstructor_VerII() {
     var envir={
         cantainerID:"",
-        dataSet:{},
+        dataSet:{
+            pointsArray:[],
+            colorsArray:[],
+            normalsArray:[]
+        },
         canvas:"",
         gl:"",
         shadersProgram:"",
@@ -459,7 +463,15 @@ let vertexColors = [
     quad( 4, 5, 6, 7 );
     quad( 5, 4, 0, 1 );
 }
+function addCubeToEnvir(envir,hasNormal){
 
+
+}
+function addSubDivSphereToEnvir(envir,subDivDepth,normalMethod){
+
+
+
+}
 function addSombreroHatToEnvir(envir,nDense,yScale,xzScale){
     //produce Height field data
     var heightField = [];
