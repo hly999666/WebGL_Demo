@@ -83,13 +83,13 @@ window.onload=function init(){
             yRot:0,
             zRot:0,
             normalMethod:"defination",
-            subDivDepth:3,
-            m_diffuseColorHex:"#AAAAAA",
-            m_specularColorHex:"#FFFFFF",
+            subDivDepth:5,
+            m_diffuseColorHex:"#999999",
+            m_specularColorHex:"#AAAAAA",
             m_ambientColorHex:"#DDDDDD",
-            m_shininess:3,
+            m_shininess:5,
             l_diffuseColorHex:"#DDDDDD",
-            l_specularColorHex:"#FFFFFF",
+            l_specularColorHex:"#CCCCCC",
             l_ambientColorHex:"#333333",
             isMovingLight:true,
             isShowShaderEditor:false,
@@ -155,7 +155,8 @@ window.onload=function init(){
     WebGLEnvir=setUpWebGlEnvironment_VerII("mainDiv_1",Vue_1);
    configWebGL(WebGLEnvir);
 
-   addCubeToEnvirWithNormal(WebGLEnvir);
+   //addCubeToEnvirWithNormal(WebGLEnvir);
+   addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
    bufferDataToGPU(WebGLEnvir);
 
 
@@ -169,7 +170,7 @@ let mainRender = function() {
     if(numVertices==0)return;
     let gl=WebGLEnvir["gl"];
    let envir=WebGLEnvir;
-    let lightPosition = vec4(1.0, 1.0,1.0, 0.0 );
+    let lightPosition = vec4(-1.0, -1.0,1.0, 0.0 );
     let lightAmbient = convertHexColorToVec4(Vue_1.$data["l_ambientColorHex"]);
     let lightDiffuse = convertHexColorToVec4(Vue_1.$data["l_diffuseColorHex"]);
     let lightSpecular = convertHexColorToVec4(Vue_1.$data["l_specularColorHex"]);

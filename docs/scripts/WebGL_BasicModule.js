@@ -469,6 +469,8 @@ let vertexColors = [
     quad( 4, 5, 6, 7 );
     quad( 5, 4, 0, 1 );
 }
+
+
 function addCubeToEnvirWithNormal(envir){
     if(envir["dataSet"]["pointsArray"]==undefined){
         envir["dataSet"]["pointsArray"]=[];
@@ -520,10 +522,68 @@ function addCubeToEnvirWithNormal(envir){
    quad( 4, 5, 6, 7 );
    quad( 5, 4, 0, 1 );
 }
+
 function addSubDivSphereToEnvir(envir,subDivDepth,normalMethod){
 
+   
+    if(envir["dataSet"]["pointsArray"]==undefined){
+        envir["dataSet"]["pointsArray"]=[];
+    }
+    if(envir["dataSet"]["normalsArray"]==undefined){
+        envir["dataSet"]["normalsArray"]=[];
+    }
+    envir["numVertices"]=0;
+    envir["dataSet"]["pointsArray"]=[];
+    envir["dataSet"]["normalsArray"]=[];
+    let pointsArray =envir["dataSet"]["pointsArray"];
+    let normalsArray =envir["dataSet"]["normalsArray"];
 
+    function triangle(a, b, c) {
 
+        // normals are vectors
+   
+        normalsArray.push(a[0],a[1], a[2], 0.0);
+        normalsArray.push(b[0],b[1], b[2], 0.0);
+        normalsArray.push(c[0],c[1], c[2], 0.0);
+   
+   
+        pointsArray.push(a);
+        pointsArray.push(b);
+        pointsArray.push(c);
+   
+        envir["numVertices"]= envir["numVertices"]+3;
+   }
+   function divideTriangle(a, b, c, count) {
+    if ( count > 0 ) {
+
+        let ab = mix( a, b, 0.5);
+        let ac = mix( a, c, 0.5);
+        let bc = mix( b, c, 0.5);
+
+        ab = normalize(ab, true);
+        ac = normalize(ac, true);
+        bc = normalize(bc, true);
+
+        divideTriangle( a, ab, ac, count - 1 );
+        divideTriangle( ab, b, bc, count - 1 );
+        divideTriangle( bc, c, ac, count - 1 );
+        divideTriangle( ab, bc, ac, count - 1 );
+    }
+    else {
+        triangle( a, b, c );
+    }
+   }
+    function tetrahedronDivToShpere(a, b, c, d, n) {
+        divideTriangle(a, b, c, n);
+        divideTriangle(d, c, b, n);
+        divideTriangle(a, d, b, n);
+        divideTriangle(a, c, d, n);
+    }
+    let va = vec4(0.0, 0.0, -1.0,1);
+    let vb = vec4(0.0, 0.942809, 0.333333, 1);
+    let vc = vec4(-0.816497, -0.471405, 0.333333, 1);
+    let vd = vec4(0.816497, -0.471405, 0.333333,1);
+    tetrahedronDivToShpere(va, vb, vc, vd,subDivDepth);
 }
 function addSombreroHatToEnvir(envir,nDense,yScale,xzScale){
     //produce Height field data
