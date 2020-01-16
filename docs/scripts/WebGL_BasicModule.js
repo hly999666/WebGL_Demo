@@ -535,16 +535,41 @@ function addSubDivSphereToEnvir(envir,subDivDepth,normalMethod){
     envir["numVertices"]=0;
     envir["dataSet"]["pointsArray"]=[];
     envir["dataSet"]["normalsArray"]=[];
+    function _normalize(v){
+        //console.log("normalize");
+        let a=v[0];  let b=v[1];  let c=v[2];
+        let len=Math.sqrt(a*a+b*b+c*c);
+        return vec4(a/len,b/len,c/len,v[3])
+     }
+     function mixHalf(v1,v2){
+      //console.log("mix");
+       
+      return vec4((v1[0]+v2[0])/2,(v1[1]+v2[1])/2,(v1[2]+v2[2])/2,v1[3])
+   }
     let pointsArray =envir["dataSet"]["pointsArray"];
     let normalsArray =envir["dataSet"]["normalsArray"];
-
+    subDivDepth=Math.floor(subDivDepth);
     function triangle(a, b, c) {
 
+
+        a = _normalize(a, true);
+        b = _normalize(b, true);
+        c = _normalize(c, true);
         // normals are vectors
-   
-        normalsArray.push(a[0],a[1], a[2], 0.0);
-        normalsArray.push(b[0],b[1], b[2], 0.0);
-        normalsArray.push(c[0],c[1], c[2], 0.0);
+        if(normalMethod=="defination"){
+            normalsArray.push(a[0],a[1], a[2], 0.0);
+            normalsArray.push(b[0],b[1], b[2], 0.0);
+            normalsArray.push(c[0],c[1], c[2], 0.0);
+        }else{
+            let v1=subtract(b,a);
+            let v2=subtract(c,b);
+            let _n=cross(v1,v2);
+            var normal = vec4(_n[0],_n[1],_n[2],0.0);
+            normalsArray.push(normal);
+            normalsArray.push(normal);
+            normalsArray.push(normal);
+        }
+       
    
    
         pointsArray.push(a);
@@ -553,16 +578,19 @@ function addSubDivSphereToEnvir(envir,subDivDepth,normalMethod){
    
         envir["numVertices"]= envir["numVertices"]+3;
    }
+
    function divideTriangle(a, b, c, count) {
+    count=Math.floor(count);
     if ( count > 0 ) {
 
-        let ab = mix( a, b, 0.5);
-        let ac = mix( a, c, 0.5);
-        let bc = mix( b, c, 0.5);
+        let ab = mixHalf( a, b);
+        let ac = mixHalf( a, c);
+        let bc = mixHalf( b, c);
 
-        ab = normalize(ab, true);
-        ac = normalize(ac, true);
-        bc = normalize(bc, true);
+
+
+
+
 
         divideTriangle( a, ab, ac, count - 1 );
         divideTriangle( ab, b, bc, count - 1 );
@@ -570,14 +598,15 @@ function addSubDivSphereToEnvir(envir,subDivDepth,normalMethod){
         divideTriangle( ab, bc, ac, count - 1 );
     }
     else {
+        //console.log(count);
         triangle( a, b, c );
     }
    }
     function tetrahedronDivToShpere(a, b, c, d, n) {
-        divideTriangle(a, b, c, n);
-        divideTriangle(d, c, b, n);
-        divideTriangle(a, d, b, n);
-        divideTriangle(a, c, d, n);
+        divideTriangle(a, c, b, n);
+        divideTriangle(c, d, b, n);
+        divideTriangle(a, b, d, n);
+        divideTriangle(a, d, c, n);
     }
     let va = vec4(0.0, 0.0, -1.0,1);
     let vb = vec4(0.0, 0.942809, 0.333333, 1);

@@ -67,11 +67,12 @@ function changeGeo(val) {
     console.log("In watch : display_item = "+val);
     WebGLEnvir["numVertices"]=0;
     if(val=='cube'){
-        addColorCubeToEnvir(WebGLEnvir);
-        bufferDataToGPU(WebGLEnvir,false);
+        addCubeToEnvirWithNormal(WebGLEnvir);
+        bufferDataToGPU(WebGLEnvir);
     }else{
-        addSombreroHatToEnvir(WebGLEnvir,40,0.4,3);
-        bufferDataToGPU(WebGLEnvir,false);
+        let Vue_1=WebGLEnvir["vueInstance"];
+        addSubDivSphereToEnvir(WebGLEnvir,Vue_1.$data["subDivDepth"],Vue_1.$data["normalMethod"]);
+        bufferDataToGPU(WebGLEnvir);
     }
 }
 window.onload=function init(){
@@ -83,7 +84,7 @@ window.onload=function init(){
             yRot:0,
             zRot:0,
             normalMethod:"defination",
-            subDivDepth:5,
+            subDivDepth:4,
             m_diffuseColorHex:"#999999",
             m_specularColorHex:"#AAAAAA",
             m_ambientColorHex:"#DDDDDD",
@@ -128,7 +129,10 @@ window.onload=function init(){
             }
         },
         watch:{
-            geoType:changeGeo
+            geoType:changeGeo,
+            normalMethod:changeGeo,
+            subDivDepth:changeGeo
+
     }
 }
     );
@@ -139,7 +143,7 @@ window.onload=function init(){
    let radius = 1.5;
    let theta  = 0.0;
    let phi    = 0.0;
-   let dr = 5.0 * Math.PI/180.0;
+    
    
    let left = -3.0;
    let right = 3.0;
@@ -150,13 +154,15 @@ window.onload=function init(){
    let at = vec3(0.0, 0.0, 0.0);
    let up = vec3(0.0, 1.0, 0.0);
    //light parameter
-   let lightTheta=0.0;
+   let lightTheta=Math.PI/4;
+   let lightDelta=1/this.Math.PI;
+   let lightPosition = vec4(-1.5*Math.cos(lightTheta),-1.5*Math.sin(lightTheta),1.0, 0.0 );
    //set up envir
     WebGLEnvir=setUpWebGlEnvironment_VerII("mainDiv_1",Vue_1);
    configWebGL(WebGLEnvir);
 
-   //addCubeToEnvirWithNormal(WebGLEnvir);
-   addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
+   addCubeToEnvirWithNormal(WebGLEnvir);
+   //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
    bufferDataToGPU(WebGLEnvir);
 
 
@@ -167,10 +173,19 @@ window.onload=function init(){
 let mainRender = function() {
     //get envir
     let numVertices=WebGLEnvir["numVertices"];
+     //console.log("numVertices = "+numVertices);
     if(numVertices==0)return;
     let gl=WebGLEnvir["gl"];
    let envir=WebGLEnvir;
-    let lightPosition = vec4(-1.0, -1.0,1.0, 0.0 );
+  
+    let isMovingLight=Vue_1.$data["isMovingLight"];
+    //console.log("isMovingLight = "+isMovingLight);
+    if(isMovingLight=="true"||isMovingLight==true){
+       
+        lightTheta+=lightDelta;
+        lightPosition = vec4(1.5*Math.cos(lightTheta),1.5*Math.sin(lightTheta),1.0, 0.0 );
+    }
+    
     let lightAmbient = convertHexColorToVec4(Vue_1.$data["l_ambientColorHex"]);
     let lightDiffuse = convertHexColorToVec4(Vue_1.$data["l_diffuseColorHex"]);
     let lightSpecular = convertHexColorToVec4(Vue_1.$data["l_specularColorHex"]);
