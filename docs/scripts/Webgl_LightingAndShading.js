@@ -51,6 +51,7 @@ function bufferDataToGPU(envir){
     envir["LocInShaders"]["shininessLoc"]  = gl.getUniformLocation( program, "shininess" );
 
     envir["LocInShaders"]["eyePositionLoc"]  = gl.getUniformLocation( program, "eyePosition" );
+    envir["LocInShaders"]["normalMatrixLoc"]  = gl.getUniformLocation( program, "normalMatrix" );
 }
 function _updateShader(){
     WebGLEnvir["shadersProgram"]=configShaders_VerII(WebGLEnvir);
@@ -88,7 +89,7 @@ window.onload=function init(){
             m_diffuseColorHex:"#999999",
             m_specularColorHex:"#AAAAAA",
             m_ambientColorHex:"#DDDDDD",
-            m_shininess:5,
+            m_shininess:20,
             l_diffuseColorHex:"#DDDDDD",
             l_specularColorHex:"#CCCCCC",
             l_ambientColorHex:"#333333",
@@ -178,7 +179,7 @@ let mainRender = function() {
     let gl=WebGLEnvir["gl"];
    let envir=WebGLEnvir;
   
-    let isMovingLight=Vue_1.$data["isMovingLight"];
+/*     let isMovingLight=Vue_1.$data["isMovingLight"];
     //console.log("isMovingLight = "+isMovingLight);
     if(isMovingLight=="true"||isMovingLight==true){
        
@@ -193,7 +194,19 @@ let mainRender = function() {
     let materialAmbient =convertHexColorToVec4(Vue_1.$data["m_ambientColorHex"]);
     let materialDiffuse =convertHexColorToVec4(Vue_1.$data["m_diffuseColorHex"]);
     let materialSpecular =convertHexColorToVec4(Vue_1.$data["m_specularColorHex"]);
-    let materialShininess =Number(Vue_1.$data["m_shininess"]);
+    let materialShininess =Number(Vue_1.$data["m_shininess"]); 
+ */
+
+var lightPosition = vec4(1.0, 1.0, 1.0, 0.0 );
+var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
+var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
+var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+
+var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
+var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
+var materialSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+var materialShininess = 20.0;
+
 
     let ambientProduct = mult(lightAmbient, materialAmbient);
     let diffuseProduct = mult(lightDiffuse, materialDiffuse);
@@ -204,10 +217,16 @@ let mainRender = function() {
     let zRot = Number(Vue_1.$data["zRot"]);
     let modelMat=mult(rotateZ_M(zRot),mult(rotateY_M(yRot),rotateX_M(xRot)));
     modelMat=mult(scaleM(2,2,2),modelMat);
+
+
+
     gl.uniform4fv( envir["LocInShaders"]["ambientProductLoc"],flatten(ambientProduct) );
      gl.uniform4fv( envir["LocInShaders"]["diffuseProductLoc"],flatten(diffuseProduct) );
      gl.uniform4fv( envir["LocInShaders"]["specularProductLoc"],flatten(specularProduct) );
      gl.uniform4fv( envir["LocInShaders"]["lightPositionLoc"],flatten(lightPosition) );
+     
+     
+     
      gl.uniform1f(envir["LocInShaders"]["shininessLoc"],materialShininess );
 
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -219,8 +238,17 @@ let mainRender = function() {
      let modelViewMatrix = mult(lookAt(eye, at , up),modelMat);
      let projectionMatrix = ortho(left, right, bottom, ytop, near, far);
 
+     let  modelViewMatrix_3 = [
+        vec3(modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2]),
+        vec3(modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2]),
+        vec3(modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2])
+    ];
+     modelViewMatrix_3.matrix=true;
+     let normalMatrix=inverse(transpose(modelViewMatrix_3));
      gl.uniformMatrix4fv( envir["LocInShaders"]["modelViewMatrixLoc"], false, flatten(modelViewMatrix) );
      gl.uniformMatrix4fv( envir["LocInShaders"]["projectionMatrixLoc"], false, flatten(projectionMatrix) );
+     gl.uniformMatrix3fv(envir["LocInShaders"]["normalMatrixLoc"], false, flatten(normalMatrix) );
+
      gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 }
 setInterval(
