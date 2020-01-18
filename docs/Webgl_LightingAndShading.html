@@ -30,45 +30,42 @@
                         uniform mat4 projectionMatrix;
                         uniform vec4 lightPosition;
                         uniform float shininess;
+                        uniform vec4 eyePosition;
                         
-                        uniform mat3 normalMatrix;
-                        
-                        
+                        uniform mat4 modelMatrix;
+                        uniform mat4 viewMatrix;
+                        uniform mat4 normalMat;
                         void
                         main()
                         {
-                            vec3 pos = (modelViewMatrix * vPosition).xyz;
-                            vec3 light = lightPosition.xyz;
-                            vec3 L;
-                              
-                            if(lightPosition.w == 0.0) L = normalize(lightPosition.xyz);
-                            else L = normalize( lightPosition.xyz - pos );
-                        
-                        
-                                
-                            vec3 E = -normalize( pos );
-                            vec3 H = normalize( L + E );
-                        
-                          
-                               
-                            vec3 N = normalize( normalMatrix*vNormal.xyz);
-                        
-                   
-                            vec4 ambient = ambientProduct;
-                        
-                            float Kd = max( dot(L, N), 0.0 );
-                            vec4  diffuse = Kd*diffuseProduct;
-                        
+                           vec4 pos=modelMatrix*vPosition;
+                           vec4 L;
+                             if(lightPosition.w == 0.0)  L = normalize( lightPosition);
+                            else  L = normalize(vec4((lightPosition - pos).xyz,0.0));
+
+	
+   
+                            vec4 E=normalize(vec4(eyePosition.xyz,0.0));
+    
+                            vec4 H = normalize(vec4((L + E).xyz,0.0));
+                            
+                            vec4 N = normalize(normalMat*vNormal);
+
+                              vec4 ambient = ambientProduct;
+
+                           float Kd = max( dot(L, N), 0.0 );
+                         vec4  diffuse = Kd*diffuseProduct;
+
                             float Ks = pow( max(dot(N, H), 0.0), shininess );
-                            vec4  specular = Ks * specularProduct;
-                            
-                            if( dot(L, N) < 0.0 ) {
-                                specular = vec4(0.0, 0.0, 0.0, 1.0);
-                            } 
-                        
-                            gl_Position = projectionMatrix * modelViewMatrix * vPosition;
-                            
-                            fColor = ambient + diffuse +specular;
+                           vec4  specular = Ks * specularProduct;
+    
+                        if( dot(L, N) < 0.0 ) {
+	                       specular = vec4(0.0, 0.0, 0.0, 1.0);
+                         } 
+
+                         gl_Position = projectionMatrix * viewMatrix* modelMatrix * vPosition;
+    
+                        fColor = ambient + diffuse +specular;
                         
                             fColor.a = 1.0;
                         }
@@ -150,7 +147,7 @@
                 </div>
                 <div   class="rangeDiv align_center">
                         <label class="name">Shininess</label>
-                        <div class="input_range"> <input v-model="m_shininess" class="inputRangeElem" type="range"  value="20" min="1" max="100" step="5"/></div>
+                        <div class="input_range"> <input v-model="m_shininess" class="inputRangeElem" type="range"  value="3" min="0.1" max="10" step="0.1"/></div>
                          <div class="data_display">{{m_shininess}}</div>
                 </div>
         </div>
