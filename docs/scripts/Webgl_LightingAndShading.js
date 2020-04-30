@@ -91,7 +91,7 @@ window.onload=function init(){
             zRot:0,
             normalMethod:"defination",
             subDivDepth:4,
-            m_diffuseColorHex:"#999999",
+            m_diffuseColorHex:"#666666",
             m_specularColorHex:"#AAAAAA",
             m_ambientColorHex:"#DDDDDD",
             m_shininess:3,
@@ -102,19 +102,7 @@ window.onload=function init(){
             isShowShaderEditor:false,
             ShaderEditorBtnStr:"Edit Shader",
             //
-           
-            near:0.4,
-            far:4.2,
-            radius:1.6,
-            phi:105,
-            theta:55,
-            v_width:2,
-            v_height :2,
-            FOV:45,
-            aspect:1,
-            display_item:'cube',
-            viewingMode:"Parallel",
-            isDisplayShadow:true,
+
             vertexShader:document.querySelector(".vertexShader").value,
             fragmentShader:document.querySelector(".fragmentShader").value,
 

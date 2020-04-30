@@ -178,73 +178,7 @@
 </div>
       
    </div>
-   <div class="hidden" class="UI_Div">
-           <div>
-                  <div class="name">Viewing Mode</div>
-                <div  class="radioBtnDiv">
-                                <div  class="radioBtn"> <input type="radio" value="Parallel" v-model="viewingMode"><label>  Parallel</label></div>
-                                <div class="radioBtn"> <input type="radio" value="Perspective" v-model="viewingMode"><label>  Perspective</label></div>
-                </div>
-           </div>
-           <div>
-        <div class="name">Display Item</div>
-              <div  class="radioBtnDiv">
-                              <div  class="radioBtn"> <input type="radio" value="cube" v-model="display_item"><label>  Cube</label></div>
-                              <div class="radioBtn"> <input type="radio" value="hat" v-model="display_item"><label>  Hat</label></div>
-              </div>
-         </div>
-       <div>
-        <div class="name">Near Clipping Distance</div>
-       <div class="input_range"> <input v-model="near" class="inputRangeElem" type="range"  value="0.8" min="0" max="5" step="0.2"/></div>
-        <div class="data_display">{{near}}</div>
-       </div>
-       <div>
-        <div class="name">Far Clipping Distance</div>
-       <div class="input_range"> <input v-model="far" class="inputRangeElem" type="range"  value="2.4" min="0" max="5" step="0.2"/></div>
-        <div  class="data_display">{{far}}</div>
-       </div>
-       <div>
-        <div class="name">Camera Distance</div>
-       <div class="input_range"> <input v-model="radius" class="inputRangeElem" type="range"  value="1.6" min="0" max="3" step="0.2"/></div>
-        <div class="data_display">{{radius}}</div>
-       </div>
-       <div>
-        <div  class="name">Camera Azimuth </div>
-        <div class="input_range"> <input v-model="phi" class="inputRangeElem" type="range"  value="105" min="0" max="360" step="5"/></div>
-         <div class="data_display">{{phi}}</div>
-       </div>
-       <div>
-        <div class="name">Camera Elevation</div>
-        <div class="input_range"> <input v-model="theta" class="inputRangeElem" type="range"  value="55" min="0" max="180" step="5"/></div>
-         <div class="data_display">{{theta}}</div>
-       </div>
-       <div v-show="viewingMode=='Parallel'">
-        <div  class="name" >Viewing Width</div>
-        <div class="input_range"> <input v-model="v_width" class="inputRangeElem" type="range"  value="0" min="0" max="20" step="1"/></div>
-         <div class="data_display">{{v_width}}</div>
-       </div>
-       <div v-show="viewingMode=='Parallel'">
-        <div  class="name">Viewing Height</div>
-        <div class="input_range"> <input v-model="v_height" class="inputRangeElem" type="range"  value="0" min="0" max="20" step="1"/></div>
-         <div  class="data_display">{{v_height}}</div>
-       </div>
-     <!--   <div v-show="viewingMode=='Parallel'&&display_item=='cube'"> -->
  
-       <div v-show="viewingMode=='Perspective'">
-        <div  class="name" >FOV</div>
-        <div class="input_range"> <input v-model="FOV" class="inputRangeElem" type="range"  value="45" min="10" max="120" step="1"/></div>
-         <div class="data_display">{{FOV}}</div>
-       </div>
-       <div v-show="viewingMode=='Perspective'">
-        <div  class="name">Aspect Ratio</div>
-        <div class="input_range"> <input v-model="aspect" class="inputRangeElem" type="range"  value="1" min="0.5" max="2" step="0.1"/></div>
-         <div  class="data_display">{{aspect}}</div>
-         
-       </div>
-       <div v-show="display_item=='cube'">
-                <div><input type="checkbox" v-model='isDisplayShadow'><label> Display Shadow</label></div>
-               </div>
-   </div>
       <div class="canvasDiv">
 
              <div class="container myCanvasContainer">   
@@ -255,77 +189,7 @@
   </div>
 </div>
 
-<!--<div class="container myContainer panel panel-info borderWider" id="WebGLModule_2">
-                <div class="panel-heading"> <h3 class="panel-title">Naive CAD:Pointing Devices UI Demo</h3> </div>
-<div class="shaderMenu">
-                <div class="myBigBtnDiv"><button class="btn btn-primary btn-default btnToggleForm_viewport" >Edit Shader</button></div>
-                <div class="shaderInput">
-                     <div class="shaderInput_Grid">
-                             <div class="GridItem_1">
-                             <div>
-                              <h4>vertex shader</h4>
-                              <textarea class="vertexShader" height>
-                                             attribute vec4 vPos;
-                                             attribute vec4  vColor;
-                                             varying vec4 fColor;
-                                             void main()
-                                             {
-                                                 gl_PointSize = 8.0;
-                                                 fColor=vColor;
-                                                 gl_Position = vPos;
-                                             }
-                                     </textarea>
-                          </div>
-                          </div>
-                          <div class="GridItem_2">
-                                  <div>
-                                   <h4>fragment shader</h4>
-                                   <textarea class="fragmentShader">
-                                          precision mediump float;
-                                          varying vec4 fColor;
-                                          void main()
-                                          {
-                                           gl_FragColor = fColor;
-                                          }
-                                  </textarea>
-                               </div>
-                          </div>
-                          </div>
-                 <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport">Update Shader</button></div>
-                </div>
-</div>
-              <div class="canvasDiv">
-                     <div class="Selection_1">
-                         <span class="myUICaption">Drawing Method :</span>
-                                <select  class="form-control">
-                                                <option selected="selected">Single Triangle</option>
-                                                <option>One Click Squre</option>
-                                                <option>Triangle Stripe</option>
-                                                <option>Two Click Squre</option>
-                                                <option>Polygon</option>
-                                        </select>
-                     </div>
-                     <form class="inputRange">
-                                <input class="inputRangeElem" type="range"  value="4" min="0" max="100" />
-                                <div class="inputDisplay1Div"> <span class="myUICaption">Squre Size:</span><span class="inputDisplay1">4</span></div>
-                     </form>
-                     <div class="myUICaption" id="keyBoardUINote">Press <strong>ESC</strong> To <span class="SpacebarOperation"></span> Clear canvas <div class="currentRotStatus"></div>
-                     or <strong>Press</strong> this Button
-                     <button class="btn btn-danger btn-xs">Clear</button></div>
-                     <div class="myUICaption colorInputDiv" >Drawing Color :<input type="color" class="colorInput"></div>
-                     <div class="myUICaption polygonNote">Press <strong>Alt</strong> To Draw Polygon or <strong>Press</strong> this Button
-                        <button class="btn btn-info btn-xs">Draw Polygon</button>
-                    </div>
-                   <div class="container myCanvasContainer"> 
-                <canvas class="gl-canvas"  width="512" height="512" > must set width and height,avoiding AA problem,width&&height is rendering resolution(image resolution) ,then scaling by layout engine 
-                        HTML5_canvas_NO_suppurted
-                </canvas></div>
-          </div>
-        </div>
-
-
-
--->
+ 
 
 </body>
 <script type="text/javascript" src="./scripts/myUIWidgets.js"></script>

@@ -1,6 +1,15 @@
 "use strict";
 
-
+function canvasPosToGLPos(offsetX,offsetY,envir){
+    let canvas=envir.cnv;
+    let w=canvas.clientWidth;
+    let h=canvas.clientHeight;
+    let x=(offsetX-w/2)/(w/2);
+    let y=(h/2-offsetY)/(h/2);
+    let t = [2*event.clientX/canvas.width-1,
+        2*(canvas.height-event.clientY)/canvas.height-1];
+        return [x,y];
+}
 function FunctionPackage_RotationSquares_Constructor(){
     var FunctionPackage=WebGLModuleFunctionPackageConstructor();
     FunctionPackage.produceGeometryData=function(envir){
