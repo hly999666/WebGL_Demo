@@ -161,7 +161,7 @@ window.onload = function init() {
 
 
     var image = document.getElementById("texImage");
-
+    //image.crossOrigin = "anonymous";
     configureTexture( image );
 
     thetaLoc = gl.getUniformLocation(program, "theta");
