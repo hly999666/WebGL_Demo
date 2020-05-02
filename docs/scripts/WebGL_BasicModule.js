@@ -424,9 +424,10 @@ function addColorCubeToEnvir(envir)
     envir["numVertices"]  += 36;
     envir["dataSet"]["pointsArray"]=[];
     envir["dataSet"]["colorsArray"]=[];
+    envir["dataSet"]["normalsArray"]=[];
 let pointsArray =envir["dataSet"]["pointsArray"];
 let colorsArray =envir["dataSet"]["colorsArray"];
-
+let normalsArray =envir["dataSet"]["normalsArray"];
 let vertices = [
         vec4( -0.5, -0.5,  0.5, 1.0 ),
         vec4( -0.5,  0.5,  0.5, 1.0 ),
@@ -449,18 +450,28 @@ let vertexColors = [
         vec4( 1.0, 1.0, 1.0, 1.0 ),  // white
     ];
     let quad=function (a, b, c, d) {
+        let t1 = subtract(vertices[b], vertices[a]);
+        let t2 = subtract(vertices[c], vertices[b]);
+        let normal = cross(t1, t2);
+         normal = vec4(normal[0],normal[1],normal[2],0.0);
         pointsArray.push(vertices[a]);
         colorsArray.push(vertexColors[a]);
+        normalsArray.push(normal);
         pointsArray.push(vertices[b]);
         colorsArray.push(vertexColors[a]);
+        normalsArray.push(normal);
         pointsArray.push(vertices[c]);
         colorsArray.push(vertexColors[a]);
+        normalsArray.push(normal);
         pointsArray.push(vertices[a]);
         colorsArray.push(vertexColors[a]);
+        normalsArray.push(normal);
         pointsArray.push(vertices[c]);
         colorsArray.push(vertexColors[a]);
+        normalsArray.push(normal);
         pointsArray.push(vertices[d]);
         colorsArray.push(vertexColors[a]);
+        normalsArray.push(normal);
    }
     quad( 1, 0, 3, 2 );
     quad( 2, 3, 7, 6 );
@@ -499,7 +510,7 @@ function addCubeToEnvirWithNormal(envir){
         var t1 = subtract(vertices[b], vertices[a]);
         var t2 = subtract(vertices[c], vertices[b]);
         var normal = cross(t1, t2);
-        var normal = vec4(normal[0],normal[1],normal[2],0.0);
+        normal = vec4(normal[0],normal[1],normal[2],0.0);
    
    
         pointsArray.push(vertices[a]);
