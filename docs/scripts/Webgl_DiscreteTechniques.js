@@ -22,12 +22,16 @@ function bufferDataToGPU(envir){
     envir["bufferIds"]["nBufferId"]  = gl.createBuffer();
     envir["bufferIds"]["vBufferId"]  = gl.createBuffer();
     envir["bufferIds"]["cBufferId"]  = gl.createBuffer();
+    envir["bufferIds"]["tCBufferId"]  = gl.createBuffer();
+
     let nBufferId= envir["bufferIds"]["nBufferId"] ;
     let vBufferId= envir["bufferIds"]["vBufferId"] ;
     let cBufferId= envir["bufferIds"]["cBufferId"] ;
+    let tCBufferId=  envir["bufferIds"]["tCBufferId"];
     let normalsArray=envir["dataSet"]["normalsArray"] ;
     let pointsArray=envir["dataSet"]["pointsArray"] ;
     let colorsArray=envir["dataSet"]["colorsArray"] ;
+    let texCoordsArray =envir["dataSet"]["texCoordsArray"];
 
     envir["LocInShaders"]["vNormal"]= gl.getAttribLocation( program, "vNormal" );
     let vNormalLoc = envir["LocInShaders"]["vNormal"];
@@ -49,10 +53,16 @@ function bufferDataToGPU(envir){
     gl.vertexAttribPointer(vPositionLoc, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPositionLoc);
   //send color date
-   gl.bindBuffer(gl.ARRAY_BUFFER, cBufferId);
-  gl.bufferData(gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW);
-  gl.vertexAttribPointer(vColorLoc, 4, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(vColorLoc); 
+   gl.bindBuffer(gl.ARRAY_BUFFER, tCBufferId);
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(texCoordsArray), gl.STATIC_DRAW);
+  gl.vertexAttribPointer(vTexCoordLoc, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(vTexCoordLoc); 
+
+    //send TexCoord date
+    gl.bindBuffer(gl.ARRAY_BUFFER, cBufferId);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colorsArray), gl.STATIC_DRAW);
+    gl.vertexAttribPointer(vColorLoc, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vColorLoc); 
 
     envir["LocInShaders"]["modelViewMatrixLoc"]  = gl.getUniformLocation( program, "modelViewMatrix" );
     envir["LocInShaders"]["projectionMatrixLoc"]  = gl.getUniformLocation( program, "projectionMatrix" );
@@ -69,6 +79,10 @@ function bufferDataToGPU(envir){
     envir["LocInShaders"]["viewMatrixLoc"]  = gl.getUniformLocation( program, "viewMatrix" );
     envir["LocInShaders"]["normalMatLoc"]  = gl.getUniformLocation( program, "normalMat" );
     envir["LocInShaders"]["eyePositionLoc"]=gl.getUniformLocation( program, "eyePosition" );
+    //send image
+    let image = document.getElementById("texImage_1");
+    //image.crossOrigin = "anonymous";
+    configureTexture( image,envir,"texture",0);
 }
 function _updateShader(){
     WebGLEnvir["shadersProgram"]=configShaders_VerII(WebGLEnvir);
@@ -103,7 +117,7 @@ window.onload=function init(){
             zRot:0,
             normalMethod:"defination",
             subDivDepth:4,
-            m_diffuseColorHex:"#DDDDDD",
+            m_diffuseColorHex:"#EEEEEE",
             m_specularColorHex:"#AAAAAA",
             m_ambientColorHex:"#DDDDDD",
             m_shininess:3,

@@ -91,7 +91,7 @@
                         main()
                         {
                         
-                            gl_FragColor = fColor;
+                            gl_FragColor = fColor * texture2D( texture, fTexCoord );
                         
                         }
                      </textarea>
@@ -197,7 +197,7 @@
 </div>
 
  
-
+<img id = "texImage_1" src = "./img/uv_map.png" hidden></img>
 </body>
 <script type="text/javascript" src="./scripts/myUIWidgets.js"></script>
 <script type="text/javascript" src="./scripts/MathG.js"></script>

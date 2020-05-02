@@ -425,9 +425,11 @@ function addColorCubeToEnvir(envir)
     envir["dataSet"]["pointsArray"]=[];
     envir["dataSet"]["colorsArray"]=[];
     envir["dataSet"]["normalsArray"]=[];
+    envir["dataSet"]["texCoordsArray"]=[];
 let pointsArray =envir["dataSet"]["pointsArray"];
 let colorsArray =envir["dataSet"]["colorsArray"];
 let normalsArray =envir["dataSet"]["normalsArray"];
+let texCoordsArray =envir["dataSet"]["texCoordsArray"];
 let vertices = [
         vec4( -0.5, -0.5,  0.5, 1.0 ),
         vec4( -0.5,  0.5,  0.5, 1.0 ),
@@ -449,29 +451,48 @@ let vertexColors = [
         vec4( 0.0, 1.0, 1.0, 1.0 ),   // cyan
         vec4( 1.0, 1.0, 1.0, 1.0 ),  // white
     ];
+
+    let texCoord = [
+        vec2(0, 0),
+        vec2(0, 1),
+        vec2(1, 1),
+        vec2(1, 0)
+    ];
     let quad=function (a, b, c, d) {
         let t1 = subtract(vertices[b], vertices[a]);
         let t2 = subtract(vertices[c], vertices[b]);
         let normal = cross(t1, t2);
          normal = vec4(normal[0],normal[1],normal[2],0.0);
+
         pointsArray.push(vertices[a]);
         colorsArray.push(vertexColors[a]);
         normalsArray.push(normal);
+        texCoordsArray.push(texCoord[0]);
+
         pointsArray.push(vertices[b]);
         colorsArray.push(vertexColors[a]);
         normalsArray.push(normal);
+        texCoordsArray.push(texCoord[1]);
+
         pointsArray.push(vertices[c]);
         colorsArray.push(vertexColors[a]);
         normalsArray.push(normal);
+        texCoordsArray.push(texCoord[2]);
+
         pointsArray.push(vertices[a]);
         colorsArray.push(vertexColors[a]);
         normalsArray.push(normal);
+        texCoordsArray.push(texCoord[0]);
+
         pointsArray.push(vertices[c]);
         colorsArray.push(vertexColors[a]);
         normalsArray.push(normal);
+        texCoordsArray.push(texCoord[2]);
+
         pointsArray.push(vertices[d]);
         colorsArray.push(vertexColors[a]);
         normalsArray.push(normal);
+        texCoordsArray.push(texCoord[3]);
    }
     quad( 1, 0, 3, 2 );
     quad( 2, 3, 7, 6 );
@@ -669,4 +690,21 @@ function SphericalCoordinateToXYZ(radius,Azimuth,Elevation){
 function multColor(c1,c2){
   return vec4(c1[0]*c2[0],c1[1]*c2[1],c1[2]*c2[2],1);
 
+}
+
+
+function configureTexture( image,envir,image_name_in_shader,texture_unit ) {
+    let gl=envir["gl"];
+    let program=envir["shadersProgram"];
+    texture = gl.createTexture();
+    gl.bindTexture( gl.TEXTURE_2D, texture );
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB,
+         gl.RGB, gl.UNSIGNED_BYTE, image );
+    gl.generateMipmap( gl.TEXTURE_2D );
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                      gl.NEAREST_MIPMAP_LINEAR );
+    gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
+
+    gl.uniform1i(gl.getUniformLocation(program, image_name_in_shader),texture_unit);
 }
