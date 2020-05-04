@@ -81,13 +81,27 @@ function bufferDataToGPU(envir){
     envir["LocInShaders"]["eyePositionLoc"]=gl.getUniformLocation( program, "eyePosition" );
     //send image
     //let image = document.getElementById("texImage_1");
-    let image=generateStripe(64,5,"X");
-    //image.crossOrigin = "anonymous";
-    configureTexture( image,envir,"texture",0,false);
+
+    let texSize=128;
+    let image_1=generateSinusoid(texSize);
+    let image_2=generateCheckerBoard(texSize,8);
+
+ 
+    let texture1=configureTexture(image_1,envir,false);
+    let texture2 =configureTexture(image_2,envir,false);
+   
+    gl.activeTexture( gl.TEXTURE0 );
+    gl.bindTexture( gl.TEXTURE_2D, texture1 );
+    gl.uniform1i(gl.getUniformLocation( program, "Tex0"), 0);
+
+    gl.activeTexture( gl.TEXTURE1 );
+    gl.bindTexture( gl.TEXTURE_2D, texture2 );
+    gl.uniform1i(gl.getUniformLocation( program, "Tex1"), 1);
+ 
 }
 function _updateShader(envir){
     envir["shadersProgram"]=configShaders_VerII(envir);
-    bufferDataToGPU(envir,false);
+    bufferDataToGPU(envir);
 }
 function addUniformColorToColorArray(envir,vColor){
 

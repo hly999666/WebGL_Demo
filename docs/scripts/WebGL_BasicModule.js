@@ -693,27 +693,31 @@ function multColor(c1,c2){
 }
 
 
-function configureTexture( image,envir,image_name_in_shader,texture_unit,isDomElement ) {
+function configureTexture( image,envir,isDomElement,isFlatten,texSize) {
     let gl=envir["gl"];
-    let program=envir["shadersProgram"];
-    texture = gl.createTexture();
+   
+    let texture = gl.createTexture();
     gl.bindTexture( gl.TEXTURE_2D, texture );
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
      if(isDomElement){
         gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB,gl.RGB, gl.UNSIGNED_BYTE, image );
      }else {
-         let width=image.length;
-         let length=image[0].length;
-         let image2=flatImage(image,width,length);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, length, 0,
-            gl.RGBA, gl.UNSIGNED_BYTE, image2);
+        if(!isFlatten){
+            let width=image.length;
+            let length=image[0].length;
+            let image2=flatImage(image,width,length);
+           gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, length, 0,
+               gl.RGBA, gl.UNSIGNED_BYTE, image2);
+        }else{
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texSize, texSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        }
      }
     gl.generateMipmap( gl.TEXTURE_2D );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
                       gl.NEAREST_MIPMAP_LINEAR );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
 
-    gl.uniform1i(gl.getUniformLocation(program, image_name_in_shader),texture_unit);
+    return texture;
 }
 function generateCheckerBoard(texSize,unit_num){
     let image1= new Array(texSize);
@@ -726,7 +730,7 @@ function generateCheckerBoard(texSize,unit_num){
         for (let j=0; j<texSize; j++){
             let c=Math.floor(i/unit_len)%2;
             c=(c+Math.floor(j/unit_len))%2;
-            image1[i][j] = [c, c, c, 1];
+            image1[i][j] = [c, c, c, c];
         }
     } 
   return image1;
@@ -751,7 +755,68 @@ function generateStripe(texSize,unit_num,direction){
     }
   return image1;
 }
+function generatePureColor(texSize,Color){
+    let image1= new Array(texSize);
+    for (var i =0; i<texSize; i++)  image1[i] = new Array();
+    for (var i =0; i<texSize; i++)
+        for ( var j = 0; j < texSize; j++)
+           image1[i][j] = new Float32Array(4);
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            image1[i][j] = Color;
+        }
+    }
+  return image1;
+}
 
+function generateSinusoid(texSize){
+    let image1= new Array(texSize);
+    for (var i =0; i<texSize; i++)  image1[i] = new Array();
+    for (var i =0; i<texSize; i++)
+        for ( var j = 0; j < texSize; j++)
+           image1[i][j] = new Float32Array(4);
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            let c=0.5+0.5*Math.sin(0.1*i*j);
+            image1[i][j] = [c,c,c,1];
+        }
+    }
+  return image1;
+}
+
+function generateCheckerBoard_v2(texSize,numChecks){
+    let image1 = new Uint8Array(4*texSize*texSize);
+
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            var patchx = Math.floor(i/(texSize/numChecks));
+            var patchy = Math.floor(j/(texSize/numChecks));
+            if(patchx%2 ^ patchy%2) c = 255;
+            else c = 0;
+            //c = 255*(((i & 0x8) == 0) ^ ((j & 0x8)  == 0))
+            image1[4*i*texSize+4*j] = c;
+            image1[4*i*texSize+4*j+1] = c ;
+            image1[4*i*texSize+4*j+2] =c ;
+            image1[4*i*texSize+4*j+3] = 1;
+        }
+    }
+   return image1;
+}
+function generateSinusoid_V2(texSize){
+    let image2 = new Uint8Array(4*texSize*texSize);
+
+    // Create a checkerboard pattern
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            let c=127+127*Math.cos(0.1*i*j);
+            image2[4*i*texSize+4*j] = c;
+            image2[4*i*texSize+4*j+1] =c;
+            image2[4*i*texSize+4*j+2] = c;
+            image2[4*i*texSize+4*j+3] = 255;
+           }
+    }
+    return image2;
+}
 function flatImage(image1,width,length){
     var image2 = new Uint8Array(4*length*width);
     for ( var i = 0; i <width; i++ )
@@ -760,3 +825,5 @@ function flatImage(image1,width,length){
             image2[4*length*i+4*j+k] = 255*image1[i][j][k];
     return image2;
 }
+
+

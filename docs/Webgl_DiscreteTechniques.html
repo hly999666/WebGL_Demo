@@ -86,12 +86,13 @@
                         varying vec4 fColor;
                         varying  vec2 fTexCoord;
 
-                        uniform sampler2D texture;
+                        uniform sampler2D Tex0;
+                        uniform sampler2D Tex1;
                         void
                         main()
                         {
                         
-                            gl_FragColor = fColor * texture2D( texture, fTexCoord );
+                                gl_FragColor = fColor*(texture2D(Tex0, fTexCoord)*texture2D(Tex1, fTexCoord));
                         
                         }
                      </textarea>
