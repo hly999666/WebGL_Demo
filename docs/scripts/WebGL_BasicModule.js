@@ -731,6 +731,27 @@ function generateCheckerBoard(texSize,unit_num){
     } 
   return image1;
 }
+function generateStripe(texSize,unit_num,direction){
+    let image1= new Array(texSize);
+    for (var i =0; i<texSize; i++)  image1[i] = new Array();
+    for (var i =0; i<texSize; i++)
+        for ( var j = 0; j < texSize; j++)
+           image1[i][j] = new Float32Array(4);
+    for ( var i = 0; i < texSize; i++ ) {
+        for ( var j = 0; j <texSize; j++ ) {
+            let patch = Math.floor(i/(texSize/unit_num));
+            if(direction=="Y"){
+             patch = Math.floor(j/(texSize/unit_num));
+            }
+            if(patch%2)c=1;
+            else c = 0;
+            image1[i][j] = [c,c,c,1];
+      
+        }
+    }
+  return image1;
+}
+
 function flatImage(image1,width,length){
     var image2 = new Uint8Array(4*length*width);
     for ( var i = 0; i <width; i++ )

@@ -81,13 +81,13 @@ function bufferDataToGPU(envir){
     envir["LocInShaders"]["eyePositionLoc"]=gl.getUniformLocation( program, "eyePosition" );
     //send image
     //let image = document.getElementById("texImage_1");
-    let image=generateCheckerBoard(64,4);
+    let image=generateStripe(64,5,"X");
     //image.crossOrigin = "anonymous";
     configureTexture( image,envir,"texture",0,false);
 }
-function _updateShader(){
-    WebGLEnvir["shadersProgram"]=configShaders_VerII(WebGLEnvir);
-    bufferDataToGPU(WebGLEnvir,false);
+function _updateShader(envir){
+    envir["shadersProgram"]=configShaders_VerII(envir);
+    bufferDataToGPU(envir,false);
 }
 function addUniformColorToColorArray(envir,vColor){
 
@@ -96,22 +96,23 @@ function addUniformColorToColorArray(envir,vColor){
     let n=   envir["numVertices"];
     for(let i=0;i<n;i++)colorsArray.push(vColor);
 }
-function changeGeo(val) {
+function changeGeo(val,envir) {
     console.log("In watch : display_item = "+val);
-    WebGLEnvir["numVertices"]=0;
+    envir["numVertices"]=0;
     if(val=='cube'){
-        addColorCubeToEnvir(WebGLEnvir);
-        bufferDataToGPU(WebGLEnvir);
+        addColorCubeToEnvir(envir);
+        bufferDataToGPU(envir);
     }else{
-        let Vue_1=WebGLEnvir["vueInstance"];
-        addSubDivSphereToEnvir(WebGLEnvir,Vue_1.$data["subDivDepth"],Vue_1.$data["normalMethod"]);
-        bufferDataToGPU(WebGLEnvir);
+        let Vue_1=envir["vueInstance"];
+        addSubDivSphereToEnvir(envir,Vue_1.$data["subDivDepth"],Vue_1.$data["normalMethod"]);
+        bufferDataToGPU(envir);
     }
 }
 window.onload=function init(){
     Vue_1= new Vue({
         el:"#mainDiv_1",
         data:{
+            envir:{},
             geoType:"cube",
             xRot:0,
             yRot:0,
@@ -136,7 +137,9 @@ window.onload=function init(){
         },
         methods:{
             updateShader:function(){
-                _updateShader();
+                let vm=this; 
+                let envir=vm["envir"]
+                _updateShader(envir);
                 console.log("updateShader!!!");
             },
             clickShaderEditorBtn:function(){
@@ -150,9 +153,21 @@ window.onload=function init(){
             }
         },
         watch:{
-            geoType:changeGeo,
-            normalMethod:changeGeo,
-            subDivDepth:changeGeo
+            geoType:function(val){
+                let vm=this; 
+                let envir=vm["envir"]
+                changeGeo(val,envir);
+            },
+            normalMethod:function(val){
+                let vm=this; 
+                let envir=vm["envir"]
+                changeGeo(val,envir);
+            },
+            subDivDepth:function(val){
+                let vm=this; 
+                let envir=vm["envir"]
+                changeGeo(val,envir);
+            }
 
     }
 }
@@ -179,25 +194,25 @@ window.onload=function init(){
    let lightDelta=1/this.Math.PI;
    let lightPosition = vec4(-1.5*Math.cos(lightTheta),-1.5*Math.sin(lightTheta),1.0, 0.0 );
    //set up envir
-    WebGLEnvir=setUpWebGlEnvironment_VerII("mainDiv_1",Vue_1);
-   configWebGL(WebGLEnvir);
-
-   addColorCubeToEnvir(WebGLEnvir);
+   let WebGLEnvir_1=setUpWebGlEnvironment_VerII("mainDiv_1",Vue_1);
+   configWebGL(WebGLEnvir_1);
+   Vue_1.$data.envir=WebGLEnvir_1;
+   addColorCubeToEnvir(WebGLEnvir_1);
    //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
-   bufferDataToGPU(WebGLEnvir);
+   bufferDataToGPU(WebGLEnvir_1);
 
 
 
  
 
    //generate render function
-let mainRender = function() {
+let mainRender_1 = function() {
     //get envir
-    let numVertices=WebGLEnvir["numVertices"];
+    let numVertices=WebGLEnvir_1["numVertices"];
      //console.log("numVertices = "+numVertices);
     if(numVertices==0)return;
-    let gl=WebGLEnvir["gl"];
-   let envir=WebGLEnvir;
+    let gl=WebGLEnvir_1["gl"];
+   let envir=WebGLEnvir_1;
   
   let isMovingLight=Vue_1.$data["isMovingLight"];
     //console.log("isMovingLight = "+isMovingLight);
@@ -282,7 +297,7 @@ var materialShininess = 20.0; */
 }
 setInterval(
     function(){
-        requestAnimationFrame(mainRender);
+        requestAnimationFrame(mainRender_1);
     },
     1000/10
     );
