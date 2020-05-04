@@ -396,10 +396,41 @@ function WebGLModuleEnvironmentConstructor_VerII() {
         bufferIds:{},
         LocInShaders:{},
         numVertices:0,
-        lightData:[],
+        camera:{},
+        viewport:{},
+        viewer:{},
+        light:{},
         vueInstance:""
        }
     return envir;
+}
+function setUpCameraAndViewport(envir){
+    //camera
+    envir["camera"].near= -10;
+    envir["camera"].far= 10;
+    envir["camera"].radius= 1.5;
+    envir["camera"].theta = 0.0;
+    envir["camera"].phi= 0.0;
+    //viewport
+    envir["viewport"].left = -3.0;
+    envir["viewport"].right = 3.0;
+    envir["viewport"].ytop =3.0;
+    envir["viewport"].bottom = -3.0;
+}
+function setUpViewer(envir){
+    //viewer
+    envir["viewer"].eye=[];
+    envir["camera"].at=vec3(0.0, 0.0, 0.0);
+    envir["camera"].up = vec3(0.0, 1.0, 0.0);
+}
+function setUpLight(envir){
+    //viewer
+
+    envir["light"].lightTheta=Math.PI/4;
+    envir["light"].lightDelta=1/this.Math.PI;
+    let lightTheta=envir["light"].lightTheta;
+    //let lightDelta=envir["light"].lightDelta;
+    envir["light"].lightPosition = vec4(-1.5*Math.cos(lightTheta),-1.5*Math.sin(lightTheta),1.0, 0.0 );
 }
 function setUpWebGlEnvironment_VerII(containerID,vueInstance){
          let envir=WebGLModuleEnvironmentConstructor_VerII();
@@ -411,6 +442,9 @@ function setUpWebGlEnvironment_VerII(containerID,vueInstance){
           });
           envir["vueInstance"]=vueInstance;
           envir["shadersProgram"]=configShaders_VerII(envir);
+          setUpCameraAndViewport(envir);
+          setUpViewer(envir);
+          setUpLight(envir);
           return envir;
 }
 function addColorCubeToEnvir(envir)

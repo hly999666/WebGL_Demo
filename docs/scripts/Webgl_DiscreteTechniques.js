@@ -1,6 +1,5 @@
 "use strict";
-var Vue_1;
-var WebGLEnvir;
+ 
 function configWebGL(envir){
     let gl=envir["gl"];
     let canvas=envir["canvas"];
@@ -122,8 +121,113 @@ function changeGeo(val,envir) {
         bufferDataToGPU(envir);
     }
 }
+function buildMainRender(envir,Vue_1){
+
+    let mainRender= function() {
+        //get envir
+        let numVertices=envir["numVertices"];
+         //console.log("numVertices = "+numVertices);
+        if(numVertices==0)return;
+        let gl=envir["gl"];
+       //let envir=WebGLEnvir_1;
+      
+      let isMovingLight=Vue_1.$data["isMovingLight"];
+        //console.log("isMovingLight = "+isMovingLight);
+        if(isMovingLight=="true"||isMovingLight==true){
+           
+            envir["light"].lightTheta+= envir["light"].lightDelta;
+            let lightTheta=envir["light"].lightTheta;
+            envir["light"].lightPosition = vec4(1.5*Math.cos(lightTheta),1.5*Math.sin(lightTheta),1.0, 0.0 );
+        }
+        
+        let lightAmbient = convertHexColorToVec4(Vue_1.$data["l_ambientColorHex"]);
+        let lightDiffuse = convertHexColorToVec4(Vue_1.$data["l_diffuseColorHex"]);
+        let lightSpecular = convertHexColorToVec4(Vue_1.$data["l_specularColorHex"]);
+    
+        let materialAmbient =convertHexColorToVec4(Vue_1.$data["m_ambientColorHex"]);
+        let materialDiffuse =convertHexColorToVec4(Vue_1.$data["m_diffuseColorHex"]);
+        let materialSpecular =convertHexColorToVec4(Vue_1.$data["m_specularColorHex"]);
+        let materialShininess =Number(Vue_1.$data["m_shininess"]); 
+     
+    
+    /* var lightPosition = vec4(1.0, 1.0, 1.0, 0.0 );
+    var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
+    var lightDiffuse = vec4( 1.0, 1.0, 1.0, 1.0 );
+    var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+    
+    var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
+    var materialDiffuse = vec4( 1.0, 0.8, 0.0, 1.0 );
+    var materialSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
+    var materialShininess = 20.0; */
+    
+    
+        let ambientProduct = mult(lightAmbient, materialAmbient);
+        let diffuseProduct = mult(lightDiffuse, materialDiffuse);
+        let specularProduct = mult(lightSpecular, materialSpecular);
+    
+        let xRot = Number(Vue_1.$data["xRot"]);
+        let yRot = Number(Vue_1.$data["yRot"]);
+        let zRot = Number(Vue_1.$data["zRot"]);
+        let modelMat=mult(rotateZ_M(zRot),mult(rotateY_M(yRot),rotateX_M(xRot)));
+        modelMat=mult(scaleM(2,2,2),modelMat);
+        let normalMat=inverse(transpose(modelMat));
+    
+    
+        gl.uniform4fv( envir["LocInShaders"]["ambientProductLoc"],flatten(ambientProduct) );
+         gl.uniform4fv( envir["LocInShaders"]["diffuseProductLoc"],flatten(diffuseProduct) );
+         gl.uniform4fv( envir["LocInShaders"]["specularProductLoc"],flatten(specularProduct) );
+         gl.uniform4fv( envir["LocInShaders"]["lightPositionLoc"],flatten(envir["light"].lightPosition) );
+         
+         
+         //console.log("materialShininess = "+ materialShininess);
+         gl.uniform1f(envir["LocInShaders"]["shininessLoc"],materialShininess );
+    
+        gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+       let radius=envir["camera"].radius;
+       let theta=envir["camera"].theta;
+       let phi=envir["camera"].phi;
+
+        let eye = vec3(radius*Math.sin(theta)*Math.cos(phi),
+        radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
+        envir["viewer"].eye=eye;
+        let at=envir["camera"].at;
+        let up=envir["camera"].up;
+        let viewMatrix=lookAt(eye, at , up);
+       
+         let modelViewMatrix = mult(viewMatrix,modelMat);
+         let projectionMatrix = ortho(envir["viewport"].left, 
+                                    envir["viewport"].right,
+                                    envir["viewport"].bottom, 
+                                    envir["viewport"].ytop, 
+                                    envir["camera"].near, 
+                                    envir["camera"].far);
+    
+         let  modelViewMatrix_3 = [
+            vec3(modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2]),
+            vec3(modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2]),
+            vec3(modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2])
+        ];
+         modelViewMatrix_3.matrix=true;
+         let normalMatrix=inverse(transpose(modelViewMatrix_3));
+         gl.uniformMatrix4fv( envir["LocInShaders"]["modelViewMatrixLoc"], false, flatten(modelViewMatrix) );
+         gl.uniformMatrix4fv( envir["LocInShaders"]["projectionMatrixLoc"], false, flatten(projectionMatrix) );
+         gl.uniformMatrix3fv(envir["LocInShaders"]["normalMatrixLoc"], false, flatten(normalMatrix) );
+    
+    
+         gl.uniformMatrix4fv( envir["LocInShaders"]["modelMatrixLoc"], false, flatten(modelMat) );
+         gl.uniformMatrix4fv(envir["LocInShaders"]["viewMatrixLoc"], false, flatten(viewMatrix) );
+         gl.uniformMatrix4fv(envir["LocInShaders"]["normalMatLoc"], false, flatten(normalMat) );
+    
+        
+         eye=vec4(eye[0],eye[1],eye[2],1.0);
+        gl.uniform4fv(envir["LocInShaders"]["eyePositionLoc"], flatten(eye));
+    
+         gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+    }
+    return mainRender;
+}
 window.onload=function init(){
-    Vue_1= new Vue({
+    let Vue_1= new Vue({
         el:"#mainDiv_1",
         data:{
             envir:{},
@@ -187,7 +291,7 @@ window.onload=function init(){
 }
     );
 
-   //camera and viewport parameter
+ /*   //camera and viewport parameter
    let near = -10;
    let far = 10;
    let radius = 1.5;
@@ -206,7 +310,7 @@ window.onload=function init(){
    //light parameter
    let lightTheta=Math.PI/4;
    let lightDelta=1/this.Math.PI;
-   let lightPosition = vec4(-1.5*Math.cos(lightTheta),-1.5*Math.sin(lightTheta),1.0, 0.0 );
+   let lightPosition = vec4(-1.5*Math.cos(lightTheta),-1.5*Math.sin(lightTheta),1.0, 0.0 ); */
    //set up envir
    let WebGLEnvir_1=setUpWebGlEnvironment_VerII("mainDiv_1",Vue_1);
    configWebGL(WebGLEnvir_1);
@@ -215,12 +319,80 @@ window.onload=function init(){
    //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
    bufferDataToGPU(WebGLEnvir_1);
 
+   let Vue_2= new Vue({
+    el:"#mainDiv_2",
+    data:{
+        envir:{},
+        geoType:"cube",
+        xRot:0,
+        yRot:0,
+        zRot:0,
+        normalMethod:"defination",
+        subDivDepth:4,
+        m_diffuseColorHex:"#EEEEEE",
+        m_specularColorHex:"#AAAAAA",
+        m_ambientColorHex:"#DDDDDD",
+        m_shininess:3,
+        l_diffuseColorHex:"#DDDDDD",
+        l_specularColorHex:"#CCCCCC",
+        l_ambientColorHex:"#333333",
+        isMovingLight:false,
+        isShowShaderEditor:false,
+        ShaderEditorBtnStr:"Edit Shader",
+        //
 
+        vertexShader:document.querySelector(".vertexShader").value,
+        fragmentShader:document.querySelector(".fragmentShader").value,
+
+    },
+    methods:{
+        updateShader:function(){
+            let vm=this; 
+            let envir=vm["envir"]
+            _updateShader(envir);
+            console.log("updateShader!!!");
+        },
+        clickShaderEditorBtn:function(){
+            let vm=this;
+            vm["isShowShaderEditor"]=!vm["isShowShaderEditor"];
+            if(vm["isShowShaderEditor"]){
+                vm["ShaderEditorBtnStr"]="Close Editor";
+            }else{
+                vm["ShaderEditorBtnStr"]="Edit Shader";
+            }
+        }
+    },
+    watch:{
+        geoType:function(val){
+            let vm=this; 
+            let envir=vm["envir"]
+            changeGeo(val,envir);
+        },
+        normalMethod:function(val){
+            let vm=this; 
+            let envir=vm["envir"]
+            changeGeo(val,envir);
+        },
+        subDivDepth:function(val){
+            let vm=this; 
+            let envir=vm["envir"]
+            changeGeo(val,envir);
+        }
+
+}
+}
+);
+let WebGLEnvir_2=setUpWebGlEnvironment_VerII("mainDiv_2",Vue_2);
+configWebGL(WebGLEnvir_2);
+Vue_2.$data.envir=WebGLEnvir_2;
+addColorCubeToEnvir(WebGLEnvir_2);
+//addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
+bufferDataToGPU(WebGLEnvir_2);
 
  
 
    //generate render function
-let mainRender_1 = function() {
+let mainRender = function() {
     //get envir
     let numVertices=WebGLEnvir_1["numVertices"];
      //console.log("numVertices = "+numVertices);
@@ -309,12 +481,20 @@ var materialShininess = 20.0; */
 
      gl.drawArrays( gl.TRIANGLES, 0, numVertices );
 }
+let mainRender_1=buildMainRender(WebGLEnvir_1,Vue_1);
+let mainRender_2=buildMainRender(WebGLEnvir_2,Vue_2);
 setInterval(
     function(){
         requestAnimationFrame(mainRender_1);
     },
     1000/10
     );
+setInterval(
+        function(){
+            requestAnimationFrame(mainRender_2);
+        },
+        1000/10
+        );
 }
 
 
