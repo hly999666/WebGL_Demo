@@ -80,9 +80,10 @@ function bufferDataToGPU(envir){
     envir["LocInShaders"]["normalMatLoc"]  = gl.getUniformLocation( program, "normalMat" );
     envir["LocInShaders"]["eyePositionLoc"]=gl.getUniformLocation( program, "eyePosition" );
     //send image
-    let image = document.getElementById("texImage_1");
+    //let image = document.getElementById("texImage_1");
+    let image=generateCheckerBoard(64,4);
     //image.crossOrigin = "anonymous";
-    configureTexture( image,envir,"texture",0);
+    configureTexture( image,envir,"texture",0,false);
 }
 function _updateShader(){
     WebGLEnvir["shadersProgram"]=configShaders_VerII(WebGLEnvir);

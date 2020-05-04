@@ -693,18 +693,49 @@ function multColor(c1,c2){
 }
 
 
-function configureTexture( image,envir,image_name_in_shader,texture_unit ) {
+function configureTexture( image,envir,image_name_in_shader,texture_unit,isDomElement ) {
     let gl=envir["gl"];
     let program=envir["shadersProgram"];
     texture = gl.createTexture();
     gl.bindTexture( gl.TEXTURE_2D, texture );
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB,
-         gl.RGB, gl.UNSIGNED_BYTE, image );
+     if(isDomElement){
+        gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB,gl.RGB, gl.UNSIGNED_BYTE, image );
+     }else {
+         let width=image.length;
+         let length=image[0].length;
+         let image2=flatImage(image,width,length);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, length, 0,
+            gl.RGBA, gl.UNSIGNED_BYTE, image2);
+     }
     gl.generateMipmap( gl.TEXTURE_2D );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
                       gl.NEAREST_MIPMAP_LINEAR );
     gl.texParameteri( gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST );
 
     gl.uniform1i(gl.getUniformLocation(program, image_name_in_shader),texture_unit);
+}
+function generateCheckerBoard(texSize,unit_num){
+    let image1= new Array(texSize);
+    for (var i =0; i<texSize; i++)  image1[i] = new Array();
+    for (var i =0; i<texSize; i++)
+        for ( var j = 0; j < texSize; j++)
+           image1[i][j] = new Float32Array(4);
+    let unit_len=texSize/unit_num;
+    for (let i =0; i<texSize; i++){
+        for (let j=0; j<texSize; j++){
+            let c=Math.floor(i/unit_len)%2;
+            c=(c+Math.floor(j/unit_len))%2;
+            image1[i][j] = [c, c, c, 1];
+        }
+    } 
+  return image1;
+}
+function flatImage(image1,width,length){
+    var image2 = new Uint8Array(4*length*width);
+    for ( var i = 0; i <width; i++ )
+    for ( var j = 0; j <length; j++ )
+       for(var k =0; k<4; k++)
+            image2[4*length*i+4*j+k] = 255*image1[i][j][k];
+    return image2;
 }
