@@ -98,6 +98,15 @@ function bufferDataToGPU(envir){
     gl.uniform1i(gl.getUniformLocation( program, "Tex1"), 1);
  
 }
+function bufferDataToGPU_1(envir){
+    bufferDataToGPU(envir);
+    let gl=envir["gl"];
+    let program=envir["shadersProgram"];
+    let cubeMap=configureSimpleCubeMap(envir);
+    gl.activeTexture( gl.TEXTURE2 );
+    gl.bindTexture( gl.TEXTURE_CUBE_MAP, cubeMap );
+    gl.uniform1i(gl.getUniformLocation( program, "cubeMap"), 2);
+}
 function _updateShader(envir){
     envir["shadersProgram"]=configShaders_VerII(envir);
     bufferDataToGPU(envir);
@@ -249,8 +258,8 @@ window.onload=function init(){
             ShaderEditorBtnStr:"Edit Shader",
             //
 
-            vertexShader:document.querySelector(".vertexShader").value,
-            fragmentShader:document.querySelector(".fragmentShader").value,
+            vertexShader:document.querySelector("#mainDiv_1 .vertexShader").value,
+            fragmentShader:document.querySelector("#mainDiv_1 .fragmentShader").value,
 
         },
         methods:{
@@ -341,8 +350,8 @@ window.onload=function init(){
         ShaderEditorBtnStr:"Edit Shader",
         //
 
-        vertexShader:document.querySelector(".vertexShader").value,
-        fragmentShader:document.querySelector(".fragmentShader").value,
+        vertexShader:document.querySelector("#mainDiv_2 .vertexShader").value,
+        fragmentShader:document.querySelector("#mainDiv_2 .fragmentShader").value,
 
     },
     methods:{
@@ -387,7 +396,7 @@ configWebGL(WebGLEnvir_2);
 Vue_2.$data.envir=WebGLEnvir_2;
 addColorCubeToEnvir(WebGLEnvir_2);
 //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
-bufferDataToGPU(WebGLEnvir_2);
+bufferDataToGPU_1(WebGLEnvir_2);
 
  
 
