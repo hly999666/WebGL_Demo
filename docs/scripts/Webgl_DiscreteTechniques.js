@@ -199,8 +199,8 @@ function buildMainRender(envir,Vue_1){
         let eye = vec3(radius*Math.sin(theta)*Math.cos(phi),
         radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
         envir["viewer"].eye=eye;
-        let at=envir["camera"].at;
-        let up=envir["camera"].up;
+        let at=envir["viewer"].at;
+        let up=envir["viewer"].up;
         let viewMatrix=lookAt(eye, at , up);
        
          let modelViewMatrix = mult(viewMatrix,modelMat);
@@ -336,6 +336,9 @@ window.onload=function init(){
         xRot:0,
         yRot:0,
         zRot:0,
+        radius:1,
+        phi:0,
+        theta:0,
         normalMethod:"defination",
         subDivDepth:4,
         m_diffuseColorHex:"#EEEEEE",
@@ -374,20 +377,34 @@ window.onload=function init(){
     watch:{
         geoType:function(val){
             let vm=this; 
-            let envir=vm["envir"]
+            let envir=vm["envir"];
             changeGeo(val,envir);
         },
         normalMethod:function(val){
             let vm=this; 
-            let envir=vm["envir"]
+            let envir=vm["envir"];
             changeGeo(val,envir);
         },
         subDivDepth:function(val){
             let vm=this; 
-            let envir=vm["envir"]
+            let envir=vm["envir"];
             changeGeo(val,envir);
+        },
+        radius:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["camera"].radius=val;
+        },
+        theta:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["camera"].theta=val/180*(Math.PI);
+        },
+        phi:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["camera"].phi=val/180*(Math.PI);
         }
-
 }
 }
 );
@@ -397,7 +414,9 @@ Vue_2.$data.envir=WebGLEnvir_2;
 addColorCubeToEnvir(WebGLEnvir_2);
 //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
 bufferDataToGPU_1(WebGLEnvir_2);
-
+Vue_2.$data.radius=WebGLEnvir_2["camera"].radius;
+Vue_2.$data.theta=WebGLEnvir_2["camera"].theta/(Math.PI)*180;
+Vue_2.$data.phi=WebGLEnvir_2["camera"].phi/(Math.PI)*180;
  
 
    //generate render function

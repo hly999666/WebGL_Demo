@@ -245,7 +245,15 @@ input[type="checkbox"]{
      
   
   }
-
+#CameraPanel{
+    border-color: rgb(122, 165, 124);
+  
+  }
+  #CameraPanel>.myPanel-heading{
+      background-color:  rgb(122, 165, 124);
+     
+  
+  }
   #LightingPanel{
     border-color: rgb(220, 235, 91);
   

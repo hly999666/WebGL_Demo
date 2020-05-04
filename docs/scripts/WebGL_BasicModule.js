@@ -400,6 +400,7 @@ function WebGLModuleEnvironmentConstructor_VerII() {
         viewport:{},
         viewer:{},
         light:{},
+        lightData:[],
         vueInstance:""
        }
     return envir;
@@ -420,8 +421,8 @@ function setUpCameraAndViewport(envir){
 function setUpViewer(envir){
     //viewer
     envir["viewer"].eye=[];
-    envir["camera"].at=vec3(0.0, 0.0, 0.0);
-    envir["camera"].up = vec3(0.0, 1.0, 0.0);
+    envir["viewer"].at=vec3(0.0, 0.0, 0.0);
+    envir["viewer"].up = vec3(0.0, 1.0, 0.0);
 }
 function setUpLight(envir){
     //viewer
