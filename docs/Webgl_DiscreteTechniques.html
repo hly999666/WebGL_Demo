@@ -256,10 +256,10 @@
 
                          gl_Position = projectionMatrix * viewMatrix* modelMatrix * vPosition;
                          vec4 lightColor=ambient + diffuse +specular;
-                        fColor = lightColor ;
+                        fColor = lightColor+vColor*0.001 ;//just for avoiding warning because vColor is not used
                         
                             fColor.a = 1.0;
-
+                            //vec4 empty=vColor*0.0;
                             vec3 eyePos  = (modelViewMatrix*vPosition).xyz;
                             vec3 N_3 = N.xyz;
                             R = reflect(eyePos, N_3);
@@ -412,7 +412,261 @@
          
   </div>
 </div>
+<div id="mainDiv_3" class="container myContainer panel panel-primary borderWider" id="WebGLModule_1">
+        <div class="panel-heading"> <h3 class="panel-title">Blinn-Phong Model : Simple Shading Demo</h3> </div>
+        <div class="myBigBtnDiv"><button class="btn btn-primary btn-default btnToggleForm_viewport" @click="clickShaderEditorBtn">{{ShaderEditorBtnStr}}</button></div>
+   <div class="shaderInput" v-show="isShowShaderEditor">
+        <div class="shaderInput_Grid">
+                <div class="GridItem_1">
+                <div>
+                 <h4>vertex shader</h4>
+                 <textarea v-model="vertexShader" class="vertexShader" spellcheck="false">
+                        attribute vec4 vPosition;
+                        attribute vec4 vNormal;
+                        attribute vec4 vColor;
+                        attribute vec2 vTexCoord;
+                      
+
+                        varying vec4 fColor;
+                        varying vec2 fTexCoord;
+                        varying vec3 R;
+                        
+                        uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+                        uniform mat4 modelViewMatrix;
+                        uniform mat4 projectionMatrix;
+                        uniform vec4 lightPosition;
+                        uniform float shininess;
+                        uniform vec4 eyePosition;
+                        
+                        uniform mat4 modelMatrix;
+                        uniform mat4 viewMatrix;
+                        uniform mat4 normalMat;
+                        /* From Simple Bump Map*/
+                        varying vec3 tL; 
+                        varying vec3 tV; 
+                        uniform vec4 normal;
+                        uniform vec3 objTangent;
+                        varying vec4 diffuseProductF; 
+                        void
+                        main()
+                        {
+                           fTexCoord = vTexCoord;
+                           vec4 pos=modelMatrix*vPosition;
+                           vec4 L;
+                             if(lightPosition.w == 0.0)  L = normalize( lightPosition);
+                            else  L = normalize(vec4((lightPosition - pos).xyz,0.0));
+
+	
+   
+                            vec4 E=normalize(vec4(eyePosition.xyz,0.0));
+    
+                            vec4 H = normalize(vec4((L + E).xyz,0.0));
+                            
+                            vec4 N = normalize(normalMat*vNormal);
+
+                              vec4 ambient = ambientProduct;
+
+                           float Kd = max( dot(L, N), 0.0 );
+                         vec4  diffuse = Kd*diffuseProduct;
+
+                            float Ks = pow( max(dot(N, H), 0.0), shininess );
+                           vec4  specular = Ks * specularProduct;
+    
+                        if( dot(L, N) < 0.0 ) {
+	                       specular = vec4(0.0, 0.0, 0.0, 1.0);
+                         } 
+
+                         gl_Position = projectionMatrix * viewMatrix* modelMatrix * vPosition;
+                         vec4 lightColor=ambient + diffuse +specular;
+                        fColor = lightColor+vColor*0.001 ;//just for avoiding warning because vColor is not used
+                        
+                            fColor.a = 1.0;
+                            vec4 empty=vColor*0.0;
+                            vec3 eyePos  = (modelViewMatrix*vPosition).xyz;
+                            vec3 N_3 = N.xyz;
+                            R = reflect(eyePos, N_3);
+
+                            /* From Simple Bump Map*/
+
+                            vec3 eyePosition = (modelViewMatrix*vPosition).xyz;
+                            vec3 eyeLightPos = (modelViewMatrix*lightPosition).xyz;
+
+                            vec4 tN4=normalMat*normal;
+                            vec3 tN=normalize(tN4.xyz);
+
+                            vec4 tT4;tT4.xyz=objTangent.xyz;tT4.w=0.0;
+                            tT4=normalMat*tT4;
+                            vec3 tT=normalize(tT4.xyz);
+                            vec3 tB = cross(tN, tT);
+
+                            tL.x = dot(tT, eyeLightPos-eyePosition);
+                            tL.y = dot(tB, eyeLightPos-eyePosition);
+                            tL.z = dot(tN, eyeLightPos-eyePosition);
+                            tL = normalize(tL);
+        
+                        
+                            tV.x = dot(tT, -eyePosition);
+                            tV.y = dot(tB, -eyePosition);
+                            tV.z = dot(tN, -eyePosition);
+
+                            tV = normalize(tV);
+                            diffuseProductF=diffuseProduct;
+                        }
+                        </textarea>
+             </div>
+             </div>
+             <div class="GridItem_2">
+                     <div>
+                      <h4>fragment shader</h4>
+                      <textarea v-model="fragmentShader"  class="fragmentShader" spellcheck="false">
+                        precision mediump float;
+
+                        varying vec4 fColor;
+                        varying  vec2 fTexCoord;
+                        varying vec3 R;
+
+                        uniform sampler2D Tex0;
+                        uniform sampler2D Tex1;
+
+                        uniform samplerCube cubeMap;
+                        /* From Simple Bump Map*/
+                        uniform sampler2D bumpNormalMap;
+                        varying vec3 tL;
+                        varying vec3 tV;
+                        varying vec4 diffuseProductF; 
+                        void
+                        main()
+                        {
+                                vec4 tNf = texture2D(bumpNormalMap, fTexCoord);
+                                vec3 NN =  normalize(2.0*tNf.xyz-1.0);
+                                vec3 LL = normalize(tL);
+                                float Kd = max(dot(NN, LL), 0.0);
+                                gl_FragColor = vec4(Kd*diffuseProductF.xyz, 1.0);
+                        }
+                     </textarea>
+                  </div>
+             </div>
+             </div>
+    <div class="myBigBtnDiv"><button class="btn btn-success btn-block btnUpdateShader_viewport" @click="updateShader">Update Shader</button></div>
+   </div>
+   <div  class="UI_Div_2 UI_Div_flexbox"  >
+        <div class="myPanel" id="GeoPanel">
+<div class="myPanel-heading"><div class="myPanel-title">Geometry</div></div>
+<div class="inputContainer">
+     <!--    <div  class="radioBtnDiv_2">
+                <div  class="radioBtn_2"> <input type="radio" value="cube" v-model="geoType"><label>  Cube</label></div>
+              <div class="radioBtn_2"> <input type="radio" value="sphere" v-model="geoType"><label>  Sphere</label></div> 
+         </div> -->
+      
+         <div  class="rangeDiv align_center">
+                <label class="name"> X Rotation</label>
+                <div class="input_range"> <input v-model="xRot" class="inputRangeElem" type="range"  value="0" min="-180" max="180" step="5"/></div>
+                 <div class="data_display">{{xRot}}</div>
+        </div>
+        <div  class="rangeDiv align_center">
+                <label class="name"> Y Rotation</label>
+                <div class="input_range"> <input v-model="yRot" class="inputRangeElem" type="range"  value="0" min="-180" max="180" step="5"/></div>
+                 <div class="data_display">{{yRot}}</div>
+        </div>
+        <div  class="rangeDiv align_center">
+                <label class="name"> Z Rotation</label>
+                <div class="input_range"> <input v-model="zRot" class="inputRangeElem" type="range"  value="0" min="-180" max="180" step="5"/></div>
+                 <div class="data_display">{{zRot}}</div>
+        </div>
+        <div v-show="geoType=='sphere'" class="rangeDiv align_center">
+                <label class="name">Subdivision Depth</label>
+                <div class="input_range"> <input v-model="subDivDepth" class="inputRangeElem" type="range"  value="4" min="0" max="8" step="1"/></div>
+                 <div class="data_display">{{subDivDepth}}</div>
+        </div>
+        <div  v-show="geoType=='sphere'" class="radioBtnDiv_2">
+                <label>normal from </label>
+                <div  class="radioBtn_2"> <input type="radio" value="defination" v-model="normalMethod"><label>defination</label></div>
+                <div  class="radioBtn_2"> <input type="radio" value="computation" v-model="normalMethod"><label>computation</label></div>
+         </div>
+</div> 
+</div>
+  <div class="myPanel"  id="CameraPanel">
+               
+        <div class="myPanel-heading"><div class="myPanel-title">Camera</div></div>
+        <div class="inputContainer">
+        
+                <div   class="rangeDiv align_center">
+                        <label class="name">Radius</label>
+                        <div class="input_range"> <input v-model="radius" class="inputRangeElem" type="range"  value="1" min="0.5" max="5" step="0.2"/></div>
+                         <div class="data_display">{{radius}}</div>
+                </div>
+                <div   class="rangeDiv align_center">
+                        <label class="name">Phi</label>
+                        <div class="input_range"> <input v-model="phi" class="inputRangeElem" type="range"  value="0" min="-180" max="180" step="5"/></div>
+                         <div class="data_display">{{phi}}</div>
+                </div>
+                <div   class="rangeDiv align_center">
+                        <label class="name">Theta</label>
+                        <div class="input_range"> <input v-model="theta" class="inputRangeElem" type="range"  value="3" min="0" max="180" step="5"/></div>
+                         <div class="data_display">{{theta}}</div>
+                </div>
+        </div>
+
+</div>
+        <div class="myPanel"  id="MaterialPanel">
+               
+        <div class="myPanel-heading"><div class="myPanel-title">Material</div></div>
+        <div class="inputContainer">
+                <div class="colorInputDiv_2">
+                        <label>Diffuse Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="m_diffuseColorHex"></div>
+                </div>
+                <div class="colorInputDiv_2">
+                        <label>Specular Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="m_specularColorHex"></div>
+                </div>
+                <div class="colorInputDiv_2">
+                        <label>Ambient Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="m_ambientColorHex"></div>
+                </div>
+                <div   class="rangeDiv align_center">
+                        <label class="name">Shininess</label>
+                        <div class="input_range"> <input v-model="m_shininess" class="inputRangeElem" type="range"  value="3" min="0.1" max="10" step="0.1"/></div>
+                         <div class="data_display">{{m_shininess}}</div>
+                </div>
+        </div>
+
+</div>
+<div class="myPanel"   id="LightingPanel">
+        <div class="myPanel-heading"><div class="myPanel-title">Lighting</div></div>
+        <div class="inputContainer">
+                <div class="colorInputDiv_2">
+                        <label>Diffuse Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="l_diffuseColorHex"></div>
+                </div>
+                <div class="colorInputDiv_2">
+                        <label>Specular Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="l_specularColorHex"></div>
+                </div>
+                <div class="colorInputDiv_2">
+                        <label>Ambient Color</label>
+                        <div class="colorDiv"><input type="color"  v-model="l_ambientColorHex"></div>
+                </div>
+                <div class="checkboxDiv">
+                        <input type="checkbox"  v-model="isMovingLight">
+                        <label>Moving Light</label>
+                </div>
+        </div>
+
+
+</div>
+      
+   </div>
  
+      <div class="canvasDiv">
+
+             <div class="container myCanvasContainer">   
+                 <canvas class="gl-canvas"  width="512" height="512" >
+                HTML5_canvas_NO_suppurted
+        </canvas></div>
+         
+  </div>
+</div>
 <img id = "texImage_1" src = "./img/uv_map.png" hidden></img>
 </body>
 <script type="text/javascript" src="./scripts/myUIWidgets.js"></script>

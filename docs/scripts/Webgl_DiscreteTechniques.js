@@ -107,6 +107,7 @@ function bufferDataToGPU_1(envir){
     gl.bindTexture( gl.TEXTURE_CUBE_MAP, cubeMap );
     gl.uniform1i(gl.getUniformLocation( program, "cubeMap"), 2);
 }
+
 function _updateShader(envir){
     envir["shadersProgram"]=configShaders_VerII(envir);
     bufferDataToGPU(envir);
@@ -130,6 +131,23 @@ function changeGeo(val,envir) {
         bufferDataToGPU(envir);
     }
 }
+function buildChangeLight_I(envir){
+    let changeLight=function(){
+        envir["light"].lightTheta+= envir["light"].lightDelta;
+        let lightTheta=envir["light"].lightTheta;
+        envir["light"].lightPosition = vec4(1.5*Math.cos(lightTheta),1.5*Math.sin(lightTheta),1.0, 0.0 );
+    }
+    return changeLight;
+}
+function buildChangeLight_II(envir){
+    let changeLight=function(){
+        let time= envir["light"].time;
+        envir["light"].lightPosition[0] = 5.5*Math.sin(0.01*time);
+        envir["light"].lightPosition[2] = 5.5*Math.cos(0.01*time);
+        envir["light"].time += 1;
+    }
+    return changeLight;
+}
 function buildMainRender(envir,Vue_1){
 
     let mainRender= function() {
@@ -143,10 +161,11 @@ function buildMainRender(envir,Vue_1){
       let isMovingLight=Vue_1.$data["isMovingLight"];
         //console.log("isMovingLight = "+isMovingLight);
         if(isMovingLight=="true"||isMovingLight==true){
-           
+            envir["light"]["changeLight"]();
+           /* 
             envir["light"].lightTheta+= envir["light"].lightDelta;
             let lightTheta=envir["light"].lightTheta;
-            envir["light"].lightPosition = vec4(1.5*Math.cos(lightTheta),1.5*Math.sin(lightTheta),1.0, 0.0 );
+            envir["light"].lightPosition = vec4(1.5*Math.cos(lightTheta),1.5*Math.sin(lightTheta),1.0, 0.0 ); */
         }
         
         let lightAmbient = convertHexColorToVec4(Vue_1.$data["l_ambientColorHex"]);
@@ -234,6 +253,48 @@ function buildMainRender(envir,Vue_1){
          gl.drawArrays( gl.TRIANGLES, 0, numVertices );
     }
     return mainRender;
+}
+
+function generateBumpMap(texSize){
+    let data = new Array()
+    for (var i = 0; i<= texSize; i++)  data[i] = new Array();
+    for (var i = 0; i<= texSize; i++) for (var j=0; j<=texSize; j++)
+        data[i][j] = 0.0;
+    for (var i = texSize/4; i<3*texSize/4; i++) 
+    for (var j = texSize/4; j<3*texSize/4; j++)
+        data[i][j] = 1.0;
+    return data;
+}
+
+function bufferDataToGPU_3(envir){
+    bufferDataToGPU_1(envir);
+    let gl=envir["gl"];
+    let program=envir["shadersProgram"];
+    let texSize=128;
+    let image=generateBumpMap(texSize);
+    let textureArray=generateNormalFromBump(image,texSize);
+    let texture=configureTextureFromRGBArray(textureArray,texSize,envir);
+    gl.activeTexture( gl.TEXTURE3 );
+    gl.bindTexture( gl.TEXTURE_2D, texture );
+    gl.uniform1i(gl.getUniformLocation( program, "bumpNormalMap"), 3);
+
+    let normal=envir["global"].normal;
+    let tangent= envir["global"].tangent;
+    gl.uniform4fv( gl.getUniformLocation(program, "normal"),flatten(normal));
+    gl.uniform3fv( gl.getUniformLocation(program, "objTangent"),flatten(tangent));
+}
+function setUpDetailEnvir_III(envir,Vue){
+    envir["viewer"].eye= vec3(2.0, 2.0, 2.0);
+    envir["viewer"].at = vec3(0.5, 0.0, 0.5);
+    envir["viewer"].up = vec3(0.0, 1.0, 0.0);
+
+    envir["global"].normal = vec4(0.0, 1.0, 0.0, 0.0);
+    envir["global"].tangent = vec3(1.0, 0.0, 0.0);
+
+    envir["light"].lightPosition = vec4(0.0, 2.0, 0.0, 1.0 );
+    envir["light"]["time"]=0;
+    Vue.$data.l_diffuseColorHex = "#FFFFFF";
+    Vue.$data.m_diffuseColorHex = "#CCCCCC";
 }
 window.onload=function init(){
     let Vue_1= new Vue({
@@ -325,6 +386,7 @@ window.onload=function init(){
    configWebGL(WebGLEnvir_1);
    Vue_1.$data.envir=WebGLEnvir_1;
    addColorCubeToEnvir(WebGLEnvir_1);
+   WebGLEnvir_1["light"]["changeLight"]=buildChangeLight_I(WebGLEnvir_1);
    //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
    bufferDataToGPU(WebGLEnvir_1);
 
@@ -378,6 +440,7 @@ window.onload=function init(){
         geoType:function(val){
             let vm=this; 
             let envir=vm["envir"];
+            if(val=="sphere")vm["radius"]=3.0;
             changeGeo(val,envir);
         },
         normalMethod:function(val){
@@ -411,6 +474,7 @@ window.onload=function init(){
 let WebGLEnvir_2=setUpWebGlEnvironment_VerII("mainDiv_2",Vue_2);
 configWebGL(WebGLEnvir_2);
 Vue_2.$data.envir=WebGLEnvir_2;
+WebGLEnvir_2["light"]["changeLight"]=buildChangeLight_I(WebGLEnvir_2);
 addColorCubeToEnvir(WebGLEnvir_2);
 //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
 bufferDataToGPU_1(WebGLEnvir_2);
@@ -418,6 +482,99 @@ Vue_2.$data.radius=WebGLEnvir_2["camera"].radius;
 Vue_2.$data.theta=WebGLEnvir_2["camera"].theta/(Math.PI)*180;
 Vue_2.$data.phi=WebGLEnvir_2["camera"].phi/(Math.PI)*180;
  
+//window 3
+let Vue_3= new Vue({
+    el:"#mainDiv_3",
+    data:{
+        envir:{},
+        geoType:"cube",
+        xRot:50,
+        yRot:-45,
+        zRot:-10,
+        radius:1,
+        phi:0,
+        theta:0,
+        normalMethod:"defination",
+        subDivDepth:4,
+        m_diffuseColorHex:"#EEEEEE",
+        m_specularColorHex:"#AAAAAA",
+        m_ambientColorHex:"#DDDDDD",
+        m_shininess:3,
+        l_diffuseColorHex:"#DDDDDD",
+        l_specularColorHex:"#CCCCCC",
+        l_ambientColorHex:"#333333",
+        isMovingLight:false,
+        isShowShaderEditor:false,
+        ShaderEditorBtnStr:"Edit Shader",
+        //
+
+        vertexShader:document.querySelector("#mainDiv_3 .vertexShader").value,
+        fragmentShader:document.querySelector("#mainDiv_3 .fragmentShader").value,
+
+    },
+    methods:{
+        updateShader:function(){
+            let vm=this; 
+            let envir=vm["envir"]
+            _updateShader(envir);
+            console.log("updateShader!!!");
+        },
+        clickShaderEditorBtn:function(){
+            let vm=this;
+            vm["isShowShaderEditor"]=!vm["isShowShaderEditor"];
+            if(vm["isShowShaderEditor"]){
+                vm["ShaderEditorBtnStr"]="Close Editor";
+            }else{
+                vm["ShaderEditorBtnStr"]="Edit Shader";
+            }
+        }
+    },
+    watch:{
+        geoType:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            if(val=="sphere")vm["radius"]=3.0;
+            changeGeo(val,envir);
+        },
+        normalMethod:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            changeGeo(val,envir);
+        },
+        subDivDepth:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            changeGeo(val,envir);
+        },
+        radius:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["camera"].radius=val;
+        },
+        theta:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["camera"].theta=val/180*(Math.PI);
+        },
+        phi:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["camera"].phi=val/180*(Math.PI);
+        }
+}
+}
+);
+let WebGLEnvir_3=setUpWebGlEnvironment_VerII("mainDiv_3",Vue_3);
+configWebGL(WebGLEnvir_3);
+Vue_3.$data.envir=WebGLEnvir_3;
+WebGLEnvir_3["light"]["changeLight"]=this.buildChangeLight_II(WebGLEnvir_3);
+addSimpleSquareToEnvir(WebGLEnvir_3);
+//addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
+setUpDetailEnvir_III(WebGLEnvir_3,Vue_3);
+bufferDataToGPU_3(WebGLEnvir_3);
+Vue_3.$data.radius=WebGLEnvir_3["camera"].radius;
+Vue_3.$data.theta=WebGLEnvir_3["camera"].theta/(Math.PI)*180;
+Vue_3.$data.phi=WebGLEnvir_3["camera"].phi/(Math.PI)*180;
 
    //generate render function
 let mainRender = function() {
@@ -511,6 +668,7 @@ var materialShininess = 20.0; */
 }
 let mainRender_1=buildMainRender(WebGLEnvir_1,Vue_1);
 let mainRender_2=buildMainRender(WebGLEnvir_2,Vue_2);
+let mainRender_3=buildMainRender(WebGLEnvir_3,Vue_3);
 setInterval(
     function(){
         requestAnimationFrame(mainRender_1);
@@ -523,6 +681,12 @@ setInterval(
         },
         1000/10
         );
+setInterval(
+            function(){
+                requestAnimationFrame(mainRender_3);
+            },
+            1000/10
+            );
 }
 
 

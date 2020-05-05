@@ -401,7 +401,8 @@ function WebGLModuleEnvironmentConstructor_VerII() {
         viewer:{},
         light:{},
         lightData:[],
-        vueInstance:""
+        vueInstance:"",
+        global:{}
        }
     return envir;
 }
@@ -890,4 +891,112 @@ function configureSimpleCubeMap(envir) {
     gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP,gl.TEXTURE_MIN_FILTER,gl.NEAREST);
     return cubeMap;
+}
+
+function generateNormalFromBump(data,texSize){
+    let normalst = new Array();
+    // Bump Map Normals
+    for (var i=0; i<texSize; i++)  normalst[i] = new Array();
+    for (var i=0; i<texSize; i++) for ( var j = 0; j < texSize; j++)
+        normalst[i][j] = new Array();
+    for (var i=0; i<texSize; i++) for ( var j = 0; j < texSize; j++) {
+        normalst[i][j][0] = data[i][j]-data[i+1][j];
+        normalst[i][j][1] = data[i][j]-data[i][j+1];
+        normalst[i][j][2] = 1;
+    }
+    // Scale  
+ 
+    for (var i=0; i<texSize; i++) for (var j=0; j<texSize; j++) {
+       var d = 0;
+       for(k=0;k<3;k++) d+=normalst[i][j][k]*normalst[i][j][k];
+       d = Math.sqrt(d);
+       for(k=0;k<3;k++) normalst[i][j][k]= 0.5*normalst[i][j][k]/d + 0.5;
+    }
+    // Texture Array
+    let normals = new Uint8Array(3*texSize*texSize);
+
+    for ( var i = 0; i < texSize; i++ )
+        for ( var j = 0; j < texSize; j++ )
+           for(var k =0; k<3; k++)
+                normals[3*texSize*i+3*j+k] = 255*normalst[i][j][k];
+    return normals;
+}
+
+
+function addSimpleSquareToEnvir(envir)
+{
+    if(envir["dataSet"]["pointsArray"]==undefined){
+        envir["dataSet"]["pointsArray"]=[];
+    }
+    if(envir["dataSet"]["colorsArray"]==undefined){
+        envir["dataSet"]["colorsArray"]=[];
+    }
+    envir["numVertices"]  += 36;
+    envir["dataSet"]["pointsArray"]=[];
+    envir["dataSet"]["colorsArray"]=[];
+    envir["dataSet"]["normalsArray"]=[];
+    envir["dataSet"]["texCoordsArray"]=[];
+let pointsArray =envir["dataSet"]["pointsArray"];
+let colorsArray =envir["dataSet"]["colorsArray"];
+let normalsArray =envir["dataSet"]["normalsArray"];
+let texCoordsArray =envir["dataSet"]["texCoordsArray"];
+//data
+
+let texCoord = [
+    vec2(0, 0),
+    vec2(0, 1),
+    vec2(1, 1),
+    vec2(1, 0)
+];
+let scale=1.6;
+let vertices = [
+    vec4( 0.0, 0.0, 0.0, 1.0 ),
+    vec4( scale,  0.0,  0.0, 1.0 ),
+    vec4( scale,  0.0, scale, 1.0 ),
+    vec4( 0.0, 0.0, scale, 1.0 )
+];
+let normal = vec4(0.0, 1.0, 0.0, 0.0);
+let white= vec4(1.0, 1.0, 1.0, 1.0);
+pointsArray.push(vertices[0]);
+texCoordsArray.push(texCoord[0]);
+colorsArray.push(white);
+normalsArray.push(normal);
+
+pointsArray.push(vertices[1]);
+texCoordsArray.push(texCoord[1]);
+colorsArray.push(white);
+normalsArray.push(normal);
+
+pointsArray.push(vertices[2]);
+texCoordsArray.push(texCoord[2]);
+colorsArray.push(white);
+normalsArray.push(normal);
+
+pointsArray.push(vertices[2]); ;
+texCoordsArray.push(texCoord[2]);
+colorsArray.push(white);
+normalsArray.push(normal);
+
+pointsArray.push(vertices[3]);
+texCoordsArray.push(texCoord[3]);
+colorsArray.push(white);
+normalsArray.push(normal);
+
+pointsArray.push(vertices[0]);
+texCoordsArray.push(texCoord[0]);
+colorsArray.push(white);
+normalsArray.push(normal);
+
+}
+function configureTextureFromRGBArray( image,texSize,envir ) {
+    let gl=envir["gl"];
+    let texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, texSize, texSize, 0, gl.RGB, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER,
+                      gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    return texture;
 }
