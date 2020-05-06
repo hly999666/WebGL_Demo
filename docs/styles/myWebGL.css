@@ -336,3 +336,7 @@ input[type="checkbox"]{
     flex-direction: row;
     justify-content: center;
 }
+.pick_result{
+    text-align: center;
+    font-size: 1.5em;
+}

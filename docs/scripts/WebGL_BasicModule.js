@@ -46,7 +46,8 @@ function WebGLModuleEnvironmentConstructor() {
         LocInShaders:{},
         inputVar:{},
         viewPortUIControler:"",
-        lightData:[]
+        lightData:[],
+        frameBuffers:{}
        }
     return envir;
 }
@@ -402,7 +403,8 @@ function WebGLModuleEnvironmentConstructor_VerII() {
         light:{},
         lightData:[],
         vueInstance:"",
-        global:{}
+        global:{},
+        frameBuffers:{}
        }
     return envir;
 }
@@ -893,15 +895,20 @@ function configureSimpleCubeMap(envir) {
     return cubeMap;
 }
 
-function generateNormalFromBump(data,texSize){
+function generateNormalFromBump(data,texSize,isRGB){
     let normalst = new Array();
     // Bump Map Normals
     for (var i=0; i<texSize; i++)  normalst[i] = new Array();
     for (var i=0; i<texSize; i++) for ( var j = 0; j < texSize; j++)
         normalst[i][j] = new Array();
     for (var i=0; i<texSize; i++) for ( var j = 0; j < texSize; j++) {
+      if(isRGB){
+        normalst[i][j][0] = data[i][j][0]-data[i+1][j][0];
+        normalst[i][j][1] = data[i][j][0]-data[i][j+1][0];
+      }else{
         normalst[i][j][0] = data[i][j]-data[i+1][j];
         normalst[i][j][1] = data[i][j]-data[i][j+1];
+      }
         normalst[i][j][2] = 1;
     }
     // Scale  
@@ -999,4 +1006,31 @@ function configureTextureFromRGBArray( image,texSize,envir ) {
                       gl.NEAREST_MIPMAP_LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     return texture;
+}
+function RGB_equal_vec4(RGB,vec){
+    if(RGB[0]/255!=vec[0])return false;
+    if(RGB[1]/255!=vec[1])return false;
+    if(RGB[2]/255!=vec[2])return false;
+    return true;
+}
+function mappingRGBtoName(RGB_Color){
+    if(RGB_equal_vec4(RGB_Color, vec4( 0.0, 0.0, 0.0, 1.0 )))return "Black";
+    if(RGB_equal_vec4(RGB_Color, vec4( 1.0, 0.0, 0.0, 1.0 )))return "Red";
+    if(RGB_equal_vec4(RGB_Color,  vec4( 1.0, 1.0, 0.0, 1.0)))return "Yellow";
+    if(RGB_equal_vec4(RGB_Color,  vec4( 0.0, 1.0, 0.0, 1.0 )))return "Green";
+    if(RGB_equal_vec4(RGB_Color,  vec4( 0.0, 0.0, 1.0, 1.0 )))return "Blue";
+    if(RGB_equal_vec4(RGB_Color,vec4( 1.0, 0.0, 1.0, 1.0 )))return "Magenta";
+    if(RGB_equal_vec4(RGB_Color, vec4( 0.0, 1.0, 1.0, 1.0 )))return "Cyan";
+    if(RGB_equal_vec4(RGB_Color,vec4( 1.0, 1.0, 1.0, 1.0 )))return "White";
+    return "Background";
+  /*   let colorTable = [
+        vec4( 0.0, 0.0, 0.0, 1.0 ),  // black
+        vec4( 1.0, 0.0, 0.0, 1.0 ),  // red
+        vec4( 1.0, 1.0, 0.0, 1.0 ),  // yellow
+        vec4( 0.0, 1.0, 0.0, 1.0 ),  // green
+        vec4( 0.0, 0.0, 1.0, 1.0 ),  // blue
+        vec4( 1.0, 0.0, 1.0, 1.0 ),  // magenta
+        vec4( 0.0, 1.0, 1.0, 1.0 ),  // cyan
+        vec4( 1.0, 1.0, 1.0, 1.0 ),   // white
+    ]; */
 }

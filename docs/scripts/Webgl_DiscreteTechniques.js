@@ -271,8 +271,8 @@ function bufferDataToGPU_3(envir){
     let gl=envir["gl"];
     let program=envir["shadersProgram"];
     let texSize=128;
-    let image=generateBumpMap(texSize);
-    let textureArray=generateNormalFromBump(image,texSize);
+    let image=generateCheckerBoard(texSize+1,4);
+    let textureArray=generateNormalFromBump(image,texSize,true);
     let texture=configureTextureFromRGBArray(textureArray,texSize,envir);
     gl.activeTexture( gl.TEXTURE3 );
     gl.bindTexture( gl.TEXTURE_2D, texture );
@@ -295,6 +295,40 @@ function setUpDetailEnvir_III(envir,Vue){
     envir["light"]["time"]=0;
     Vue.$data.l_diffuseColorHex = "#FFFFFF";
     Vue.$data.m_diffuseColorHex = "#CCCCCC";
+}
+function setUpframeBuffer(envir){
+    let gl=envir["gl"];
+    let canvas=envir["canvas"];
+    let height=canvas.height;
+    let width=canvas.width;
+    let texture = gl.createTexture();
+    gl.bindTexture( gl.TEXTURE_2D, texture );
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0,
+       gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.generateMipmap(gl.TEXTURE_2D);
+
+// Allocate a frame buffer object
+
+   let framebuffer = gl.createFramebuffer();
+   envir["frameBuffers"]["colorID"]=framebuffer;
+   gl.bindFramebuffer( gl.FRAMEBUFFER, framebuffer);
+
+
+// Attach color buffer
+
+   gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+
+
+gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+}
+function bufferDataToGPU_4(envir){
+    let gl=envir["gl"];
+    let program=envir["shadersProgram"];
+    bufferDataToGPU(envir);
+    gl.uniform1i(gl.getUniformLocation(program, "bufferID"),0);
 }
 window.onload=function init(){
     let Vue_1= new Vue({
@@ -576,6 +610,80 @@ Vue_3.$data.radius=WebGLEnvir_3["camera"].radius;
 Vue_3.$data.theta=WebGLEnvir_3["camera"].theta/(Math.PI)*180;
 Vue_3.$data.phi=WebGLEnvir_3["camera"].phi/(Math.PI)*180;
 
+
+let Vue_4= new Vue({
+    el:"#mainDiv_4",
+    data:{
+        envir:{},
+        geoType:"cube",
+        xRot:0,
+        yRot:0,
+        zRot:0,
+        normalMethod:"defination",
+        subDivDepth:4,
+        m_diffuseColorHex:"#EEEEEE",
+        m_specularColorHex:"#AAAAAA",
+        m_ambientColorHex:"#DDDDDD",
+        m_shininess:3,
+        l_diffuseColorHex:"#DDDDDD",
+        l_specularColorHex:"#CCCCCC",
+        l_ambientColorHex:"#333333",
+        isMovingLight:false,
+        isShowShaderEditor:false,
+        ShaderEditorBtnStr:"Edit Shader",
+        //
+        pick_result:"Please Click Above",
+        vertexShader:document.querySelector("#mainDiv_4 .vertexShader").value,
+        fragmentShader:document.querySelector("#mainDiv_4 .fragmentShader").value,
+
+    },
+    methods:{
+        updateShader:function(){
+            let vm=this; 
+            let envir=vm["envir"]
+            _updateShader(envir);
+            console.log("updateShader!!!");
+        },
+        clickShaderEditorBtn:function(){
+            let vm=this;
+            vm["isShowShaderEditor"]=!vm["isShowShaderEditor"];
+            if(vm["isShowShaderEditor"]){
+                vm["ShaderEditorBtnStr"]="Close Editor";
+            }else{
+                vm["ShaderEditorBtnStr"]="Edit Shader";
+            }
+        }
+    },
+    watch:{
+        geoType:function(val){
+            let vm=this; 
+            let envir=vm["envir"]
+            changeGeo(val,envir);
+        },
+        normalMethod:function(val){
+            let vm=this; 
+            let envir=vm["envir"]
+            changeGeo(val,envir);
+        },
+        subDivDepth:function(val){
+            let vm=this; 
+            let envir=vm["envir"]
+            changeGeo(val,envir);
+        }
+
+}
+}
+);
+let WebGLEnvir_4=setUpWebGlEnvironment_VerII("mainDiv_4",Vue_4);
+configWebGL(WebGLEnvir_4);
+Vue_4.$data.envir=WebGLEnvir_4;
+addColorCubeToEnvir(WebGLEnvir_4);
+WebGLEnvir_4["light"]["changeLight"]=buildChangeLight_I(WebGLEnvir_4);
+//addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
+setUpframeBuffer(WebGLEnvir_4);
+bufferDataToGPU_4(WebGLEnvir_4);
+
+
    //generate render function
 let mainRender = function() {
     //get envir
@@ -669,6 +777,46 @@ var materialShininess = 20.0; */
 let mainRender_1=buildMainRender(WebGLEnvir_1,Vue_1);
 let mainRender_2=buildMainRender(WebGLEnvir_2,Vue_2);
 let mainRender_3=buildMainRender(WebGLEnvir_3,Vue_3);
+let mainRender_4=buildMainRender(WebGLEnvir_4,Vue_4);
+
+WebGLEnvir_4["canvas"].addEventListener("mousedown", function(event){
+    let envir=WebGLEnvir_4;
+    let gl=envir["gl"];
+    let canvas=envir["canvas"];
+    let program=envir["shadersProgram"];
+    let numVertices=envir["numVertices"];
+    let framebuffer= envir["frameBuffers"]["colorID"];
+    //gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.clear( gl.COLOR_BUFFER_BIT);
+
+    gl.uniform1i(gl.getUniformLocation(program, "bufferID"), 1);
+    //gl.uniform3fv(thetaLoc, theta);
+
+    gl.drawArrays( gl.TRIANGLES, 0, numVertices );
+    let height=canvas.height;
+    let width=canvas.width;
+    let cHeight=canvas.clientHeight;
+    let cWidth=canvas.clientWidth;
+    let x = event.offsetX/cWidth*width;
+    let y = canvas.height -(event.offsetY/cHeight*height);
+     x=Math.floor(x);
+     y=Math.floor(y);
+    //console.log([x,y]);
+    let color = new Uint8Array(4);
+    gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, color);
+    //console.log(color);
+    let cName=mappingRGBtoName(color);
+    Vue_4.$data.pick_result=cName;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    gl.uniform1i(gl.getUniformLocation(program, "bufferID"), 0);
+    gl.clear( gl.COLOR_BUFFER_BIT );
+    //gl.uniform3fv(thetaLoc, theta);
+    //gl.drawArrays(gl.TRIANGLES, 0, 36);
+    mainRender_4();
+
+});
 setInterval(
     function(){
         requestAnimationFrame(mainRender_1);
@@ -687,6 +835,12 @@ setInterval(
             },
             1000/10
             );
+setInterval(
+                function(){
+                    requestAnimationFrame(mainRender_4);
+                },
+                1000/10
+                );
 }
 
 
