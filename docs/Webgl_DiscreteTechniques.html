@@ -182,7 +182,7 @@
         </div> 
         <div v-show="texType_1=='Stripe'||texType_1=='CheckerBoard'"><label>Repeat number</label></div>
         <div v-show="texType_1=='Stripe'||texType_1=='CheckerBoard'"  class="rangeDiv align_center">
-                <div class="input_range"> <input v-model="tex_re_nun_1" class="inputRangeElem" type="range"  value="3" min="2" max="6" step="1"/></div>
+                <div class="input_range"> <input v-model="tex_re_nun_1" class="inputRangeElem" type="range"  value="8" min="2" max="8" step="1"/></div>
                  <div class="data_display">{{tex_re_nun_1}}</div>
         </div>
          </div>
@@ -200,13 +200,13 @@
               <div v-show="texType_2=='Stripe'"><label>Stripe Direction</label></div>
               <div v-show="texType_2=='Stripe'" class="radioBtn_2">
      
-                <input type="radio" value="X" v-model="texDir_1"><label>X</label>
-                <input type="radio" value="Y" v-model="texDir_1"><label>Y</label>
+                <input type="radio" value="X" v-model="texDir_2"><label>X</label>
+                <input type="radio" value="Y" v-model="texDir_2"><label>Y</label>
              
                 </div>
                 <div v-show="texType_2=='Stripe'||texType_2=='CheckerBoard'"><label>Repeat number</label></div>
                 <div v-show="texType_2=='Stripe'||texType_2=='CheckerBoard'"  class="rangeDiv align_center">
-                        <div class="input_range"> <input v-model="tex_re_nun_2" class="inputRangeElem" type="range"  value="3" min="2" max="6" step="1"/></div>
+                        <div class="input_range"> <input v-model="tex_re_nun_2" class="inputRangeElem" type="range"  value="8" min="2" max="8" step="1"/></div>
                          <div class="data_display">{{tex_re_nun_2}}</div>
         </div> 
          </div>
@@ -662,6 +662,60 @@
         </div>
 
 </div>
+<div class="myPanel" id="TexPanel">
+        <div class="myPanel-heading"><div class="myPanel-title">Texture</div></div>
+        <div class="inputContainer">
+                <div  class="radioBtnDiv_3">
+                        <label>Bump Map Type</label>
+         <div class="radioBtnDiv_3_selecion">
+
+             <!--    <div  class="radioBtn_2"> <input type="radio" value="None" v-model="texType_1"><label>None</label></div>
+                <div  class="radioBtn_2"> <input type="radio" value="Image" v-model="texType_1"><label>Image</label></div> -->
+              <div class="radioBtn_2"> <input type="radio" value="CheckerBoard" v-model="texType_1"><label>CheckerBoard</label></div> 
+              <div class="radioBtn_2"> <input type="radio" value="Stripe" v-model="texType_1"><label>Stripe</label></div> 
+<!--               <div class="radioBtn_2"> <input type="radio" value="Sinusoid" v-model="texType_1"><label>Sinusoid</label></div>  -->
+              <div v-show="texType_1=='Stripe'"><label>Stripe Direction</label></div>
+              <div v-show="texType_1=='Stripe'" class="radioBtn_2">
+                
+                <input type="radio" value="X" v-model="texDir_1"><label>X</label>
+                <input type="radio" value="Y" v-model="texDir_1"><label>Y</label>
+               
+        </div> 
+        <div v-show="texType_1=='Stripe'||texType_1=='CheckerBoard'"><label>Repeat number</label></div>
+        <div v-show="texType_1=='Stripe'||texType_1=='CheckerBoard'"  class="rangeDiv align_center">
+                <div class="input_range"> <input v-model="tex_re_nun_1" class="inputRangeElem" type="range"  value="8" min="2" max="8" step="1"/></div>
+                 <div class="data_display">{{tex_re_nun_1}}</div>
+        </div>
+         </div>
+                     
+                 </div> 
+               <!--   <div  class="radioBtnDiv_3">
+                        <label>Texture1 Type</label>
+         <div class="radioBtnDiv_3_selecion">
+
+                <div  class="radioBtn_2"> <input type="radio" value="None" v-model="texType_2"><label>None</label></div>
+                <div  class="radioBtn_2"> <input type="radio" value="Image" v-model="texType_2"><label>Image</label></div>
+              <div class="radioBtn_2"> <input type="radio" value="CheckerBoard" v-model="texType_2"><label>CheckerBoard</label></div> 
+              <div class="radioBtn_2"> <input type="radio" value="Stripe" v-model="texType_2"><label>Stripe</label></div> 
+              <div class="radioBtn_2"> <input type="radio" value="Sinusoid" v-model="texType_2"><label>Sinusoid</label></div> 
+              <div v-show="texType_2=='Stripe'"><label>Stripe Direction</label></div>
+              <div v-show="texType_2=='Stripe'" class="radioBtn_2">
+     
+                <input type="radio" value="X" v-model="texDir_2"><label>X</label>
+                <input type="radio" value="Y" v-model="texDir_2"><label>Y</label>
+             
+                </div>
+                <div v-show="texType_2=='Stripe'||texType_2=='CheckerBoard'"><label>Repeat number</label></div>
+                <div v-show="texType_2=='Stripe'||texType_2=='CheckerBoard'"  class="rangeDiv align_center">
+                        <div class="input_range"> <input v-model="tex_re_nun_2" class="inputRangeElem" type="range"  value="8" min="2" max="8" step="1"/></div>
+                         <div class="data_display">{{tex_re_nun_2}}</div>
+        </div> 
+         </div>
+                     
+                 </div>  -->
+    
+        </div> 
+        </div>
         <div class="myPanel"  id="MaterialPanel">
                
         <div class="myPanel-heading"><div class="myPanel-title">Material</div></div>
@@ -832,10 +886,10 @@
         <div class="myPanel" id="GeoPanel">
 <div class="myPanel-heading"><div class="myPanel-title">Geometry</div></div>
 <div class="inputContainer">
-        <div  class="radioBtnDiv_2">
+      <!--   <div  class="radioBtnDiv_2">
                 <div  class="radioBtn_2"> <input type="radio" value="cube" v-model="geoType"><label>  Cube</label></div>
               <div class="radioBtn_2"> <input type="radio" value="sphere" v-model="geoType"><label>  Sphere</label></div> 
-         </div>
+         </div> -->
       
          <div  class="rangeDiv align_center">
                 <label class="name"> X Rotation</label>

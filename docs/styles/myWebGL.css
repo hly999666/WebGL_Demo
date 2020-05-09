@@ -366,3 +366,16 @@ input[type="checkbox"]{
 #TexPanel .rangeDiv{
     width:90%;
 }
+
+#mainDiv_3 #TexPanel{
+    flex:0.8;
+}
+#CameraPanel{
+    flex:0.6;
+}
+#CameraPanel .name{
+    width: 20%;
+}
+#mainDiv_3 #CameraPanel .input_range{
+    width: 50%;
+}

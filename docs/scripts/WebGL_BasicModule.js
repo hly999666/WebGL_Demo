@@ -404,6 +404,8 @@ function WebGLModuleEnvironmentConstructor_VerII() {
         lightData:[],
         vueInstance:"",
         global:{},
+        textures:[],
+        texuresFunc:{},
         frameBuffers:{}
        }
     return envir;
@@ -735,6 +737,7 @@ function configureTexture( image,envir,isDomElement,isFlatten,texSize) {
     let gl=envir["gl"];
    
     let texture = gl.createTexture();
+  
     gl.bindTexture( gl.TEXTURE_2D, texture );
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
      if(isDomElement){

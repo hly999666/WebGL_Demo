@@ -15,7 +15,7 @@ function configWebGL(envir){
     gl.enable(gl.POLYGON_OFFSET_FILL);
     gl.polygonOffset(1.0, 2.0);
 }
-function bufferDataToGPU(envir){
+function bufferDataToGPU(envir,isChnageTexture){
     let gl=envir["gl"];
     let program=envir["shadersProgram"];
     envir["bufferIds"]["nBufferId"]  = gl.createBuffer();
@@ -82,13 +82,41 @@ function bufferDataToGPU(envir){
     //let image = document.getElementById("texImage_1");
 
     let texSize=128;
-    let image_1=generateSinusoid(texSize);
-    let image_2=generateCheckerBoard(texSize,8);
 
- 
-    let texture1=configureTexture(image_1,envir,false);
-    let texture2 =configureTexture(image_2,envir,false);
-   
+   let Vue=envir["vueInstance"];
+
+     let texType_1=Vue["texType_1"];
+      let texDir_1=Vue["texDir_1"];
+      let tex_re_nun_1=Number(Vue["tex_re_nun_1"]);
+
+      
+     let texType_2=Vue["texType_2"];
+     let texDir_2=Vue["texDir_2"];
+     let tex_re_nun_2=Number(Vue["tex_re_nun_2"]);
+     let image_1;let image_2;let texture1;let texture2;
+  if(isChnageTexture){
+        image_1=generateCheckerBoard(texSize,4);
+      if(texType_1=="None")image_1= generatePureColor(texSize,[1.0,1.0,1.0,1.0]);
+      else if(texType_1=="Image")image_1= document.getElementById("texImage_1");
+      else if(texType_1=="CheckerBoard")image_1= generateCheckerBoard(texSize,tex_re_nun_1);
+      else if(texType_1=="Stripe")image_1=generateStripe(texSize,tex_re_nun_1,texDir_1);
+      else if(texType_1=="Sinusoid")image_1=generateSinusoid(texSize);
+        image_2= document.getElementById("texImage_1");
+      if(texType_2=="None")image_2= generatePureColor(texSize,[1.0,1.0,1.0,1.0]);
+      else if(texType_2=="Image")image_2= document.getElementById("texImage_1");
+      else if(texType_2=="CheckerBoard")image_2= generateCheckerBoard(texSize,tex_re_nun_2);
+      else if(texType_2=="Stripe")image_2=generateStripe(texSize,tex_re_nun_2,texDir_2);
+      else if(texType_2=="Sinusoid")image_2=generateSinusoid(texSize);
+      texture1=configureTexture(image_1,envir,texType_1=="Image");
+      texture2 =configureTexture(image_2,envir,texType_2=="Image");
+}else{
+    image_1=generateCheckerBoard(texSize,4);
+    image_2= document.getElementById("texImage_1");
+    texture1=configureTexture(image_1,envir,false);
+    texture2 =configureTexture(image_2,envir,true);
+}
+    envir["textures"].push(texture1);
+    envir["textures"].push(texture2);
     gl.activeTexture( gl.TEXTURE0 );
     gl.bindTexture( gl.TEXTURE_2D, texture1 );
     gl.uniform1i(gl.getUniformLocation( program, "Tex0"), 0);
@@ -266,12 +294,30 @@ function generateBumpMap(texSize){
     return data;
 }
 
-function bufferDataToGPU_3(envir){
+function bufferDataToGPU_3(envir,isChangeTexture){
     bufferDataToGPU_1(envir);
     let gl=envir["gl"];
     let program=envir["shadersProgram"];
     let texSize=128;
-    let image=generateCheckerBoard(texSize+1,4);
+
+    let Vue=envir["vueInstance"];
+
+    let texType_1=Vue["texType_1"];
+     let texDir_1=Vue["texDir_1"];
+     let tex_re_nun_1=Number(Vue["tex_re_nun_1"]);
+
+     
+     let image=generateCheckerBoard(texSize+1,4);
+ if(isChangeTexture){
+    image=generateCheckerBoard(texSize,4);
+     if(texType_1=="None")image= generatePureColor(texSize+1,[1.0,1.0,1.0,1.0]);
+     else if(texType_1=="Image")image= document.getElementById("texImage_1");
+     else if(texType_1=="CheckerBoard")image= generateCheckerBoard(texSize+1,tex_re_nun_1);
+     else if(texType_1=="Stripe")image=generateStripe(texSize+1,tex_re_nun_1,texDir_1);
+     else if(texType_1=="Sinusoid")image=generateSinusoid(texSize+1);
+}
+
+ 
     let textureArray=generateNormalFromBump(image,texSize,true);
     let texture=configureTextureFromRGBArray(textureArray,texSize,envir);
     gl.activeTexture( gl.TEXTURE3 );
@@ -330,6 +376,15 @@ function bufferDataToGPU_4(envir){
     bufferDataToGPU(envir);
     gl.uniform1i(gl.getUniformLocation(program, "bufferID"),0);
 }
+function buildChangeTexture(envir,Vue){
+    let gl=envir["gl"];
+   
+    let changeTexture=function(id){
+        _updateShader(envir);
+        bufferDataToGPU(envir,true);
+}
+    return changeTexture;
+}
 window.onload=function init(){
     let Vue_1= new Vue({
         el:"#mainDiv_1",
@@ -353,11 +408,12 @@ window.onload=function init(){
             ShaderEditorBtnStr:"Edit Shader",
             //
             texType_1:"CheckerBoard",
-            texType_2:"CheckerBoard",
+            
             texDir_1:"X",
-            tex_re_nun_1:3,
+            tex_re_nun_1:4,
+            texType_2:"Image",
             texDir_2:"X",
-            tex_re_nun_2:3,
+            tex_re_nun_2:8,
             vertexShader:document.querySelector("#mainDiv_1 .vertexShader").value,
             fragmentShader:document.querySelector("#mainDiv_1 .fragmentShader").value,
 
@@ -394,6 +450,36 @@ window.onload=function init(){
                 let vm=this; 
                 let envir=vm["envir"]
                 changeGeo(val,envir);
+            },
+            texType_1:function(){
+                let vm=this; 
+                let envir=vm["envir"];
+                envir["texuresFunc"]["changeTexture"](0);
+            } ,
+            texDir_1:function(){
+                let vm=this; 
+                let envir=vm["envir"];
+                envir["texuresFunc"]["changeTexture"](0);
+            } ,
+            tex_re_nun_1:function(){
+                let vm=this; 
+                let envir=vm["envir"];
+                envir["texuresFunc"]["changeTexture"](0);
+            } ,
+            texType_2: function(){
+                let vm=this; 
+                let envir=vm["envir"];
+                envir["texuresFunc"]["changeTexture"](1);
+            } ,
+            texDir_2:function(){
+                let vm=this; 
+                let envir=vm["envir"];
+                envir["texuresFunc"]["changeTexture"](1);
+            } ,
+            tex_re_nun_2:function(){
+                let vm=this; 
+                let envir=vm["envir"];
+                envir["texuresFunc"]["changeTexture"](1);
             }
 
     }
@@ -426,6 +512,7 @@ window.onload=function init(){
    Vue_1.$data.envir=WebGLEnvir_1;
    addColorCubeToEnvir(WebGLEnvir_1);
    WebGLEnvir_1["light"]["changeLight"]=buildChangeLight_I(WebGLEnvir_1);
+   WebGLEnvir_1["texuresFunc"]["changeTexture"]=buildChangeTexture(WebGLEnvir_1,Vue_1);
    //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
    bufferDataToGPU(WebGLEnvir_1);
 
@@ -516,7 +603,9 @@ Vue_2.$data.envir=WebGLEnvir_2;
 WebGLEnvir_2["light"]["changeLight"]=buildChangeLight_I(WebGLEnvir_2);
 addColorCubeToEnvir(WebGLEnvir_2);
 //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
+
 bufferDataToGPU_1(WebGLEnvir_2);
+
 Vue_2.$data.radius=WebGLEnvir_2["camera"].radius;
 Vue_2.$data.theta=WebGLEnvir_2["camera"].theta/(Math.PI)*180;
 Vue_2.$data.phi=WebGLEnvir_2["camera"].phi/(Math.PI)*180;
@@ -546,6 +635,13 @@ let Vue_3= new Vue({
         isShowShaderEditor:false,
         ShaderEditorBtnStr:"Edit Shader",
         //
+        texType_1:"CheckerBoard",
+            
+        texDir_1:"X",
+        tex_re_nun_1:4,
+        texType_2:"Image",
+        texDir_2:"X",
+        tex_re_nun_2:8,
 
         vertexShader:document.querySelector("#mainDiv_3 .vertexShader").value,
         fragmentShader:document.querySelector("#mainDiv_3 .fragmentShader").value,
@@ -599,7 +695,22 @@ let Vue_3= new Vue({
             let vm=this; 
             let envir=vm["envir"];
             envir["camera"].phi=val/180*(Math.PI);
-        }
+        },
+        texType_1:function(){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["texuresFunc"]["changeTexture"](0);
+        } ,
+        texDir_1:function(){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["texuresFunc"]["changeTexture"](0);
+        } ,
+        tex_re_nun_1:function(){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["texuresFunc"]["changeTexture"](0);
+        } 
 }
 }
 );
@@ -611,6 +722,10 @@ addSimpleSquareToEnvir(WebGLEnvir_3);
 //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
 setUpDetailEnvir_III(WebGLEnvir_3,Vue_3);
 bufferDataToGPU_3(WebGLEnvir_3);
+WebGLEnvir_3["texuresFunc"]["changeTexture"]=function(val){
+    _updateShader(WebGLEnvir_3);
+    bufferDataToGPU_3(WebGLEnvir_3,true);
+}
 Vue_3.$data.radius=WebGLEnvir_3["camera"].radius;
 Vue_3.$data.theta=WebGLEnvir_3["camera"].theta/(Math.PI)*180;
 Vue_3.$data.phi=WebGLEnvir_3["camera"].phi/(Math.PI)*180;
@@ -645,7 +760,7 @@ let Vue_4= new Vue({
     methods:{
         updateShader:function(){
             let vm=this; 
-            let envir=vm["envir"]
+            let envir=vm["envir"];
             _updateShader(envir);
             console.log("updateShader!!!");
         },
