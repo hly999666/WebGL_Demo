@@ -211,7 +211,7 @@ input[type="checkbox"]{
 
 .myPanel{
  border:2px solid black;
- min-height: 200px;
+ min-height: 250px;
 }
 .UI_Div_flexbox>div{
   flex:1;
@@ -220,6 +220,7 @@ input[type="checkbox"]{
 .myPanel-heading{
     margin: 0px auto;
   padding: 0px;
+  height: 10%;
   box-sizing: border-box;
   padding: 2px 10px 2px 10px;
 }
@@ -263,13 +264,28 @@ input[type="checkbox"]{
      
   
   }
+
   #LightingPanel>.myPanel-heading>.myPanel-title{
+  color :black;
+}
+#TexPanel{
+    border-color: rgb(171, 214, 218);
+  
+  }
+  #TexPanel>.myPanel-heading{
+      background-color:  rgb(171, 214, 218);
+     
+  
+  }
+  
+  #TexPanel>.myPanel-heading>.myPanel-title{
   color :black;
 }
 .inputContainer{
    display: flex;
    flex-direction: column;
    padding: 5px;
+   height: 90%;
 }
 .inputContainer>*{
      height: 24px;
@@ -339,4 +355,14 @@ input[type="checkbox"]{
 .pick_result{
     text-align: center;
     font-size: 1.5em;
+}
+.radioBtnDiv_3{
+    flex:1;
+}
+#TexPanel>.inputContainer{
+  flex-direction: row;
+}
+
+#TexPanel .rangeDiv{
+    width:90%;
 }

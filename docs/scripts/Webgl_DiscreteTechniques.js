@@ -352,7 +352,12 @@ window.onload=function init(){
             isShowShaderEditor:false,
             ShaderEditorBtnStr:"Edit Shader",
             //
-
+            texType_1:"CheckerBoard",
+            texType_2:"CheckerBoard",
+            texDir_1:"X",
+            tex_re_nun_1:3,
+            texDir_2:"X",
+            tex_re_nun_2:3,
             vertexShader:document.querySelector("#mainDiv_1 .vertexShader").value,
             fragmentShader:document.querySelector("#mainDiv_1 .fragmentShader").value,
 
