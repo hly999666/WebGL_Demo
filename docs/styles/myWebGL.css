@@ -379,3 +379,8 @@ input[type="checkbox"]{
 #mainDiv_3 #CameraPanel .input_range{
     width: 50%;
 }
+#radioCubeMap{
+    width:30%;
+    margin: 3px auto;
+    font-size: 1.2em;
+}

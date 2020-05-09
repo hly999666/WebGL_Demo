@@ -335,12 +335,17 @@
                         uniform sampler2D Tex1;
 
                         uniform samplerCube cubeMap;
+                        uniform int isLit;
                         void
                         main()
                         {
                                 vec4 texColor = textureCube(cubeMap, R);
-                                
-                                gl_FragColor=fColor*texColor;
+                                if(isLit==1){
+                                        gl_FragColor=fColor*texColor;
+                                }else{
+                                        gl_FragColor=texColor;
+                                }
+                               
                         }
                      </textarea>
                   </div>
@@ -450,13 +455,21 @@
                         <input type="checkbox"  v-model="isMovingLight">
                         <label>Moving Light</label>
                 </div>
+                <div class="checkboxDiv">
+                        <input type="checkbox"  v-model="isLighting">
+                        <label>Is lighting</label>
+                </div>
         </div>
 
 
 </div>
       
    </div>
- 
+   <div  class="radioBtnDiv_2" id="radioCubeMap">
+           <label>Cube Map Type:</label>
+        <div  class="radioBtn_2"> <input type="radio" value="colorCube" v-model="cubeMapType"><label>  Color Cube</label></div>
+      <div class="radioBtn_2"> <input type="radio" value="Image" v-model="cubeMapType"><label>  Image</label></div> 
+ </div>
       <div class="canvasDiv">
 
              <div class="container myCanvasContainer">   
@@ -978,6 +991,12 @@
   </div>
 </div>
 <img id = "texImage_1" src = "./img/uv_map.png" hidden></img>
+<img id = "back" src = "./img/back.jpg" hidden></img>
+<img id = "buttom" src = "./img/bottom.jpg" hidden></img>
+<img id = "front" src = "./img/front.jpg" hidden></img>
+<img id = "left" src = "./img/left.jpg"hidden ></img>
+<img id = "right" src = "./img/right.jpg"hidden ></img>
+<img id = "top" src = "./img/top.jpg" hidden></img>
 </body>
 <script type="text/javascript" src="./scripts/myUIWidgets.js"></script>
 <script type="text/javascript" src="./scripts/MathG.js"></script>

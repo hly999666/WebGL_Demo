@@ -130,10 +130,13 @@ function bufferDataToGPU_1(envir){
     bufferDataToGPU(envir);
     let gl=envir["gl"];
     let program=envir["shadersProgram"];
-    let cubeMap=configureSimpleCubeMap(envir);
+    let type=envir["vueInstance"]["cubeMapType"];
+    let cubeMap=configureSimpleCubeMap(envir,type);
     gl.activeTexture( gl.TEXTURE2 );
     gl.bindTexture( gl.TEXTURE_CUBE_MAP, cubeMap );
     gl.uniform1i(gl.getUniformLocation( program, "cubeMap"), 2);
+    let isLit=1;
+    gl.uniform1i(gl.getUniformLocation(program, "isLit"),isLit);
 }
 
 function _updateShader(envir){
@@ -540,7 +543,8 @@ window.onload=function init(){
         isShowShaderEditor:false,
         ShaderEditorBtnStr:"Edit Shader",
         //
-
+        cubeMapType:"colorCube",
+        isLighting:true,
         vertexShader:document.querySelector("#mainDiv_2 .vertexShader").value,
         fragmentShader:document.querySelector("#mainDiv_2 .fragmentShader").value,
 
@@ -593,6 +597,21 @@ window.onload=function init(){
             let vm=this; 
             let envir=vm["envir"];
             envir["camera"].phi=val/180*(Math.PI);
+        },
+        cubeMapType:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            envir["texuresFunc"]["changeTexture"](val);
+        },
+        isLighting:function(val){
+            let vm=this; 
+            let envir=vm["envir"];
+            let gl=envir["gl"];
+            let program=envir["shadersProgram"];
+            let isLit=envir["vueInstance"]["isLighting"];
+            if(isLit)isLit=1;
+            else isLit=0;
+            gl.uniform1i(gl.getUniformLocation(program, "isLit"),isLit);
         }
 }
 }
@@ -605,7 +624,10 @@ addColorCubeToEnvir(WebGLEnvir_2);
 //addSubDivSphereToEnvir(WebGLEnvir,5,Vue_1.$data["normalMethod"])
 
 bufferDataToGPU_1(WebGLEnvir_2);
-
+WebGLEnvir_2["texuresFunc"]["changeTexture"]=function(val){
+    _updateShader(WebGLEnvir_2);
+    bufferDataToGPU_1(WebGLEnvir_2);
+}
 Vue_2.$data.radius=WebGLEnvir_2["camera"].radius;
 Vue_2.$data.theta=WebGLEnvir_2["camera"].theta/(Math.PI)*180;
 Vue_2.$data.phi=WebGLEnvir_2["camera"].phi/(Math.PI)*180;
